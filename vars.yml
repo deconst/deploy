@@ -3,3 +3,8 @@
 
 image_id_ubuntu_1404: 6909f56c-bd77-411a-8c0e-c37876b68d1d
 image_id_coreos_stable: 05438eb5-af42-4bdd-bd32-309c2154927d
+
+github_usernames:
+- smashwilson
+- rgbkrk
+- steveortiz

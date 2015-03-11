@@ -1,7 +1,8 @@
 ---
 # Provision hosts and other necessary infrastructure.
 
-- hosts: local
+- name: provision hosts
+  hosts: local
   connection: local
   gather_facts: no
   vars_files:
@@ -30,3 +31,12 @@
       ansible_ssh_user: root
       groups: deconst-build
     when: rax_build.action == "create"
+
+
+- name: pause to ensure SSH is up
+  hosts: deconst-all
+  gather_facts: no
+  tasks:
+
+  - name: ensure SSH is listening on all hosts
+    local_action: wait_for host={{ hostvars[inventory_hostname].ansible_ssh_host }} port=22 state=started
