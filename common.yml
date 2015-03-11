@@ -1,0 +1,9 @@
+---
+# Apply the "common" role to all deconst hosts at once.
+
+- hosts: deconst-all
+  vars_files:
+  - vars.yml
+  - credentials.yml
+  roles:
+  - common

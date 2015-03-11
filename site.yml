@@ -3,4 +3,6 @@
 
 - include: provision.yml tags=provision
 
+- include: common.yml tags=common
+
 - include: build.yml tags=build

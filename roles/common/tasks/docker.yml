@@ -1,0 +1,39 @@
+---
+
+- name: see if HTTPS transport is already present
+  stat: path=/usr/lib/apt/methods/https get_md5=false
+  register: https_transport_file
+
+- name: ensure HTTPS transport is available to apt
+  apt: update_cache=yes cache_valid_time=600 name=apt-transport-https
+  sudo: yes
+  when: not https_transport_file.stat.exists
+
+- name: ensure the docker apt key is trusted
+  apt_key:
+    keyserver: hkp://keyserver.ubuntu.com:80
+    id: 36A1D7869245C8950F966E92D8576A8BA88D21E9
+    state: present
+
+- name: ensure the docker apt repository is present
+  apt_repository:
+    repo: deb https://get.docker.com/ubuntu docker main
+    state: present
+
+- name: apt prerequisites
+  apt: pkg={{ item }} state=latest
+  with_items:
+  - git
+  - vim
+  - curl
+  - wget
+  - python
+  - python-requests
+  - python-pip
+  - lxc-docker
+
+- name: install pip
+  command: easy_install pip
+
+- name: docker-py
+  pip: name=docker-py state=latest
