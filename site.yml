@@ -1,0 +1,6 @@
+---
+# Primary playbook. Include other playbooks with appropriate tags.
+
+- include: provision.yml tags=provision
+
+- include: build.yml tags=build
