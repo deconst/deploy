@@ -31,6 +31,4 @@ export RAX_USERNAME=$(credential rackspace_username)
 export RAX_API_KEY=$(credential rackspace_api_key)
 export RAX_REGION=$(credential rackspace_region | tr a-z A-Z)
 
-${ROOT}/inventory/rax.py --list
-
-# exec ansible-playbook -i ${ROOT}/inventory ${ROOT}/site.yml $*
+exec ansible-playbook -i ${ROOT}/inventory ${ROOT}/site.yml $*
