@@ -1,0 +1,25 @@
+---
+
+- name: docker-py
+  pip: name=docker-py state=latest
+
+- name: strider admin user
+  docker:
+    state: running
+    name: strider
+    image: deconst/strider
+    detach: no
+    command: >
+      addUser --force
+      --email "{{ build_admin_email }}"
+      --password "{{ build_admin_password }}"
+
+- name: strider
+  docker:
+    state: running
+    name: strider
+    image: deconst/strider
+    env:
+      DB_URI: "{{ mongodb_uri }}"
+    ports:
+    - "3000:80"
