@@ -1,0 +1,31 @@
+---
+# Provision hosts and other necessary infrastructure.
+
+- hosts: local
+  connection: local
+  gather_facts: no
+  vars_files:
+  - vars.yml
+  - credentials.yml
+  tasks:
+
+  - name: build host
+    rax:
+      state: present
+      name: deconst-build
+      group: deconst-build
+      count: 1
+      exact_count: yes
+      image: "{{ image_id_coreos_stable }}"
+      flavor: general1-2
+      key_name: "{{ rackspace_keyname }}"
+      wait: yes
+    register: rax_build
+
+  - name: add newly provisioned hosts to the correct groups
+    add_host:
+      name: "{{ rax_build.instances[0].name }}"
+      ansible_ssh_host: "{{ rax_build.instances[0].rax_accessipv4 }}"
+      ansible_ssh_user: root
+      groups: ["deconst-build"]
+    when: rax_build.action == "create"
