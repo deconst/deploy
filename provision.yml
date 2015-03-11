@@ -16,6 +16,7 @@
       group: deconst-build
       count: 1
       exact_count: yes
+      auto_increment: no
       image: "{{ image_id_coreos_stable }}"
       flavor: general1-2
       key_name: "{{ rackspace_keyname }}"
@@ -27,5 +28,5 @@
       name: "{{ rax_build.instances[0].name }}"
       ansible_ssh_host: "{{ rax_build.instances[0].rax_accessipv4 }}"
       ansible_ssh_user: root
-      groups: ["deconst-build"]
+      groups: deconst-build
     when: rax_build.action == "create"
