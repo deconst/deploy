@@ -26,6 +26,16 @@ EOM
   exit 1
 }
 
+# Set localhost's ansible_python_interpreter path from the current environment.
+[ -f ${ROOT}/inventory/localhost ] || {
+  PYTHON=$(which python)
+
+  cat <<EOF >${ROOT}/inventory/localhost
+[local]
+localhost ansible_python_interpreter=${PYTHON}
+EOF
+}
+
 # Populate RAX_ environment variables from the credentials file.
 export RAX_USERNAME=$(credential rackspace_username)
 export RAX_API_KEY=$(credential rackspace_api_key)
