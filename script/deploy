@@ -41,4 +41,13 @@ export RAX_USERNAME=$(credential rackspace_username)
 export RAX_API_KEY=$(credential rackspace_api_key)
 export RAX_REGION=$(credential rackspace_region | tr a-z A-Z)
 
+# Fetch roles from Galaxy if necessary.
+([ -f ${ROOT}/.galaxy ] && diff ${ROOT}/.galaxy ${ROOT}/requirements.txt >/dev/null 2>&1) || {
+  ansible-galaxy install --force --role-file ${ROOT}/requirements.txt
+
+  cp requirements.txt ${ROOT}/.galaxy
+  echo ">> Ansible Galaxy roles initialized."
+  echo ">> \"rm ${ROOT}/.galaxy\" to force re-initialization."
+}
+
 exec ansible-playbook -i ${ROOT}/inventory ${ROOT}/site.yml $*
