@@ -74,4 +74,4 @@ EOM
   echo ">> \"rm ${ROOT}/.galaxy\" to force re-initialization."
 }
 
-exec ansible-playbook -i ${ROOT}/inventory ${ROOT}/site.yml $*
+exec ansible-playbook -i ${ROOT}/inventory -M ${ROOT}/modules ${ROOT}/site.yml $*
