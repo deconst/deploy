@@ -1,3 +1,15 @@
 ---
 
 # Run the mapping service and presentation layer.
+
+- name: mapping service
+  docker:
+    name: mapping-service
+    image: deconst/mapping-service
+    pull: always
+    state: reloaded
+    env:
+      MAPREPO_URL: "{{ map_repository_url }}"
+      MAPREPO_BRANCH: "{{ map_repository_branch }}"
+    ports:
+      - "9999:9999"
