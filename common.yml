@@ -6,6 +6,7 @@
   vars_files:
   - vars.yml
   - credentials.yml
+  - customize.yml
   roles:
   - defunctzombie.coreos-bootstrap
   - common

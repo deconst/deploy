@@ -26,6 +26,13 @@ EOM
   exit 1
 }
 
+[ -f ${ROOT}/customize.yml ] || {
+  cp ${ROOT}/customize.example.yml customize.yml
+
+  echo ">> Customizable variables bootstrapped to use the defaults."
+  echo ">> \"\${EDITOR} customize.yml\" and re-run \"script/deploy\" to customize your deployment."
+}
+
 # Set localhost's ansible_python_interpreter path from the current environment.
 [ -f ${ROOT}/inventory/localhost ] || {
   PYTHON=$(which python)

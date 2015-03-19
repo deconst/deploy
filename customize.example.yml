@@ -1,0 +1,3 @@
+# Make this an array of GitHub usernames to install these users' public SSH keys on all provisioned
+# hosts, granting them access.
+github_usernames: []
