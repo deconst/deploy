@@ -43,6 +43,22 @@ export RAX_REGION=$(credential rackspace_region | tr a-z A-Z)
 
 # Fetch roles from Galaxy if necessary.
 ([ -f ${ROOT}/.galaxy ] && diff ${ROOT}/.galaxy ${ROOT}/requirements.txt >/dev/null 2>&1) || {
+  ([ -d /etc/ansible/roles ] && [ -w /etc/ansible/roles ] && [ -x /etc/ansible/roles ]) || {
+    cat <<EOM 1>&2
+>> /etc/ansible/roles does not exist as a writable directory! You have two options:
+>> 1. Run ansible-galaxy manually with sudo.
+
+   sudo ansible-galaxy --force --role-file ${ROOT}/requirements.txt
+   cp ${ROOT}/requirements.txt ${ROOT}/.galaxy
+
+>> 2. Create and chown /etc/ansible/roles.
+
+   sudo mkdir -p /etc/ansible/roles
+   sudo chown -R ${USER} /etc/ansible/roles
+EOM
+    exit 1
+  }
+
   ansible-galaxy install --force --role-file ${ROOT}/requirements.txt
 
   cp requirements.txt ${ROOT}/.galaxy
