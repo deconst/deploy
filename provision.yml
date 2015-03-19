@@ -18,7 +18,7 @@
       count: 1
       exact_count: yes
       auto_increment: no
-      image: "{{ image_id_coreos_stable }}"
+      image: "{{ image_id_coreos_beta }}"
       flavor: general1-2
       key_name: "{{ rackspace_keyname }}"
       wait: yes

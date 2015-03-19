@@ -12,4 +12,4 @@
       MAPREPO_URL: "{{ map_repository_url }}"
       MAPREPO_BRANCH: "{{ map_repository_branch }}"
     ports:
-      - "9999:9999"
+    - "9999:9999"
