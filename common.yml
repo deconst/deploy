@@ -1,9 +1,11 @@
 ---
-# Apply the "common" role to all deconst hosts at once.
+# Apply common roles to all deconst hosts at once.
 
 - hosts: deconst-all
+  gather_facts: no
   vars_files:
   - vars.yml
   - credentials.yml
   roles:
+  - defunctzombie.coreos-bootstrap
   - common
