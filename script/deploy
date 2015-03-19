@@ -34,6 +34,7 @@ EOM
 [local]
 localhost ansible_python_interpreter=${PYTHON}
 EOF
+  echo ">> Ansible localhost inventory bootstrapped to use the current Python interpreter."
 }
 
 # Populate RAX_ environment variables from the credentials file.
