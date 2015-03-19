@@ -28,7 +28,6 @@
     add_host:
       name: "{{ rax_build.instances[0].name }}"
       ansible_ssh_host: "{{ rax_build.instances[0].rax_accessipv4 }}"
-      ansible_ssh_user: root
       groups: deconst-present
     when: rax_build.action == "create"
 
