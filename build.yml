@@ -1,9 +1,0 @@
----
-# Configure or update the build server.
-
-- hosts: deconst-build
-  vars_files:
-  - vars.yml
-  - credentials.yml
-  roles:
-  - build
