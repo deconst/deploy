@@ -1,9 +1,10 @@
 # Common group configuration
 
-[deconst-build]
+[deconst-present]
 
 [deconst-all:children]
-deconst-build
+deconst-present
 
 [deconst-all:vars]
-ansible_ssh_user=root
+ansible_ssh_user=core
+ansible_python_interpreter="PATH=/home/core/bin:$PATH python"

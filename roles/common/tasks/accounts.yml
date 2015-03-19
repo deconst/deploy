@@ -8,4 +8,4 @@
   with_items: github_usernames
 
 - name: assemble the authorized keys file
-  assemble: dest=/root/.ssh/authorized_keys mode=0600 src=/tmp/pubkeys
+  assemble: dest=/home/core/.ssh/authorized_keys mode=0600 src=/tmp/pubkeys

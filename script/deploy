@@ -26,6 +26,13 @@ EOM
   exit 1
 }
 
+[ -f ${ROOT}/customize.yml ] || {
+  cp ${ROOT}/customize.example.yml customize.yml
+
+  echo ">> Customizable variables bootstrapped to use the defaults."
+  echo ">> \"\${EDITOR} customize.yml\" and re-run \"script/deploy\" to customize your deployment."
+}
+
 # Set localhost's ansible_python_interpreter path from the current environment.
 [ -f ${ROOT}/inventory/localhost ] || {
   PYTHON=$(which python)
@@ -34,6 +41,7 @@ EOM
 [local]
 localhost ansible_python_interpreter=${PYTHON}
 EOF
+  echo ">> Ansible localhost inventory bootstrapped to use the current Python interpreter."
 }
 
 # Populate RAX_ environment variables from the credentials file.
@@ -41,4 +49,29 @@ export RAX_USERNAME=$(credential rackspace_username)
 export RAX_API_KEY=$(credential rackspace_api_key)
 export RAX_REGION=$(credential rackspace_region | tr a-z A-Z)
 
-exec ansible-playbook -i ${ROOT}/inventory ${ROOT}/site.yml $*
+# Fetch roles from Galaxy if necessary.
+([ -f ${ROOT}/.galaxy ] && diff ${ROOT}/.galaxy ${ROOT}/requirements.txt >/dev/null 2>&1) || {
+  ([ -d /etc/ansible/roles ] && [ -w /etc/ansible/roles ] && [ -x /etc/ansible/roles ]) || {
+    cat <<EOM 1>&2
+>> /etc/ansible/roles does not exist as a writable directory! You have two options:
+>> 1. Run ansible-galaxy manually with sudo.
+
+   sudo ansible-galaxy --force --role-file ${ROOT}/requirements.txt
+   cp ${ROOT}/requirements.txt ${ROOT}/.galaxy
+
+>> 2. Create and chown /etc/ansible/roles.
+
+   sudo mkdir -p /etc/ansible/roles
+   sudo chown -R ${USER} /etc/ansible/roles
+EOM
+    exit 1
+  }
+
+  ansible-galaxy install --force --role-file ${ROOT}/requirements.txt
+
+  cp requirements.txt ${ROOT}/.galaxy
+  echo ">> Ansible Galaxy roles initialized."
+  echo ">> \"rm ${ROOT}/.galaxy\" to force re-initialization."
+}
+
+exec ansible-playbook -i ${ROOT}/inventory -M ${ROOT}/modules ${ROOT}/site.yml $*

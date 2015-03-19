@@ -2,4 +2,5 @@
 
 - include: accounts.yml
 
-- include: docker.yml
+- name: docker-py
+  pip: name=docker-py state=latest
