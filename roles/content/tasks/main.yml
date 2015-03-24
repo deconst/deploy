@@ -11,6 +11,7 @@
       RACKSPACE_APIKEY: "{{ rackspace_api_key }}"
       RACKSPACE_REGION: "{{ rackspace_region }}"
       RACKSPACE_CONTAINER: "{{ content_container }}"
+      CONTENT_LOG_LEVEL: "{{ content_log_level }}"
     ports:
     - "8080:8080"
     restart_policy: always

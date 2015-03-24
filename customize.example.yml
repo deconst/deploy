@@ -10,3 +10,10 @@ map_repository_branch: master
 
 # Cloud Files container used to store raw content as metadata envelopes.
 content_container: deconst-docs
+
+# Optionally override the domain of presented URLs.
+presented_url_domain:
+
+# Configure logging levels.
+logging_level: INFO
+content_logging_level: "{{ logging_level }}"

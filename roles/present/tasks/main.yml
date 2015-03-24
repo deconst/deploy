@@ -12,6 +12,7 @@
     env:
       CONTENT_SERVICE_URL: http://content-service:8080/
       MAPPING_SERVICE_URL: http://mapping-service:9999/
+      PRESENTED_URL_DOMAIN: "{{ presented_url_domain }}"
     ports:
     - "80:8080"
     restart_policy: always
