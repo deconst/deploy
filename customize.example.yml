@@ -15,5 +15,5 @@ content_container: deconst-docs
 presented_url_domain:
 
 # Configure logging levels.
-logging_level: INFO
-content_logging_level: "{{ logging_level }}"
+log_level: INFO
+content_log_level: "{{ log_level }}"
