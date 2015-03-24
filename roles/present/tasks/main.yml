@@ -1,31 +1,17 @@
 ---
 
-# Run the mapping service and presentation layer.
-
-- name: content service
+- name: presenter
   docker:
-    name: content-service
-    image: deconst/content-service
+    name: presenter
+    image: deconst/presenter
     pull: always
     state: reloaded
+    links:
+    - "content-service:content-service"
+    - "mapping-service:mapping-service"
     env:
-      RACKSPACE_USERNAME: "{{ rackspace_username }}"
-      RACKSPACE_APIKEY: "{{ rackspace_api_key }}"
-      RACKSPACE_REGION: "{{ rackspace_region }}"
-      RACKSPACE_CONTAINER: "{{ content_container }}"
+      CONTENT_SERVICE_URL: http://content-service:8080/
+      MAPPING_SERVICE_URL: http://mapping-service:9999/
     ports:
-    - "8080:8080"
-    restart_policy: always
-
-- name: mapping service
-  docker:
-    name: mapping-service
-    image: deconst/mapping-service
-    pull: always
-    state: reloaded
-    env:
-      MAPREPO_URL: "{{ map_repository_url }}"
-      MAPREPO_BRANCH: "{{ map_repository_branch }}"
-    ports:
-    - "9999:9999"
+    - "80:8080"
     restart_policy: always
