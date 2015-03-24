@@ -1,0 +1,16 @@
+---
+
+- name: content service
+  docker:
+    name: content-service
+    image: deconst/content-service
+    pull: always
+    state: reloaded
+    env:
+      RACKSPACE_USERNAME: "{{ rackspace_username }}"
+      RACKSPACE_APIKEY: "{{ rackspace_api_key }}"
+      RACKSPACE_REGION: "{{ rackspace_region }}"
+      RACKSPACE_CONTAINER: "{{ content_container }}"
+    ports:
+    - "8080:8080"
+    restart_policy: always

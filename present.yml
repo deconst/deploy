@@ -7,4 +7,6 @@
   - credentials.yml
   - customize.yml
   roles:
+  - content
+  - mapping
   - present
