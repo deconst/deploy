@@ -17,3 +17,4 @@ presented_url_domain:
 # Configure logging levels.
 log_level: INFO
 content_log_level: "{{ log_level }}"
+map_log_level: "{{ log_level }}"

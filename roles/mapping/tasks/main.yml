@@ -9,6 +9,7 @@
     env:
       MAPREPO_URL: "{{ map_repository_url }}"
       MAPREPO_BRANCH: "{{ map_repository_branch }}"
+      MAP_LOG_LEVEL: "{{ map_log_level }}"
     ports:
     - "9999:9999"
     restart_policy: always
