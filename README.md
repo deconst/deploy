@@ -1,6 +1,6 @@
 # deploy
 
-This is an Ansible playbook that deploys Deconst onto a cluster.
+This is an Ansible playbook that deploys Deconst onto a cluster. You'll need at least Ansible 1.9.0.1.
 
 ## Running
 
