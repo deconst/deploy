@@ -18,3 +18,4 @@ presented_url_domain:
 log_level: INFO
 content_log_level: "{{ log_level }}"
 map_log_level: "{{ log_level }}"
+presenter_log_level: "{{ log_level }}"
