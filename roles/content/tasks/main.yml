@@ -13,5 +13,5 @@
       RACKSPACE_CONTAINER: "{{ content_container }}"
       CONTENT_LOG_LEVEL: "{{ content_log_level }}"
     ports:
-    - "8080:8080"
+    - "{{ content_service_port }}:8080"
     restart_policy: always

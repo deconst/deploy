@@ -11,5 +11,5 @@
       CONTROL_REPO_BRANCH: "{{ control_repository_branch }}"
       MAP_LOG_LEVEL: "{{ map_log_level }}"
     ports:
-    - "9999:9999"
+    - "{{ mapping_service_port }}:8080"
     restart_policy: always
