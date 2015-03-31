@@ -7,8 +7,8 @@
     pull: always
     state: reloaded
     env:
-      MAPREPO_URL: "{{ map_repository_url }}"
-      MAPREPO_BRANCH: "{{ map_repository_branch }}"
+      CONTROL_REPO_URL: "{{ control_repository_url }}"
+      CONTROL_REPO_BRANCH: "{{ control_repository_branch }}"
       MAP_LOG_LEVEL: "{{ map_log_level }}"
     ports:
     - "9999:9999"
