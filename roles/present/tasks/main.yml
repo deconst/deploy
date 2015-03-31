@@ -10,8 +10,8 @@
     - "content-service:content-service"
     - "mapping-service:mapping-service"
     env:
-      CONTENT_SERVICE_URL: http://content-service:8080/
-      MAPPING_SERVICE_URL: http://mapping-service:9999/
+      CONTENT_SERVICE_URL: http://content-service:{{ content_service_port }}/
+      MAPPING_SERVICE_URL: http://mapping-service:{{ mapping_service_port }}/
       PRESENTED_URL_DOMAIN: "{{ presented_url_domain }}"
       PRESENTER_LOG_LEVEL: "{{ presenter_log_level }}"
     ports:
