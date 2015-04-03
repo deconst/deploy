@@ -3,7 +3,7 @@
 - name: mapping service
   docker:
     name: mapping-service
-    image: deconst/mapping-service
+    image: quay.io/deconst/mapping-service
     pull: always
     state: reloaded
     env:
