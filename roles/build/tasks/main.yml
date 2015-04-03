@@ -7,7 +7,7 @@
   docker:
     state: running
     name: strider
-    image: deconst/strider
+    image: quay.io/deconst/strider
     detach: no
     command: >
       addUser --force
@@ -18,7 +18,7 @@
   docker:
     state: running
     name: strider
-    image: deconst/strider
+    image: quay.io/deconst/strider
     env:
       DB_URI: "{{ mongodb_uri }}"
     ports:
