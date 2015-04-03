@@ -8,8 +8,10 @@ control_repository_url: https://github.com/deconst/map-example.git
 # Branch of the control repository that governs this deployment.
 control_repository_branch: master
 
-# Cloud Files container used to store raw content as metadata envelopes.
+# Cloud Files containers used to store raw content as metadata envelopes and to
+# store CDN-distributed, fingerprinted assets.
 content_container: deconst-docs
+asset_container: deconst-assets
 
 # Optionally override the domain of presented URLs.
 presented_url_domain:
