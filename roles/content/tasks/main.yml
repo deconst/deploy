@@ -3,7 +3,7 @@
 - name: content service
   docker:
     name: content-service
-    image: deconst/content-service
+    image: quay.io/deconst/content-service
     pull: always
     state: reloaded
     env:
