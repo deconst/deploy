@@ -9,9 +9,11 @@
     links:
     - "content-service:content-service"
     - "mapping-service:mapping-service"
+    - "layout-service:layout-service"
     env:
       CONTENT_SERVICE_URL: http://content-service:8080/
       MAPPING_SERVICE_URL: http://mapping-service:8080/
+      LAYOUT_SERVICE_URL: http://layout-service:8080/
       PRESENTED_URL_DOMAIN: "{{ presented_url_domain }}"
       PRESENTER_LOG_LEVEL: "{{ presenter_log_level }}"
     ports:
