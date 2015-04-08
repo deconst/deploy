@@ -1,0 +1,15 @@
+---
+
+- name: layout service
+  docker:
+    name: layout-service
+    image: quay.io/deconst/layout-service
+    pull: always
+    state: reloaded
+    env:
+      CONTROL_REPO_URL: "{{ control_repository_url }}"
+      CONTROL_REPO_BRANCH: "{{ control_repository_branch }}"
+      LAYOUT_LOG_LEVEL: "{{ layout_log_level }}"
+    ports:
+    - "{{ layout_service_port }}:8080"
+    restart_policy: always

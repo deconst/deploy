@@ -10,3 +10,4 @@ image_id_coreos_alpha: 506c2025-e2db-4dc5-a7e3-2466a5dc3eed
 
 content_service_port: 9000
 mapping_service_port: 9001
+layout_service_port: 9002
