@@ -10,6 +10,7 @@
       RACKSPACE_USERNAME: "{{ rackspace_username }}"
       RACKSPACE_APIKEY: "{{ rackspace_api_key }}"
       RACKSPACE_REGION: "{{ rackspace_region }}"
+      ADMIN_APIKEY: "{{ content_admin_apikey }}"
       CONTENT_CONTAINER: "{{ content_container }}"
       ASSET_CONTAINER: "{{ asset_container }}"
       CONTENT_LOG_LEVEL: "{{ content_log_level }}"
