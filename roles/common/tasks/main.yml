@@ -3,4 +3,4 @@
 - include: accounts.yml
 
 - name: docker-py
-  pip: name=docker-py state=latest
+  pip: name=docker-py state=present version=1.1.0
