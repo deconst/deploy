@@ -5,7 +5,6 @@
   vars_files:
   - vars.yml
   - credentials.yml
-  - customize.yml
   roles:
   - content
   - mapping
