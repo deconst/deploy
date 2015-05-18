@@ -9,8 +9,8 @@ To deploy or update a cluster:
  1. Copy the example credentials file and fill in your credentials.
 
     ```bash
-    cp credentials.example.yml
-    ${EDITOR} credentials.example.yml
+    cp credentials.example.yml credentials.yml
+    ${EDITOR} credentials.yml
     ```
 
  2. Run the playbook with the script.
