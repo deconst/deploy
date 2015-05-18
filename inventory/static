@@ -1,9 +1,9 @@
 # Common group configuration
 
-[deconst-present]
+[deconst-worker]
 
 [deconst-all:children]
-deconst-present
+deconst-worker
 
 [deconst-all:vars]
 ansible_ssh_user=core
