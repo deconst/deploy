@@ -1,0 +1,86 @@
+---
+
+- name: content service
+  docker:
+    name: content-service-{{ item }}
+    image: quay.io/deconst/content-service
+    pull: always
+    state: reloaded
+    env:
+      RACKSPACE_USERNAME: "{{ rackspace_username }}"
+      RACKSPACE_APIKEY: "{{ rackspace_api_key }}"
+      RACKSPACE_REGION: "{{ rackspace_region }}"
+      ADMIN_APIKEY: "{{ content_admin_apikey }}"
+      CONTENT_CONTAINER: "{{ content_container }}"
+      ASSET_CONTAINER: "{{ asset_container }}"
+      CONTENT_LOG_LEVEL: "{{ content_log_level }}"
+    ports:
+    - "8080"
+    restart_policy: always
+  with_sequence: count={{ pod_count }}
+
+- name: mapping service
+  docker:
+    name: mapping-service-{{ item }}
+    image: quay.io/deconst/mapping-service
+    pull: always
+    state: reloaded
+    env:
+      CONTROL_REPO_URL: "{{ control_repository_url }}"
+      CONTROL_REPO_BRANCH: "{{ control_repository_branch }}"
+      MAP_LOG_LEVEL: "{{ map_log_level }}"
+    ports:
+    - "8080"
+    restart_policy: always
+  with_sequence: count={{ pod_count }}
+
+- name: layout service
+  docker:
+    name: layout-service-{{ item }}
+    image: quay.io/deconst/layout-service
+    pull: always
+    state: reloaded
+    env:
+      CONTROL_REPO_URL: "{{ control_repository_url }}"
+      CONTROL_REPO_BRANCH: "{{ control_repository_branch }}"
+      LAYOUT_LOG_LEVEL: "{{ layout_log_level }}"
+    ports:
+    - "8080"
+    restart_policy: always
+  with_sequence: count={{ pod_count }}
+
+- name: webhook service
+  docker:
+    name: webhook-service-{{ item }}
+    image: quay.io/deconst/webhook-service
+    pull: always
+    state: reloaded
+    env:
+      ETCD_URL: "{{ etcd_url }}"
+      ETCD_PORT: "{{ etcd_port }}"
+      CONTROL_REPO_TOKEN: "{{ control_repository_token }}"
+      WEBHOOK_LOG_LEVEL: "{{ webhook_log_level }}"
+  with_sequence: count={{ pod_count }}
+  register: webhooks
+
+- name: presenter
+  docker:
+    name: presenter
+    image: quay.io/deconst/presenter
+    pull: always
+    state: reloaded
+    links:
+    - "content-service-{{ item }}:content-service"
+    - "mapping-service-{{ item }}:mapping-service"
+    - "layout-service-{{ item }}:layout-service"
+    env:
+      CONTENT_SERVICE_URL: http://content-service:8080/
+      MAPPING_SERVICE_URL: http://mapping-service:8080/
+      LAYOUT_SERVICE_URL: http://layout-service:8080/
+      PRESENTED_URL_DOMAIN: "{{ presented_url_domain }}"
+      PRESENTER_LOG_LEVEL: "{{ presenter_log_level }}"
+    ports:
+    - "8080"
+    restart_policy: always
+  with_sequence: count={{ pod_count }}
+  register: presenters
