@@ -15,7 +15,7 @@
       state: present
       name: deconst-worker-%03d
       group: deconst-worker
-      count: 1
+      count: "{{ worker_count }}"
       exact_count: yes
       image: "{{ image_id_coreos_beta }}"
       flavor: general1-2
