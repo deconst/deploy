@@ -23,8 +23,6 @@
       wait: yes
     register: rax_build_workers
 
-  - debug: var=rax_build_workers
-
   - name: add newly provisioned workers to the correct groups
     add_host:
       name: "{{ item.name }}"
