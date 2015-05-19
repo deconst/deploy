@@ -57,8 +57,8 @@
     pull: always
     state: reloaded
     env:
-      ETCD_URL: "{{ etcd_url }}"
-      ETCD_PORT: "{{ etcd_port }}"
+      ETCD_URL: "{{ etcd_host }}"
+      ETCD_PORT: "{{ etcd_api_port }}"
       CONTROL_REPO_TOKEN: "{{ control_repository_token }}"
       WEBHOOK_LOG_LEVEL: "{{ webhook_log_level }}"
   with_sequence: count={{ pod_count }}
@@ -74,6 +74,7 @@
     - "mapping-service-{{ item }}:mapping-service"
     - "layout-service-{{ item }}:layout-service"
     env:
+      ETCDCTL_PEERS: "{{ etcd_api_url }}"
       MAPPING_SERVICE_URL: http://mapping-service:8080/
       LAYOUT_SERVICE_URL: http://layout-service:8080/
     restart_policy: always

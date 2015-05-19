@@ -20,6 +20,7 @@
       image: "{{ image_id_coreos_beta }}"
       flavor: general1-2
       key_name: "{{ rackspace_keyname }}"
+      user_data: "{{ lookup('template', 'templates/cloud_config.yml.j2') }}"
       wait: yes
     register: rax_build_workers
 
