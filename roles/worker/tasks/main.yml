@@ -16,7 +16,7 @@
       ASSET_CONTAINER: "{{ asset_container }}"
       CONTENT_LOG_LEVEL: "{{ content_log_level }}"
     ports:
-    - "8080"
+    - "{{ 8990 + 10 * item|int }}:8080"
     restart_policy: "{{ restart }}"
   with_sequence: count={{ pod_count }}
 
@@ -31,7 +31,7 @@
       CONTROL_REPO_BRANCH: "{{ control_repository_branch }}"
       MAP_LOG_LEVEL: "{{ map_log_level }}"
     ports:
-    - "8080"
+    - "{{ 8991 + 10 * item|int }}:8080"
     restart_policy: "{{ restart }}"
   with_sequence: count={{ pod_count }}
 
@@ -46,7 +46,7 @@
       CONTROL_REPO_BRANCH: "{{ control_repository_branch }}"
       LAYOUT_LOG_LEVEL: "{{ layout_log_level }}"
     ports:
-    - "8080"
+    - "{{ 8992 + 10 * item|int }}:8080"
     restart_policy: "{{ restart }}"
   with_sequence: count={{ pod_count }}
 
@@ -61,8 +61,10 @@
       ETCD_PORT: "{{ etcd_api_port }}"
       CONTROL_REPO_TOKEN: "{{ control_repository_token }}"
       WEBHOOK_LOG_LEVEL: "{{ webhook_log_level }}"
+    ports:
+    - "{{ 8993 + 10 * item|int }}:8080"
   with_sequence: count={{ pod_count }}
-  register: webhooks
+  register: webhook_services
 
 - name: etcd watcher service
   docker:
@@ -97,7 +99,7 @@
       PRESENTED_URL_DOMAIN: "{{ presented_url_domain }}"
       PRESENTER_LOG_LEVEL: "{{ presenter_log_level }}"
     ports:
-    - "8080"
+    - "{{ 79 + item|int }}:8080"
     restart_policy: "{{ restart }}"
   with_sequence: count={{ pod_count }}
   register: presenters
