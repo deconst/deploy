@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -ueo pipefail
+
+ROOT=$(cd $(dirname $0)/.. && pwd)
+
+source ${ROOT}/script/include/credentials.sh
+
+export MONGO_USERNAME=$(credential mongodb_username)
+export MONGO_PASSWORD=$(credential mongodb_password)
+export MONGO_HOST=$(credential mongodb_host | sed -E -e 's/[^,]+,//g')
+
+echo "MONGO_HOST=${MONGO_HOST}"
+
+exec docker run -it --rm mongo:2.6 mongo dfw-c9-0.objectrocket.com:37127/deconst -u ${MONGO_USERNAME} -p ${MONGO_PASSWORD}
