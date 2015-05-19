@@ -6,4 +6,4 @@ ROOT=$(cd $(dirname $0)/.. && pwd)
 
 source ${ROOT}/script/include/credentials.sh
 
-exec ansible all -i ${ROOT}/inventory -m shell -a "docker ps -a"
+exec ansible deconst-all -i ${ROOT}/inventory -m shell -a "docker ps -a"
