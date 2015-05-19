@@ -32,6 +32,30 @@
     when: rax_build_workers.action == "create"
     with_items: rax_build_workers.instances
 
+  - name: presenter load balancer
+    rax_clb:
+      name: deconst-presenter
+      port: 80
+      wait: yes
+      state: present
+    register: clb_presenter
+
+  - name: content service load balancer
+    rax_clb:
+      name: deconst-content-service
+      port: 9000
+      wait: yes
+      state: present
+    register: clb_content_service
+
+  - name: webhook service load balancer
+    rax_clb:
+      name: deconst-webhook-service
+      port: 9004
+      wait: yes
+      state: present
+    register: clb_webhook_service
+
 - name: pause to ensure SSH is up
   hosts: deconst-all
   gather_facts: no
