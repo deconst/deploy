@@ -7,8 +7,8 @@
 credential() {
   local SETTING=$1
   grep ${SETTING}: ${ROOT}/credentials.yml |
-    sed -E -e 's/^[^:]+:[ \t]*//' |
-    sed -E -e 's/[ \t]*$//'
+    sed -E -e 's/^[^:]+:[ ]*//' |
+    sed -E -e 's/[ ]*$//'
 }
 
 [ -f ${ROOT}/credentials.yml ] || {
