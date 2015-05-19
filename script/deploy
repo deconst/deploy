@@ -42,6 +42,4 @@ EOM
   echo ">> \"rm ${ROOT}/.galaxy\" to force re-initialization."
 }
 
-export ANSIBLE_LIBRARY=${ROOT}/modules
-
 exec ansible-playbook -i ${ROOT}/inventory ${ROOT}/site.yml $*
