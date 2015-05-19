@@ -81,7 +81,7 @@
 
 - name: presenter
   docker:
-    name: presenter
+    name: presenter-{{ item }}
     image: quay.io/deconst/presenter
     pull: always
     state: reloaded
