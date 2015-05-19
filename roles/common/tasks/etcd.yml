@@ -1,0 +1,17 @@
+---
+
+- name: etcd service
+  service: name=etcd.service state=started
+  sudo: yes
+
+- name: locate the private IP address of the CoreOS node
+  shell: grep COREOS_PRIVATE_IPV4 /etc/environment | sed -E -e 's/COREOS_PRIVATE_IPV4=//'
+  register: coreos_private_ipv4_cmd
+
+- name: set the private IP address as a fact
+  set_fact: coreos_private_ipv4={{ coreos_private_ipv4_cmd.stdout }}
+
+- name: derive the etcd connection URL
+  set_fact:
+    etcd_host: "{{ coreos_private_ipv4 }}"
+    etcd_api_url: "{{ coreos_private_ipv4 }}:{{ etcd_api_port }}"
