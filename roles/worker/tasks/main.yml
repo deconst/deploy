@@ -17,7 +17,7 @@
       CONTENT_LOG_LEVEL: "{{ content_log_level }}"
     ports:
     - "8080"
-    restart_policy: always
+    restart_policy: "{{ restart }}"
   with_sequence: count={{ pod_count }}
 
 - name: mapping service
@@ -32,7 +32,7 @@
       MAP_LOG_LEVEL: "{{ map_log_level }}"
     ports:
     - "8080"
-    restart_policy: always
+    restart_policy: "{{ restart }}"
   with_sequence: count={{ pod_count }}
 
 - name: layout service
@@ -47,7 +47,7 @@
       LAYOUT_LOG_LEVEL: "{{ layout_log_level }}"
     ports:
     - "8080"
-    restart_policy: always
+    restart_policy: "{{ restart }}"
   with_sequence: count={{ pod_count }}
 
 - name: webhook service
@@ -77,7 +77,7 @@
       ETCDCTL_PEERS: "{{ etcd_api_url }}"
       MAPPING_SERVICE_URL: http://mapping-service:8080/
       LAYOUT_SERVICE_URL: http://layout-service:8080/
-    restart_policy: always
+    restart_policy: "{{ restart }}"
   with_sequence: count={{ pod_count }}
 
 - name: presenter
@@ -98,6 +98,6 @@
       PRESENTER_LOG_LEVEL: "{{ presenter_log_level }}"
     ports:
     - "8080"
-    restart_policy: always
+    restart_policy: "{{ restart }}"
   with_sequence: count={{ pod_count }}
   register: presenters
