@@ -66,8 +66,7 @@
     pull: always
     state: reloaded
     env:
-      ETCD_URL: "http://{{ etcd_host }}"
-      ETCD_PORT: "{{ etcd_api_port }}"
+      ETCD_URL: "{{ etcd_api_url }}"
       CONTROL_REPO_TOKEN: "{{ control_repository_token }}"
       WEBHOOK_LOG_LEVEL: "{{ webhook_log_level }}"
     ports:
