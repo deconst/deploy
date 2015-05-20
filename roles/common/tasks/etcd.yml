@@ -12,6 +12,4 @@
   set_fact: coreos_private_ipv4={{ coreos_private_ipv4_cmd.stdout }}
 
 - name: derive the etcd connection URL
-  set_fact:
-    etcd_host: "{{ coreos_private_ipv4 }}"
-    etcd_api_url: "{{ coreos_private_ipv4 }}:{{ etcd_api_port }}"
+  set_fact: etcd_api_url=http://{{ coreos_private_ipv4 }}:{{ etcd_api_port }}
