@@ -1,0 +1,20 @@
+---
+# Configure a webhook on the control repository.
+
+- name: webhooks
+  hosts: local
+  connection: local
+  gather_facts: no
+  vars_files:
+  - vars.yml
+  - credentials.yml
+  tasks:
+
+  - name: control repository webhook
+    github_hooks:
+      action: create
+      user: "{{ github_oauth_user }}"
+      oauthkey: "{{ github_oauth_token }}"
+      repo: https://api.github.com/repos/{{ control_repository_name }}
+      hookurl: http://{{ clb_webhook_service.balancer.virtual_ips[0].address }}:{{ clb_webhook_service.balancer.port }}
+    when: control_repository_name
