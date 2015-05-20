@@ -8,3 +8,7 @@ image_id_coreos_alpha: 506c2025-e2db-4dc5-a7e3-2466a5dc3eed
 
 etcd_api_port: 4001
 etcd_peer_port: 7001
+
+presenter_lb_port: 80
+content_service_lb_port: 9000
+webhook_service_lb_port: 9003

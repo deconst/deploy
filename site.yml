@@ -6,3 +6,5 @@
 - include: common.yml tags=common
 
 - include: worker.yml tags=worker
+
+- include: webhook.yml tags=webhook

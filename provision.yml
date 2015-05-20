@@ -35,7 +35,7 @@
   - name: presenter load balancer
     rax_clb:
       name: deconst-presenter
-      port: 80
+      port: "{{ presenter_lb_port }}"
       wait: yes
       state: present
     register: clb_presenter
@@ -43,7 +43,7 @@
   - name: content service load balancer
     rax_clb:
       name: deconst-content-service
-      port: 9000
+      port: "{{ content_service_lb_port }}"
       wait: yes
       state: present
     register: clb_content_service
@@ -51,7 +51,7 @@
   - name: webhook service load balancer
     rax_clb:
       name: deconst-webhook-service
-      port: 9004
+      port: "{{ webhook_service_lb_port }}"
       wait: yes
       state: present
     register: clb_webhook_service
