@@ -11,4 +11,4 @@ etcd_peer_port: 7001
 
 presenter_lb_port: 80
 content_service_lb_port: 9000
-webhook_service_lb_port: 9004
+webhook_service_lb_port: 9003
