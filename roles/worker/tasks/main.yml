@@ -11,7 +11,7 @@
       RACKSPACE_APIKEY: "{{ rackspace_api_key }}"
       RACKSPACE_REGION: "{{ rackspace_region }}"
       MONGODB_URL: "{{ mongodb_uri }}"
-      ADMIN_APIKEY: "{{ content_admin_apikey }}"
+      ADMIN_APIKEY: "{{ content_admin_apikey | replace(' ', '') | trim }}"
       CONTENT_CONTAINER: "{{ content_container }}"
       ASSET_CONTAINER: "{{ asset_container }}"
       CONTENT_LOG_LEVEL: "{{ content_log_level }}"
