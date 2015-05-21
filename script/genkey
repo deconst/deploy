@@ -1,0 +1,59 @@
+#!/usr/bin/env python
+
+import pyrax
+import yaml
+import re
+import os
+import sys
+import subprocess
+import json
+
+if len(sys.argv) != 2:
+    print "Usage: {} <keyname>".format(sys.argv[0])
+    sys.exit(1)
+
+keyname = sys.argv[1]
+
+# Get our bearings on the filesystem.
+root = os.path.realpath(os.path.join(os.path.dirname(__file__), ".."))
+
+# Collect credentials.
+with open(os.path.join(root, "credentials.yml")) as credfile:
+    creds = yaml.load(credfile)
+rackspace_username = creds["rackspace_username"]
+rackspace_apikey = creds["rackspace_api_key"]
+rackspace_region = creds["rackspace_region"]
+admin_apikey = re.sub(r'\s+', "", creds["content_admin_apikey"])
+
+pyrax.set_setting("identity_type", "rackspace")
+pyrax.set_setting("region", rackspace_region)
+pyrax.set_credentials(rackspace_username, rackspace_apikey)
+clb = pyrax.cloud_loadbalancers
+
+the_lb = None
+for lb in clb.list():
+    if lb.name == "deconst-content-service":
+        the_lb = lb
+
+if not the_lb:
+    raise Exception("Content service load balancer not found")
+
+addr = the_lb.virtual_ips[0].address
+port = the_lb.port
+
+cmd = [
+    "curl",
+    "-s",
+    "-X", "POST",
+    "-H", 'Authorization: deconst apikey="{}"'.format(admin_apikey),
+    "http://{}:{}/keys?named={}".format(addr, port, keyname)
+]
+
+stdout = subprocess.check_output(cmd)
+key_doc = json.loads(stdout)
+key = key_doc["apikey"]
+
+print "# Generated API key:"
+print
+print 'export CONTENT_STORE_APIKEY="{}"'.format(key)
+print
