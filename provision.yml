@@ -40,10 +40,14 @@
       state: present
     register: clb_presenter
 
+  - name: locate the load balancer VIP
+    set_fact: clb_vip_id={{ clb_presenter.balancer.virtual_ips[0].id }}
+
   - name: content service load balancer
     rax_clb:
       name: deconst-content-service
       port: "{{ content_service_lb_port }}"
+      vip_id: "{{ clb_vip_id }}"
       wait: yes
       state: present
     register: clb_content_service
@@ -52,6 +56,7 @@
     rax_clb:
       name: deconst-webhook-service
       port: "{{ webhook_service_lb_port }}"
+      vip_id: "{{ clb_vip_id }}"
       wait: yes
       state: present
     register: clb_webhook_service
