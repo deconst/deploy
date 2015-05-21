@@ -20,15 +20,6 @@
     restart_policy: "{{ restart }}"
   with_sequence: count={{ pod_count }}
 
-- name: content service CLB nodes
-  local_action:
-    module: rax_clb_nodes
-    load_balancer_id: "{{ hostvars.localhost.clb_content_service.balancer.id }}"
-    address: "{{ ansible_eth1.ipv4.address }}"
-    port: "{{ 8990 + 10 * item|int }}"
-    wait: yes
-  with_sequence: count={{ pod_count }}
-
 - name: mapping service
   docker:
     name: mapping-service-{{ item }}
@@ -74,15 +65,6 @@
   with_sequence: count={{ pod_count }}
   register: webhook_services
 
-- name: webhook service CLB nodes
-  local_action:
-    module: rax_clb_nodes
-    load_balancer_id: "{{ hostvars.localhost.clb_webhook_service.balancer.id }}"
-    address: "{{ ansible_eth1.ipv4.address }}"
-    port: "{{ 8993 + 10 * item|int }}"
-    wait: yes
-  with_sequence: count={{ pod_count }}
-
 - name: etcd watcher service
   docker:
     name: etcd-watcher-{{ item }}
@@ -120,12 +102,3 @@
     restart_policy: "{{ restart }}"
   with_sequence: count={{ pod_count }}
   register: presenters
-
-- name: presenter CLB nodes
-  local_action:
-    module: rax_clb_nodes
-    load_balancer_id: "{{ hostvars.localhost.clb_presenter.balancer.id }}"
-    address: "{{ ansible_eth1.ipv4.address }}"
-    port: "{{ 79 + item|int }}"
-    wait: yes
-  with_sequence: count={{ pod_count }}

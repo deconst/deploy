@@ -1,0 +1,30 @@
+---
+# Add service nodes to the correct load balancers.
+# This must be run within a play with "serial: 1" to avoid update conflicts.
+
+- name: content service CLB nodes
+  local_action:
+    module: rax_clb_nodes
+    load_balancer_id: "{{ hostvars.localhost.clb_content_service.balancer.id }}"
+    address: "{{ ansible_eth1.ipv4.address }}"
+    port: "{{ 8990 + 10 * item|int }}"
+    wait: yes
+  with_sequence: count={{ pod_count }}
+
+- name: webhook service CLB nodes
+  local_action:
+    module: rax_clb_nodes
+    load_balancer_id: "{{ hostvars.localhost.clb_webhook_service.balancer.id }}"
+    address: "{{ ansible_eth1.ipv4.address }}"
+    port: "{{ 8993 + 10 * item|int }}"
+    wait: yes
+  with_sequence: count={{ pod_count }}
+
+- name: presenter CLB nodes
+  local_action:
+    module: rax_clb_nodes
+    load_balancer_id: "{{ hostvars.localhost.clb_presenter.balancer.id }}"
+    address: "{{ ansible_eth1.ipv4.address }}"
+    port: "{{ 79 + item|int }}"
+    wait: yes
+  with_sequence: count={{ pod_count }}
