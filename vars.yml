@@ -6,8 +6,8 @@ image_id_coreos_stable: 05438eb5-af42-4bdd-bd32-309c2154927d
 image_id_coreos_beta: 28ff3081-8312-42dd-8ec3-a82148cbbe6b
 image_id_coreos_alpha: 506c2025-e2db-4dc5-a7e3-2466a5dc3eed
 
-etcd_api_port: 4001
-etcd_peer_port: 7001
+etcd_api_port: 2379
+etcd_peer_port: 2380
 
 presenter_lb_port: 80
 content_service_lb_port: 9000
