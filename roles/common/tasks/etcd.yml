@@ -13,3 +13,6 @@
 
 - name: derive the etcd connection URL
   set_fact: etcd_api_url=http://{{ coreos_private_ipv4 }}:{{ etcd_api_port }}
+
+- name: bootstrap the etcd key
+  command: etcdctl set /deconst/control_updated 1
