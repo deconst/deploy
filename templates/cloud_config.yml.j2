@@ -12,5 +12,5 @@ coreos:
     listen-client-urls: http://0.0.0.0:2379,http://0.0.0.0:{{ etcd_api_port }}
     listen-peer-urls: http://$private_ipv4:2380,http://$private_ipv4:{{ etcd_peer_port }}
   units:
-    - name: etcd.service
+    - name: etcd2.service
       command: start
