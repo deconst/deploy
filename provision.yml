@@ -17,8 +17,8 @@
       group: deconst-worker
       count: "{{ worker_count }}"
       exact_count: yes
-      image: "{{ image_id_coreos_beta }}"
-      flavor: general1-2
+      image: "{{ image_id_coreos_alpha }}"
+      flavor: "{{ worker_flavor }}"
       key_name: "{{ rackspace_keyname }}"
       user_data: "{{ lookup('template', 'templates/cloud_config.yml.j2') }}"
       wait: yes
