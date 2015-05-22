@@ -1,7 +1,7 @@
 ---
 
-- name: etcd service
-  service: name=etcd.service state=started
+- name: etcd2 service
+  service: name=etcd2.service state=started
   sudo: yes
 
 - name: locate the private IP address of the CoreOS node
