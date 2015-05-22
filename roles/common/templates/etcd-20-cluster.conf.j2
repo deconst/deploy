@@ -10,4 +10,4 @@ Environment="ETCD_INITIAL_CLUSTER_TOKEN={{ hostvars.localhost.etcd_cluster_token
 Environment="ETCD_NAME={{ inventory_hostname }}"
 Environment="ETCD_LISTEN_PEER_URLS=http://127.0.0.1:{{ etcd_peer_port }},http://{{ ansible_eth1.ipv4.address }}:{{ etcd_peer_port }}"
 Environment="ETCD_LISTEN_CLIENT_URLS=http://127.0.0.1:{{ etcd_api_port }},{{ etcd_api_url }}"
-Environment="ETCD_ADVERTISE_CLIENT_URLS=http://127.0.0.1:{{ etcd_api_port }},{{ etcd_api_url }}"
+Environment="ETCD_ADVERTISE_CLIENT_URLS={{ etcd_api_url }}"
