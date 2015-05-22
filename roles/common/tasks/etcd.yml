@@ -6,14 +6,10 @@
 - name: etcd2 unit file
   template: src=etcd-20-cluster.conf.j2 dest=/run/systemd/system/etcd2.service.d/20-cluster.conf state=present
   sudo: yes
-  notify:
-  - restart etcd2
 
 - name: etcd2 service
   service: name=etcd2.service state=started
   sudo: yes
-  notify:
-  - restart etcd2
 
 - name: bootstrap the etcd key
   command: etcdctl set /deconst/control_updated 1
