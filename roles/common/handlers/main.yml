@@ -1,0 +1,5 @@
+---
+
+- name: restart etcd2
+  service: name=etcd2.service state=restarted
+  sudo: yes
