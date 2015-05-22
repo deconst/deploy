@@ -65,6 +65,14 @@
       state: present
     register: clb_webhook_service
 
+  - name: force the generation of a new token for a fresh cluster
+    file: path=.etcd_cluster_token state=absent
+    when: fresh_cluster
+
+  - name: etcd cluster token
+    set_fact:
+      etcd_cluster_token: "{{ lookup('password', '.etcd_cluster_token length=20') }}"
+
 - name: pause to ensure SSH is up
   hosts: deconst-all
   gather_facts: no
