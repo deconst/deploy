@@ -4,6 +4,4 @@ set -ueo pipefail
 
 ROOT=$(cd $(dirname $0)/.. && pwd)
 
-source ${ROOT}/script/include/credentials.sh
-
-ansible deconst-all -i ${ROOT}/inventory -m setup -a 'filter=ansible_default_ipv4'
+${ROOT}/script/facts 'filter=ansible_default_ipv4'

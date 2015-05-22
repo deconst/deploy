@@ -17,10 +17,9 @@
       group: deconst-worker
       count: "{{ worker_count }}"
       exact_count: yes
-      image: "{{ image_id_coreos_alpha }}"
+      image: "{{ image_id_coreos_beta }}"
       flavor: "{{ worker_flavor }}"
       key_name: "{{ rackspace_keyname }}"
-      user_data: "{{ lookup('template', 'templates/cloud_config.yml.j2') }}"
       wait: yes
     register: rax_build_workers
 
@@ -28,9 +27,14 @@
     add_host:
       name: "{{ item.name }}"
       ansible_ssh_host: "{{ item.rax_accessipv4 }}"
+      fresh_host: yes
       groups: deconst-worker
     when: rax_build_workers.action == "create"
-    with_items: rax_build_workers.instances
+    with_items: rax_build_workers.success
+
+  - name: identify full cluster rebuilds
+    set_fact:
+      fresh_cluster: "{{ (rax_build_workers.action == 'create' and rax_build_workers.success | length == worker_count) | bool }}"
 
   - name: presenter load balancer
     rax_clb:
@@ -61,6 +65,14 @@
       state: present
     register: clb_webhook_service
 
+  - name: force the generation of a new token for a fresh cluster
+    file: path=.etcd_cluster_token state=absent
+    when: fresh_cluster
+
+  - name: etcd cluster token
+    set_fact:
+      etcd_cluster_token: "{{ lookup('password', '.etcd_cluster_token length=20') }}"
+
 - name: pause to ensure SSH is up
   hosts: deconst-all
   gather_facts: no
@@ -68,3 +80,21 @@
 
   - name: ensure SSH is listening on all hosts
     local_action: wait_for host={{ hostvars[inventory_hostname].ansible_ssh_host }} port=22 state=started
+
+- name: collect SSH public keys of newly launched hosts
+  hosts: local
+  connection: local
+  gather_facts: no
+  vars_files:
+  - vars.yml
+  - credentials.yml
+  tasks:
+
+  - name: trust newly launched hosts
+    lineinfile:
+      dest: "{{ lookup('env', 'HOME') }}/.ssh/known_hosts"
+      create: yes
+      state: present
+      line: "{{ lookup('pipe', 'ssh-keyscan -t rsa ' + item.rax_accessipv4 )}}"
+      regexp: "^{{ item.rax_accessipv4 }}"
+    with_items: rax_build_workers.success

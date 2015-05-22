@@ -1,18 +1,18 @@
 ---
 
+- name: derive the etcd client connection URL
+  set_fact: etcd_api_url=http://{{ ansible_eth1.ipv4.address }}:{{ etcd_api_port }}
+
+- name: etcd2 unit file
+  template: src=etcd-20-cluster.conf.j2 dest=/run/systemd/system/etcd2.service.d/20-cluster.conf
+  sudo: yes
+
 - name: etcd2 service
   service: name=etcd2.service state=started
   sudo: yes
 
-- name: locate the private IP address of the CoreOS node
-  shell: grep COREOS_PRIVATE_IPV4 /etc/environment | sed -E -e 's/COREOS_PRIVATE_IPV4=//'
-  register: coreos_private_ipv4_cmd
-
-- name: set the private IP address as a fact
-  set_fact: coreos_private_ipv4={{ coreos_private_ipv4_cmd.stdout }}
-
-- name: derive the etcd connection URL
-  set_fact: etcd_api_url=http://{{ coreos_private_ipv4 }}:{{ etcd_api_port }}
+- name: ensure etcd2 is listening
+  wait_for: port={{ etcd_api_port }} delay=5 state=started
 
 - name: bootstrap the etcd key
   command: etcdctl set /deconst/control_updated 1

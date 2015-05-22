@@ -8,4 +8,10 @@
   - credentials.yml
   roles:
   - defunctzombie.coreos-bootstrap
+
+- hosts: deconst-all
+  vars_files:
+  - vars.yml
+  - credentials.yml
+  roles:
   - common
