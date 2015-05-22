@@ -1,10 +1,11 @@
 [Service]
-Environment="ETCD_INITIAL_CLUSTER={% for host in groups['deconst-all'] -%}
-  http://{{ hostvars[host].ansible_eth1.ipv4.address }}:{{ etcd_peer_port }}
+Environment="ETCD_INITIAL_CLUSTER={% for host in groups['deconst-worker'] -%}
+  {{ host }}=http://{{ hostvars[host].ansible_eth1.ipv4.address }}:{{ etcd_peer_port }}
   {%- if not loop.last %},{% endif -%}
 {%- endfor %}"
 Environment="ETCD_INITIAL_CLUSTER_STATE={% if hostvars.localhost.fresh_cluster %}new{% else %}existing{% endif %}"
 Environment="ETCD_INITIAL_CLUSTER_TOKEN={{ hostvars.localhost.etcd_cluster_token }}"
 
+Environment="ETCD_NAME={{ inventory_hostname }}"
 Environment="ETCD_LISTEN_PEER_URLS=http://127.0.0.1:{{ etcd_peer_port }},http://{{ ansible_eth1.ipv4.address }}:{{ etcd_peer_port }}"
 Environment="ETCD_LISTEN_CLIENT_URLS=http://127.0.0.1:{{ etcd_api_port }},{{ etcd_api_url }}"
