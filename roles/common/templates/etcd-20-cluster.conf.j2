@@ -1,6 +1,6 @@
 [Service]
 Environment="ETCD_INITIAL_CLUSTER={% for host in groups['deconst-all'] -%}
-  {{ hostvars[host].ansible_eth1.ipv4.address }}:{{ etcd_peer_port }}
+  http://{{ hostvars[host].ansible_eth1.ipv4.address }}:{{ etcd_peer_port }}
   {%- if not loop.last %},{% endif -%}
 {%- endfor %}"
 Environment="ETCD_INITIAL_CLUSTER_STATE={% if hostvars.localhost.fresh_cluster %}new{% else %}existing{% endif %}"

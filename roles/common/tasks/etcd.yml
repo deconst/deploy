@@ -4,7 +4,7 @@
   set_fact: etcd_api_url=http://{{ ansible_eth1.ipv4.address }}:{{ etcd_api_port }}
 
 - name: etcd2 unit file
-  template: src=etcd-20-cluster.conf.j2 dest=/run/systemd/system/etcd2.service.d/20-cluster.conf state=present
+  template: src=etcd-20-cluster.conf.j2 dest=/run/systemd/system/etcd2.service.d/20-cluster.conf
   sudo: yes
 
 - name: etcd2 service
