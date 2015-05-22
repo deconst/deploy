@@ -17,10 +17,9 @@
       group: deconst-worker
       count: "{{ worker_count }}"
       exact_count: yes
-      image: "{{ image_id_coreos_alpha }}"
+      image: "{{ image_id_coreos_beta }}"
       flavor: "{{ worker_flavor }}"
       key_name: "{{ rackspace_keyname }}"
-      user_data: "{{ lookup('template', 'templates/cloud_config.yml.j2') }}"
       wait: yes
     register: rax_build_workers
 
@@ -28,9 +27,14 @@
     add_host:
       name: "{{ item.name }}"
       ansible_ssh_host: "{{ item.rax_accessipv4 }}"
+      fresh_host: yes
       groups: deconst-worker
     when: rax_build_workers.action == "create"
-    with_items: rax_build_workers.instances
+    with_items: rax_build_workers.success
+
+  - name: identify full cluster rebuilds
+    set_fact:
+      fresh_cluster: "{{ (rax_build_workers.action == 'create' and rax_build_workers.success | length == worker_count) | bool }}"
 
   - name: presenter load balancer
     rax_clb:
