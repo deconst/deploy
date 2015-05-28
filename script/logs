@@ -26,6 +26,8 @@ if len(sys.argv) > 1:
 else:
     matcher = re.compile(".")
 
+lines = int(os.environ.get("LOG_LINES", "100"))
+
 for server in cs.servers.list():
     group = server.metadata.get('group')
     if group not in ("deconst-worker",):
@@ -48,6 +50,7 @@ for server in cs.servers.list():
             continue
 
         print "-{:->78}-".format(" " + container_name + " ")
-        logs = subprocess.check_output(
-            ["ssh", ssh_addr, "docker", "logs", container_id])
+        logs = subprocess.check_output([
+            "ssh", ssh_addr, "docker", "logs",
+            "--tail={}".format(lines), container_id])
         print logs
