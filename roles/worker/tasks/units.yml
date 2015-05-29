@@ -13,7 +13,6 @@
   - pod_names
   - launcher_units
   sudo: yes
-  tags: foo
 
 - name: enable the launcher units
   service: name={{ item[1] }}-{{ item[0] }}.service enabled=true
@@ -21,4 +20,3 @@
   - pod_names
   - launcher_units
   sudo: yes
-  tags: foo
