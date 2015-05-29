@@ -3,12 +3,14 @@
 - name: derive the etcd client connection URL
   set_fact: etcd_api_url=http://{{ ansible_eth1.ipv4.address }}:{{ etcd_api_port }}
 
-- name: etcd2 unit file directory
-  file: state=directory path=/etc/systemd/system/etcd2.service.d owner=root group=root mode=0755
+- name: etcd2 unit file
+  template: src=etcd2.service.j2 dest=/etc/systemd/system/etcd2.service
+  register: etcd2_unit
   sudo: yes
 
-- name: etcd2 unit file
-  template: src=etcd-20-cluster.conf.j2 dest=/etc/systemd/system/etcd2.service.d/20-cluster.conf
+- name: reload systemctl daemon
+  command: systemctl daemon-reload
+  when: etcd2_unit | changed
   sudo: yes
 
 - name: etcd2 service
