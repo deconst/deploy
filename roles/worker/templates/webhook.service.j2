@@ -1,14 +1,13 @@
 # {{ ansible_managed }}
 
 [Unit]
-Description=Deconst Webhook Service Launcher
+Description=Deconst Webhook Service
 Requires=docker.service
 
 [Service]
 ExecStartPre=/usr/bin/docker kill webhook-service-{{ item[0] }}
 ExecStartPre=/usr/bin/docker rm webhook-service-{{ item[0] }}
 ExecStart=/usr/bin/docker run \
-  --detach \
   --name=webhook-service-{{ item[0] }} \
   --env=ETCD_URL={{ etcd_api_url }} \
   --env=CONTROL_REPO_TOKEN={{ control_repository_token }} \
@@ -16,6 +15,8 @@ ExecStart=/usr/bin/docker run \
   --publish={{ 8993 + 10 * item[0]|int }}:8080 \
   --restart={{ restart }} \
   quay.io/deconst/webhook-service
+
+SuccessExitStatus=137
 
 [Install]
 WantedBy=multi-user.target
