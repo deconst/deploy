@@ -21,6 +21,7 @@
     ports:
     - "{{ 8990 + 10 * item|int }}:8080"
     restart_policy: "{{ restart }}"
+    net: bridge
   with_items: pod_names
 
 - name: mapping service
