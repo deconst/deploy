@@ -1,0 +1,26 @@
+# {{ ansible_managed }}
+
+[Unit]
+Description=Deconst Presenter Launcher
+Requires=docker.service content-{{ item[0] }}.service mapping-{{ item[0] }}.service layout-{{ item[0] }}.service
+
+[Service]
+ExecStartPre=/usr/bin/docker kill presenter-{{ item[0] }}
+ExecStartPre=/usr/bin/docker rm presenter-{{ item[0] }}
+ExecStart=/usr/bin/docker run \
+  --detach \
+  --name=presenter-{{ item[0] }} \
+  --link=content-service-{{ item[0] }}:content-service \
+  --link=mapping-service-{{ item[0] }}:mapping-service \
+  --link=layout-service-{{ item[0] }}:layout-service \
+  --env=CONTENT_SERVICE_URL=http://content-service:8080/ \
+  --env=MAPPING_SERVICE_URL=http://mapping-service:8080/ \
+  --env=LAYOUT_SERVICE_URL=http://layout-service:8080/ \
+  --env=PRESENTED_URL_DOMAIN={{ presented_url_domain }} \
+  --env=PRESENTER_LOG_LEVEL={{ presenter_log_level }} \
+  --publish={{ 79 + item|int }}:8080 \
+  --restart={{ restart }} \
+  quay.io/deconst/presenter
+
+[Install]
+WantedBy=multi-user.target

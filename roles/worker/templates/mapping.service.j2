@@ -1,0 +1,21 @@
+# {{ ansible_managed }}
+
+[Unit]
+Description=Deconst Mapping Service Launcher
+Requires=docker.service
+
+[Service]
+ExecStartPre=/usr/bin/docker kill mapping-service-{{ item[0] }}
+ExecStartPre=/usr/bin/docker rm mapping-service-{{ item[0] }}
+ExecStart=/usr/bin/docker run \
+  --detach \
+  --name=mapping-service-{{ item[0] }} \
+  --env=CONTROL_REPO_URL={{ control_repository_url }} \
+  --env=CONTROL_REPO_BRANCH={{ control_repository_branch }} \
+  --env=MAP_LOG_LEVEL={{ map_log_level }} \
+  --publish={{ 8991 + 10 * item[0]|int }}:8080 \
+  --restart={{ restart }} \
+  quay.io/deconst/mapping-service
+
+[Install]
+WantedBy=multi-user.target

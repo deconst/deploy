@@ -3,3 +3,8 @@
 # systemd units that launch containers on system reboot.
 launcher_units:
 - content
+- mapping
+- layout
+- webhook
+- etcd-watcher
+- presenter

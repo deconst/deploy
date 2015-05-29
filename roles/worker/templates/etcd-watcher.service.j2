@@ -1,0 +1,22 @@
+# {{ ansible_managed }}
+
+[Unit]
+Description=Deconst Etcd Watcher Launcher
+Requires=docker.service mapping-{{ item[0] }}.service layout-{{ item[0] }}.service
+
+[Service]
+ExecStartPre=/usr/bin/docker kill etcd-watcher-{{ item[0] }}
+ExecStartPre=/usr/bin/docker rm etcd-watcher-{{ item[0] }}
+ExecStart=/usr/bin/docker run \
+  --detach \
+  --name=etcd-watcher-{{ item[0] }} \
+  --link=mapping-service-{{ item[0] }}:mapping-service \
+  --link=layout-service-{{ item[0] }}:layout-service \
+  --env=ETCDCTL_PEERS={{ etcd_api_url }} \
+  --env=MAPPING_SERVICE_URL=http://mapping-service:8080 \
+  --env=LAYOUT_SERVICE_URL=http://layout-service:8080 \
+  --restart={{ restart }} \
+  quay.io/deconst/etcd-watcher
+
+[Install]
+WantedBy=multi-user.target
