@@ -1,0 +1,27 @@
+# {{ ansible_managed }}
+
+[Unit]
+Description=Deconst Content Service Launcher
+Requires=docker.service
+
+[Service]
+ExecStartPre=/usr/bin/docker kill content-service-{{ item[0] }}
+ExecStartPre=/usr/bin/docker rm content-service-{{ item[0] }}
+ExecStart=/usr/bin/docker run \
+  --daemon \
+  --name=content-service-%i \
+  --env=RACKSPACE_USERNAME={{ rackspace_username }} \
+  --env=RACKSPACE_APIKEY={{ rackspace_api_key }} \
+  --env=RACKSPACE_REGION={{ rackspace_region }} \
+  --env=RACKSPACE_SERVICENET=true \
+  --env=MONGODB_URL={{ mongodb_uri }} \
+  --env=ADMIN_APIKEY={{ content_admin_apikey | replace(' ', '') | trim }} \
+  --env=CONTENT_CONTAINER={{ content_container }} \
+  --env=ASSET_CONTAINER={{ asset_container }} \
+  --env=CONTENT_LOG_LEVEL={{ content_log_level }} \
+  --publish={{ 8990 + 10 * item[0]|int }}:8080 \
+  --restart={{ restart }} \
+  quay.io/deconst/content-service
+
+[Install]
+WantedBy=multi-user.target
