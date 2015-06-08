@@ -3,6 +3,10 @@
 :FORWARD DROP [0:0]
 :OUTPUT ACCEPT [0:0]
 
+# Always permit established connections
+-A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+
+# Permit everything on localhost
 -A INPUT -i lo -j ACCEPT
 
 # Allow SSH access from specific hosts
