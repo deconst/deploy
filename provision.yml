@@ -73,14 +73,6 @@
     set_fact:
       etcd_cluster_token: "{{ lookup('password', '.etcd_cluster_token length=20') }}"
 
-- name: pause to ensure SSH is up
-  hosts: deconst-all
-  gather_facts: no
-  tasks:
-
-  - name: ensure SSH is listening on all hosts
-    local_action: wait_for host={{ hostvars[inventory_hostname].ansible_ssh_host }} port=22 state=started
-
 - name: collect SSH public keys of newly launched hosts
   hosts: local
   connection: local
