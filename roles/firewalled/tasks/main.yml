@@ -1,0 +1,9 @@
+---
+
+- name: iptables rules
+  template: src=rules-save.j2 dest=/var/lib/iptables/rules-save
+  sudo: yes
+
+- name: invoke and enable the iptables service
+  service: name=iptables-restore.service enabled=yes state=started
+  sudo: yes

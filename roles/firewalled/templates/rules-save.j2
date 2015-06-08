@@ -1,0 +1,23 @@
+*filter
+:INPUT DROP [0:0]
+:FORWARD DROP [0:0]
+:OUTPUT ACCEPT [0:0]
+
+-A INPUT -i lo -j ACCEPT
+
+# Allow SSH access from specific hosts
+{% for addr in source_addresses %}
+-A INPUT -i eth0 -p tcp -m tcp --source {{ addr }} --dport 22 -j ACCEPT
+{% endfor %}
+
+# Allow access to service ports from each pod
+{% for podnum in range(1, pod_count + 1) %}
+# Pod {{ podnum }}:
+# Content Service
+-A INPUT -i eth1 -p tcp -m tcp --dport {{ 8990 + 10 * podnum|int }} -j ACCEPT
+# Webhook Service
+-A INPUT -i eth1 -p tcp -m tcp --dport {{ 8993 + 10 * podnum|int }} -j ACCEPT
+# Presenter
+-A INPUT -i eth1 -p tcp -m tcp --dport {{ 79 + 10 * podnum|int }} -j ACCEPT
+
+{% endfor %}
