@@ -21,11 +21,11 @@
 {% for podnum in range(1, pod_count + 1) %}
 # Pod {{ podnum }}:
 # Content Service
--A INPUT -i eth1 -p tcp -m tcp --dport {{ 8990 + 10 * podnum|int }} -j ACCEPT
+-A INPUT -i eth1 -p tcp -m tcp --source {{ hostvars.localhost.clb_content_service.balancer.sourceAddresses.ipv4Servicenet }} --dport {{ 8990 + 10 * podnum|int }} -j ACCEPT
 # Webhook Service
--A INPUT -i eth1 -p tcp -m tcp --dport {{ 8993 + 10 * podnum|int }} -j ACCEPT
+-A INPUT -i eth1 -p tcp -m tcp --source {{ hostvars.localhost.clb_webhook_service.balancer.sourceAddresses.ipv4Servicenet }} --dport {{ 8993 + 10 * podnum|int }} -j ACCEPT
 # Presenter
--A INPUT -i eth1 -p tcp -m tcp --dport {{ 79 + 10 * podnum|int }} -j ACCEPT
+-A INPUT -i eth1 -p tcp -m tcp --source {{ hostvars.localhost.clb_presenter.balancer.sourceAddresses.ipv4Servicenet }} --dport {{ 79 + podnum|int }} -j ACCEPT
 
 {% endfor %}
 
