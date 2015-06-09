@@ -23,6 +23,7 @@
     restart_policy: "{{ restart }}"
     net: bridge
   with_items: pod_names
+  tags: service
 
 - name: mapping service
   docker:
@@ -39,6 +40,7 @@
     restart_policy: "{{ restart }}"
     net: bridge
   with_items: pod_names
+  tags: service
 
 - name: layout service
   docker:
@@ -55,6 +57,7 @@
     restart_policy: "{{ restart }}"
     net: bridge
   with_items: pod_names
+  tags: service
 
 - name: webhook service
   docker:
@@ -71,6 +74,7 @@
     net: bridge
   with_items: pod_names
   register: webhook_services
+  tags: service
 
 - name: etcd watcher service
   docker:
@@ -88,6 +92,7 @@
     restart_policy: "{{ restart }}"
     net: bridge
   with_items: pod_names
+  tags: service
 
 - name: presenter
   docker:
@@ -111,3 +116,4 @@
     net: bridge
   with_items: pod_names
   register: presenters
+  tags: service
