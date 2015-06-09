@@ -1,32 +1,24 @@
 ---
 
-- name: docker systemd unit customization directory
-  file:
-    path: /etc/systemd/system/docker.service.d
-    state: directory
-    owner: root
-    group: root
-    mode: 0755
-  sudo: yes
-  tags: network
-
-- name: docker networking configuration
-  copy:
-    src: docker-10-net.conf
-    dest: /etc/systemd/system/docker.service.d/10-net.conf
-    owner: root
-    group: root
-    mode: 0644
-  sudo: yes
-  notify: restart docker service
-  tags: network
-
 - name: iptables rules
   template: src=rules-save.j2 dest=/var/lib/iptables/rules-save
   sudo: yes
+  register: firewall_rules
   tags: network
 
-- name: invoke and enable the iptables service
-  service: name=iptables-restore.service enabled=yes state=started
+- name: enable the iptables service
+  service: name=iptables-restore.service enabled=yes
+  sudo: yes
+  tags: network
+
+- name: invoke the iptables service
+  service: name=iptables-restore.service state=started
+  when: firewall_rules | changed
+  sudo: yes
+  tags: network
+
+- name: restart the docker daemon to reapply its iptables rules
+  service: name=docker.service state=restarted
+  when: firewall_rules | changed
   sudo: yes
   tags: network
