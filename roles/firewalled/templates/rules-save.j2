@@ -2,6 +2,17 @@
 :INPUT DROP [0:0]
 :FORWARD DROP [0:0]
 :OUTPUT ACCEPT [0:0]
+:DOCKER - [0:0]
+
+# Docker interface access
+-A FORWARD -o docker0 -j DOCKER
+-A FORWARD -o docker0 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+-A FORWARD -i docker0 ! -o docker0 -j ACCEPT
+-A FORWARD -i docker0 -o docker0 -j ACCEPT
+
+# Allow access to service ports in each pod from only the load balancer and localhost
+-A DOCKER -i eth1 -o docker0 -p tcp -m tcp --source {{ hostvars.localhost.clb_content_service.balancer.sourceAddresses.ipv4Servicenet }} -j ACCEPT
+-A DOCKER -i lo -o docker0 -p tcp -m tcp -j ACCEPT
 
 # Always permit established connections
 -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
@@ -14,19 +25,7 @@
 -A INPUT -i eth0 -p tcp -m tcp --source {{ addr }} --dport 22 -j ACCEPT
 {% endfor %}
 
-# etcd peering
+# etcd peering over ServiceNet
 -A INPUT -i eth1 -p tcp -m tcp --dport 2380 -j ACCEPT
-
-# Allow access to service ports in each pod from the load balancer
-{% for podnum in range(1, pod_count + 1) %}
-# Pod {{ podnum }}:
-# Content Service
--A INPUT -i eth1 -p tcp -m tcp --source {{ hostvars.localhost.clb_content_service.balancer.sourceAddresses.ipv4Servicenet }} --dport {{ 8990 + 10 * podnum|int }} -j ACCEPT
-# Webhook Service
--A INPUT -i eth1 -p tcp -m tcp --source {{ hostvars.localhost.clb_webhook_service.balancer.sourceAddresses.ipv4Servicenet }} --dport {{ 8993 + 10 * podnum|int }} -j ACCEPT
-# Presenter
--A INPUT -i eth1 -p tcp -m tcp --source {{ hostvars.localhost.clb_presenter.balancer.sourceAddresses.ipv4Servicenet }} --dport {{ 79 + podnum|int }} -j ACCEPT
-
-{% endfor %}
 
 COMMIT
