@@ -25,7 +25,10 @@
 -A INPUT -i eth0 -p tcp -m tcp --source {{ addr }} --dport 22 -j ACCEPT
 {% endfor %}
 
-# etcd peering over ServiceNet
--A INPUT -i eth1 -p tcp -m tcp --dport 2380 -j ACCEPT
+# etcd peering and clients over ServiceNet
+{% for host in groups['deconst-worker'] %}
+-A INPUT -i eth1 -p tcp -m tcp --source {{ hostvars[host].ansible_eth1.ipv4.address }} --dport 2380 -j ACCEPT
+-A INPUT -i eth1 -p tcp -m tcp --source {{ hostvars[host].ansible_eth1.ipv4.address }} --dport 2379 -j ACCEPT
+{% endfor %}
 
 COMMIT
