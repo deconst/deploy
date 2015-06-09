@@ -21,4 +21,8 @@
 -A INPUT -i eth1 -p tcp --source {{ hostvars[host].ansible_eth1.ipv4.address }} --dport 2379 -j ACCEPT
 {% endfor %}
 
+# Allow access to service ports in each pod from only the load balancer, via ServiceNet
+-A DOCKER -i eth0 -j DROP
+# -A DOCKER -i eth1 ! --source {{ hostvars.localhost.clb_content_service.balancer.sourceAddresses.ipv4Servicenet }} -j DROP
+
 COMMIT
