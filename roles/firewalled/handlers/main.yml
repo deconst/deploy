@@ -1,0 +1,6 @@
+---
+
+- name: restart docker service
+  service: name=docker.service state=restarted
+  sudo: yes
+  tags: networking

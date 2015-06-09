@@ -1,5 +1,26 @@
 ---
 
+- name: docker systemd unit customization directory
+  file:
+    path: /etc/systemd/system/docker.service.d
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  sudo: yes
+  tags: network
+
+- name: docker networking configuration
+  copy:
+    src: docker-10-net.conf
+    dest: /etc/systemd/system/docker.service.d/10-net.conf
+    owner: root
+    group: root
+    mode: 0644
+  sudo: yes
+  notify: restart docker service
+  tags: network
+
 - name: iptables rules
   template: src=rules-save.j2 dest=/var/lib/iptables/rules-save
   sudo: yes
