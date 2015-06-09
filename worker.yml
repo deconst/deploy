@@ -6,8 +6,8 @@
   - vars.yml
   - credentials.yml
   roles:
-  - worker
   - firewalled
+  - worker
 
 - hosts: deconst-worker
   serial: 1
