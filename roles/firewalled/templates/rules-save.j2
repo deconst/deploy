@@ -21,6 +21,10 @@
 -A INPUT -i eth1 -p tcp --source {{ hostvars[host].ansible_eth1.ipv4.address }} --dport 2379 -j ACCEPT
 {% endfor %}
 
+# Enable containers on this host to connect to its host-level etcd
+-A INPUT -i docker0 -p tcp --dport 2379 -j ACCEPT
+
+# Allow packets from established connections through.
 -A DOCKER -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 
 # Allow access to service ports in each pod from only the load balancer, via ServiceNet
