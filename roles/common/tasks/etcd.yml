@@ -2,6 +2,7 @@
 
 - name: derive the etcd client connection URL
   set_fact: etcd_api_url=http://{{ ansible_eth1.ipv4.address }}:{{ etcd_api_port }}
+  tags: service
 
 - name: etcd2 unit file
   template: src=etcd2.service.j2 dest=/etc/systemd/system/etcd2.service

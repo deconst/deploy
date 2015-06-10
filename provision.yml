@@ -43,9 +43,11 @@
       wait: yes
       state: present
     register: clb_presenter
+    tags: network
 
   - name: locate the load balancer VIP
     set_fact: clb_vip_id={{ clb_presenter.balancer.virtual_ips[0].id }}
+    tags: network
 
   - name: content service load balancer
     rax_clb:
@@ -55,6 +57,7 @@
       wait: yes
       state: present
     register: clb_content_service
+    tags: network
 
   - name: webhook service load balancer
     rax_clb:
@@ -64,6 +67,7 @@
       wait: yes
       state: present
     register: clb_webhook_service
+    tags: network
 
   - name: force the generation of a new token for a fresh cluster
     file: path=.etcd_cluster_token state=absent
@@ -72,14 +76,6 @@
   - name: etcd cluster token
     set_fact:
       etcd_cluster_token: "{{ lookup('password', '.etcd_cluster_token length=20') }}"
-
-- name: pause to ensure SSH is up
-  hosts: deconst-all
-  gather_facts: no
-  tasks:
-
-  - name: ensure SSH is listening on all hosts
-    local_action: wait_for host={{ hostvars[inventory_hostname].ansible_ssh_host }} port=22 state=started
 
 - name: collect SSH public keys of newly launched hosts
   hosts: local

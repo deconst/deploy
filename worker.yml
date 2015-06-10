@@ -6,6 +6,7 @@
   - vars.yml
   - credentials.yml
   roles:
+  - firewalled
   - worker
 
 - hosts: deconst-worker

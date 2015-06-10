@@ -3,6 +3,7 @@
 - name: pod name ranges
   set_fact:
     pod_names: "[{% for i in range(1, pod_count + 1) %}{{ i }}{% if not loop.last %},{% endif %}{% endfor %}]"
+  tags: service
 
 - include: units.yml
 
