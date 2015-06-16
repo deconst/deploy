@@ -1,6 +1,8 @@
-# deploy
+# Deconst Ansible Playbook
 
-This is an Ansible playbook that deploys Deconst onto a cluster. You'll need at least Ansible 1.9.0.1.
+This is an Ansible playbook that deploys Deconst onto a cluster.
+
+Clone this repository once for each deconst instance you wish to administer. The contents of `credentials.yml` customize and identify each deployment.
 
 ## Prerequisites
 
