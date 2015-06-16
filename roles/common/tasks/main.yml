@@ -1,8 +1,12 @@
 ---
 
+- name: docker-py
+  pip: name=docker-py state=present version=1.1.0
+
+- name: disable password authentication over SSH
+  copy: src=sshd_config dest=/etc/ssh/sshd_config owner=root group=root mode=0644
+  sudo: yes
+
 - include: accounts.yml
 
 - include: etcd.yml
-
-- name: docker-py
-  pip: name=docker-py state=present version=1.1.0
