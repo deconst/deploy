@@ -13,6 +13,8 @@
 # Allow SSH access from specific hosts
 {% for addr in source_addresses %}
 -A INPUT -i eth0 -p tcp -m tcp --source {{ addr }} --dport 22 -j ACCEPT
+{% else %}
+-A INPUT -i eth0 -p tcp -m tcp --dport 22 -j ACCEPT
 {% endfor %}
 
 # etcd peering and clients over ServiceNet
