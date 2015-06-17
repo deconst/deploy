@@ -30,7 +30,7 @@
 
 - name: utility scripts
   copy:
-    src: "{{ item }}"
+    src: scripts/{{ item }}
     dest: /opt/bin/{{ item }}
     owner: root
     group: root
@@ -43,7 +43,7 @@
 
 - name: unit files
   copy:
-    src: "{{ item }}@.service"
+    src: services/{{ item }}@.service
     dest: /etc/systemd/system/{{ item }}@.service
     owner: root
     group: root
