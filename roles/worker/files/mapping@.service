@@ -5,8 +5,8 @@ Requires=docker.service
 [Service]
 EnvironmentFile=/etc/deconst/environment.sh
 
-ExecStartPre=/usr/bin/docker kill mapping-service-%i
-ExecStartPre=/usr/bin/docker rm mapping-service-%i
+ExecStartPre=-/usr/bin/docker kill mapping-service-%i
+ExecStartPre=-/usr/bin/docker rm mapping-service-%i
 
 ExecStart=/usr/bin/docker run \
   --rm=true \

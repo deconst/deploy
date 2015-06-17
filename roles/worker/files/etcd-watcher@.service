@@ -6,8 +6,8 @@ After=   docker.service mapping@%I.service layout@%I.service etcd2.service
 [Service]
 EnvironmentFile=/etc/deconst/environment.sh
 
-ExecStartPre=/usr/bin/docker kill etcd-watcher-%i
-ExecStartPre=/usr/bin/docker rm etcd-watcher-%i
+ExecStartPre=-/usr/bin/docker kill etcd-watcher-%i
+ExecStartPre=-/usr/bin/docker rm etcd-watcher-%i
 
 ExecStart=/usr/bin/docker run \
   --rm=true \

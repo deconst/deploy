@@ -5,8 +5,8 @@ Requires=docker.service
 [Service]
 EnvironmentFile=/etc/deconst/environment.sh
 
-ExecStartPre=/usr/bin/docker kill content-service-%i
-ExecStartPre=/usr/bin/docker rm content-service-%i
+ExecStartPre=-/usr/bin/docker kill content-service-%i
+ExecStartPre=-/usr/bin/docker rm content-service-%i
 ExecStart=/usr/bin/docker run \
   --rm=true \
   --name=content-service-%i \
