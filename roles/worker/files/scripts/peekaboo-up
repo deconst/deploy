@@ -20,7 +20,7 @@ LOAD_BALANCER_ID=${2:-}
 # Wait for the container to exist.
 ATTEMPT=0
 while ! /usr/bin/docker inspect ${CONTAINER_NAME} >/dev/null 2>&1 ; do
-  [ ${ATTEMPT} -lt 60 ] || {
+  [ ${ATTEMPT} -lt 300 ] || {
     echo "${CONTAINER_NAME} never launched." >&2
     exit 1
   }
