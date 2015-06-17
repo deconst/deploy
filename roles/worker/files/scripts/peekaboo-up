@@ -17,6 +17,20 @@ USAGE
 CONTAINER_NAME=${1:-}
 LOAD_BALANCER_ID=${2:-}
 
+# Wait for the container to exist.
+ATTEMPT=0
+while ! /usr/bin/docker inspect ${CONTAINER_NAME} >/dev/null 2>&1 ; do
+  [ ${ATTEMPT} -lt 60 ] || {
+    echo "${CONTAINER_NAME} never launched." >&2
+    exit 1
+  }
+
+  echo "Waiting for ${CONTAINER_NAME} to launch."
+  ATTEMPT=$(( ${ATTEMPT} + 1 ))
+
+  sleep 1
+done
+
 # Locate the published port to add to the load balancer.
 APP_PORT=$(/usr/bin/docker inspect \
   --format='{{index .NetworkSettings.Ports "8080/tcp" 0 "HostPort" }}' \

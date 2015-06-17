@@ -17,6 +17,12 @@ USAGE
 CONTAINER_NAME=${1:-}
 LOAD_BALANCER_ID=${2:-}
 
+# Exit quietly if the container does not exist.
+/usr/bin/docker inspect ${CONTAINER_NAME} >/dev/null 2>&1 || {
+  echo "Container ${CONTAINER_NAME} does not exist."
+  exit 0
+}
+
 # Locate the published port to add to the load balancer.
 APP_PORT=$(/usr/bin/docker inspect \
   --format='{{index .NetworkSettings.Ports "8080/tcp" 0 "HostPort" }}' \
