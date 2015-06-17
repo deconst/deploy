@@ -27,7 +27,7 @@ APP_PORT=$(/usr/bin/docker inspect \
   exit 1
 }
 
-/usr/bin/docker run
+/usr/bin/docker run \
   --rm=true \
   --net=host \
   --name=peekaboo-down-${CONTAINER_NAME} \
