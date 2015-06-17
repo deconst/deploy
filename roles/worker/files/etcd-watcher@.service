@@ -1,5 +1,5 @@
 [Unit]
-Description=Deconst Etcd Watcher
+Description=Deconst Etcd Watcher %I
 Requires=docker.service mapping@%I.service layout@%I.service etcd2.service
 After=   docker.service mapping@%I.service layout@%I.service etcd2.service
 

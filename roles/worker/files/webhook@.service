@@ -1,5 +1,5 @@
 [Unit]
-Description=Deconst Webhook Service
+Description=Deconst Webhook Service %I
 Requires=docker.service
 
 [Service]
@@ -11,7 +11,7 @@ ExecStartPre=-/usr/bin/docker rm webhook-service-%i
 ExecStart=/usr/bin/docker run \
   --rm=true \
   --name=webhook-service-%i \
-  --env=ETCD_URL=${ETCD_URL} \
+  --env=ETCD_URL=${ETCDCTL_PEERS} \
   --env=CONTROL_REPO_TOKEN=${CONTROL_REPO_TOKEN} \
   --env=WEBHOOK_LOG_LEVEL=${WEBHOOK_LOG_LEVEL} \
   --publish=0.0.0.0::8080 \

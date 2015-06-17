@@ -1,5 +1,5 @@
 [Unit]
-Description=Deconst Content Service
+Description=Deconst Content Service %I
 Requires=docker.service
 
 [Service]
