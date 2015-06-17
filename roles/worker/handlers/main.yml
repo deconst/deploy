@@ -1,0 +1,9 @@
+---
+
+- name: restart services
+  service: name={{ item[1] }}@{{ item[0] }}.service state=restarted
+  with_nested:
+  - pod_names
+  - launcher_units
+  sudo: yes
+  tags: service

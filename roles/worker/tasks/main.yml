@@ -27,6 +27,8 @@
     mode: 0600
   sudo: yes
   tags: service
+  notify:
+  - restart services
 
 - name: utility scripts
   copy:
@@ -52,6 +54,8 @@
   register: units
   sudo: yes
   tags: service
+  notify:
+  - restart services
 
 - name: reload unit files
   command: systemctl daemon-reload
