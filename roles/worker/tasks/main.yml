@@ -5,15 +5,13 @@
     pod_names: "[{% for i in range(1, pod_count + 1) %}{{ i }}{% if not loop.last %},{% endif %}{% endfor %}]"
   tags: service
 
-- name: directories
+- name: deconst configuration directory
   file:
-    path: "{{ item }}"
+    path: /etc/deconst
     state: directory
     owner: root
     group: root
     mode: 0755
-  with_items:
-  - /etc/deconst
   sudo: yes
 
 - name: environment variables
