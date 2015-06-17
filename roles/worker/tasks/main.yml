@@ -25,7 +25,19 @@
   sudo: yes
   tags: service
 
-- name: start each container
+- name: unit files
+  copy:
+    src: "{{ item }}@.service"
+    dest: /etc/systemd/system/{{ item }}@.service
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+  - launcher_units
+  sudo: yes
+  tags: service
+
+- name: container services
   service: name={{ item[1] }}@{{ item[0] }}.service state=started enabled=true
   with_nested:
   - pod_names
