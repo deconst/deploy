@@ -7,11 +7,14 @@
 
 - name: deconst configuration directory
   file:
-    path: /etc/deconst
+    path: "{{ item }}"
     state: directory
     owner: root
     group: root
     mode: 0755
+  with_items:
+  - /etc/deconst
+  - /opt/bin
   sudo: yes
   tags: service
 
@@ -28,7 +31,7 @@
 - name: utility scripts
   copy:
     src: "{{ item }}"
-    dest: /usr/local/bin/{{ item }}
+    dest: /opt/bin/{{ item }}
     owner: root
     group: root
     mode: 0755
