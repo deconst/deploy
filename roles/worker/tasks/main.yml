@@ -33,6 +33,13 @@
     group: root
     mode: 0644
   with_items: launcher_units
+  register: units
+  sudo: yes
+  tags: service
+
+- name: reload unit files
+  command: systemctl daemon-reload
+  when: units | changed
   sudo: yes
   tags: service
 
