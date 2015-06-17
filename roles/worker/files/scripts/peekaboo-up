@@ -49,5 +49,5 @@ APP_PORT=$(/usr/bin/docker inspect \
   --env=OS_USERNAME=${RACKSPACE_USERNAME} \
   --env=OS_PASSWORD=${RACKSPACE_APIKEY} \
   --env=OS_REGION_NAME=${RACKSPACE_REGION} \
-  --env=APP_PORT=${APPPORT} \
+  --env=APP_PORT=${APP_PORT} \
   rgbkrk/peekaboo
