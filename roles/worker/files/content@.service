@@ -22,7 +22,7 @@ ExecStart=/usr/bin/docker run \
   --publish=0.0.0.0::8080 \
   quay.io/deconst/content-service
 
-Restart=${RESTART}
+Restart=always
 
 [Install]
 WantedBy=multi-user.target
