@@ -1,0 +1,29 @@
+[Unit]
+Description=Deconst Presenter
+Requires=docker.service content@%I.service mapping@%I.service layout@%I.service
+After=   docker.service content@%I.service mapping@%I.service layout@%I.service
+
+[Service]
+EnvironmentFile=/etc/deconst/environment.sh
+
+ExecStartPre=/usr/bin/docker kill presenter-%i
+ExecStartPre=/usr/bin/docker rm presenter-%i
+
+ExecStart=/usr/bin/docker run \
+  --rm=true \
+  --name=presenter-%i \
+  --link=content-service-%i:content-service \
+  --link=mapping-service-%i:mapping-service \
+  --link=layout-service-%i:layout-service \
+  --env=CONTENT_SERVICE_URL=http://content-service:8080/ \
+  --env=MAPPING_SERVICE_URL=http://mapping-service:8080/ \
+  --env=LAYOUT_SERVICE_URL=http://layout-service:8080/ \
+  --env=PRESENTED_URL_DOMAIN=${PRESENTED_URL_DOMAIN} \
+  --env=PRESENTER_LOG_LEVEL=${PRESENTER_LOG_LEVEL} \
+  --publish=0.0.0.0::8080 \
+  quay.io/deconst/presenter
+
+Restart=${RESTART}
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,28 @@
+[Unit]
+Description=Deconst Content Service
+Requires=docker.service
+
+[Service]
+EnvironmentFile=/etc/deconst/environment.sh
+
+ExecStartPre=/usr/bin/docker kill content-service-%i
+ExecStartPre=/usr/bin/docker rm content-service-%i
+ExecStart=/usr/bin/docker run \
+  --rm=true \
+  --name=content-service-%i \
+  --env=RACKSPACE_USERNAME=${RACKSPACE_USERNAME} \
+  --env=RACKSPACE_APIKEY=${RACKSPACE_APIKEY} \
+  --env=RACKSPACE_REGION=${RACKSPACE_REGION} \
+  --env=RACKSPACE_SERVICENET=${RACKSPACE_SERVICENET} \
+  --env=MONGODB_URL=${MONGODB_URL} \
+  --env=ADMIN_APIKEY=${ADMIN_APIKEY} \
+  --env=CONTENT_CONTAINER=${CONTENT_CONTAINER} \
+  --env=ASSET_CONTAINER=${ASSET_CONTAINER} \
+  --env=CONTENT_LOG_LEVEL=${CONTENT_LOG_LEVEL} \
+  --publish=0.0.0.0::8080 \
+  quay.io/deconst/content-service
+
+Restart=${RESTART}
+
+[Install]
+WantedBy=multi-user.target

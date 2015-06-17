@@ -1,0 +1,22 @@
+[Unit]
+Description=Deconst Layout Service
+Requires=docker.service
+
+[Service]
+EnvironmentFile=/etc/deconst/environment.sh
+
+ExecStartPre=/usr/bin/docker kill layout-service-%i
+ExecStartPre=/usr/bin/docker rm layout-service-%i
+
+ExecStart=/usr/bin/docker run \
+  --rm=true \
+  --name=layout-service-%i \
+  --env=CONTROL_REPO_URL=${CONTROL_REPO_URL} \
+  --env=CONTROL_REPO_BRANCH=${CONTROL_REPO_BRANCH} \
+  --env=LAYOUT_LOG_LEVEL=${LAYOUT_LOG_LEVEL} \
+  quay.io/deconst/layout-service
+
+Restart=${RESTART}
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,25 @@
+[Unit]
+Description=Deconst Etcd Watcher
+Requires=docker.service mapping@%I.service layout@%I.service etcd2.service
+After=   docker.service mapping@%I.service layout@%I.service etcd2.service
+
+[Service]
+EnvironmentFile=/etc/deconst/environment.sh
+
+ExecStartPre=/usr/bin/docker kill etcd-watcher-%i
+ExecStartPre=/usr/bin/docker rm etcd-watcher-%i
+
+ExecStart=/usr/bin/docker run \
+  --rm=true \
+  --name=etcd-watcher-%i \
+  --link=mapping-service-%i:mapping-service \
+  --link=layout-service-%i:layout-service \
+  --env=ETCDCTL_PEERS=${ETCDCTL_PEERS} \
+  --env=MAPPING_SERVICE_URL=http://mapping-service:8080 \
+  --env=LAYOUT_SERVICE_URL=http://layout-service:8080 \
+  quay.io/deconst/etcd-watcher
+
+Restart=${RESTART}
+
+[Install]
+WantedBy=multi-user.target

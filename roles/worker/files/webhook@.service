@@ -1,0 +1,23 @@
+[Unit]
+Description=Deconst Webhook Service
+Requires=docker.service
+
+[Service]
+EnvironmentFile=/etc/deconst/environment.sh
+
+ExecStartPre=/usr/bin/docker kill webhook-service-%i
+ExecStartPre=/usr/bin/docker rm webhook-service-%i
+
+ExecStart=/usr/bin/docker run \
+  --rm=true \
+  --name=webhook-service-%i \
+  --env=ETCD_URL=${ETCD_URL} \
+  --env=CONTROL_REPO_TOKEN=${CONTROL_REPO_TOKEN} \
+  --env=WEBHOOK_LOG_LEVEL=${WEBHOOK_LOG_LEVEL} \
+  --publish=0.0.0.0::8080 \
+  quay.io/deconst/webhook-service
+
+Restart=${RESTART}
+
+[Install]
+WantedBy=multi-user.target

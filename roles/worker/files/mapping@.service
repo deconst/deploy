@@ -1,0 +1,22 @@
+[Unit]
+Description=Deconst Mapping Service
+Requires=docker.service
+
+[Service]
+EnvironmentFile=/etc/deconst/environment.sh
+
+ExecStartPre=/usr/bin/docker kill mapping-service-%i
+ExecStartPre=/usr/bin/docker rm mapping-service-%i
+
+ExecStart=/usr/bin/docker run \
+  --rm=true \
+  --name=mapping-service-%i \
+  --env=CONTROL_REPO_URL=${CONTROL_REPO_URL} \
+  --env=CONTROL_REPO_BRANCH=${CONTROL_REPO_BRANCH} \
+  --env=MAP_LOG_LEVEL=${MAP_LOG_LEVEL} \
+  quay.io/deconst/mapping-service
+
+Restart=${RESTART}
+
+[Install]
+WantedBy=multi-user.target

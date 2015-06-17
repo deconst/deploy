@@ -5,6 +5,26 @@
     pod_names: "[{% for i in range(1, pod_count + 1) %}{{ i }}{% if not loop.last %},{% endif %}{% endfor %}]"
   tags: service
 
+- name: directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  with_items:
+  - /etc/deconst
+  sudo: yes
+
+- name: environment variables
+  template:
+    src: deconst-environment.j2
+    dest: /etc/deconst/environment.sh
+    owner: root
+    group: root
+    mode: 0600
+  sudo: yes
+
 - include: units.yml
 
 - include: containers.yml
