@@ -25,6 +25,19 @@
   sudo: yes
   tags: service
 
+- name: utility scripts
+  copy:
+    src: "{{ item }}"
+    dest: /usr/local/bin/{{ item }}
+    owner: root
+    group: root
+    mode: 0755
+  with_items:
+  - peekaboo-up
+  - peekaboo-down
+  sudo: yes
+  tags: services
+
 - name: unit files
   copy:
     src: "{{ item }}@.service"

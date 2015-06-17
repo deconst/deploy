@@ -1,0 +1,39 @@
+#!/bin/bash
+#
+# Add a newly launched service to the load balancer.
+
+set -eou pipefail
+
+[ ! $# = 2 ] && {
+  cat <<USAGE >&2
+Usage: peekaboo-up <container> <lb id>
+
+ Adds or updates a node on a load balancer that corresponds to the first published port of a
+ named Docker container.
+USAGE
+  exit 1
+}
+
+CONTAINER_NAME=${1:-}
+LOAD_BALANCER_ID=${2:-}
+
+# Locate the published port to add to the load balancer.
+APP_PORT=$(/usr/bin/docker inspect \
+  --format='{{index .NetworkSettings.Ports "8080/tcp" 0 "HostPort" }}' \
+  ${CONTAINER_NAME})
+
+[ -z ${APP_PORT} ] && {
+  echo "Unable to find the application port for container ${CONTAINER_NAME}" >&2
+  exit 1
+}
+
+/usr/bin/docker run
+  --rm=true \
+  --net=host \
+  --name=peekaboo-up-${CONTAINER_NAME} \
+  --env=LOAD_BALANCER_ID=${LOAD_BALANCER_ID} \
+  --env=OS_USERNAME=${RACKSPACE_USERNAME} \
+  --env=OS_PASSWORD=${RACKSPACE_APIKEY} \
+  --env=OS_REGION_NAME=${RACKSPACE_REGION} \
+  --env=APP_PORT=${APPPORT} \
+  rgbkrk/peekaboo
