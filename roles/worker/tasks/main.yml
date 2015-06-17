@@ -13,6 +13,7 @@
     group: root
     mode: 0755
   sudo: yes
+  tags: service
 
 - name: environment variables
   template:
@@ -22,7 +23,12 @@
     group: root
     mode: 0600
   sudo: yes
+  tags: service
 
-- include: units.yml
-
-- include: containers.yml
+- name: start each container
+  service: name={{ item[1] }}@{{ item[0] }}.service state=started enabled=true
+  with_nested:
+  - pod_names
+  - launcher_units
+  sudo: yes
+  tags: service
