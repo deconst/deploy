@@ -17,6 +17,10 @@ ExecStart=/usr/bin/docker run \
   --publish=0.0.0.0::8080 \
   quay.io/deconst/webhook-service
 
+ExecStartPost=/opt/bin/peekaboo-up webhook-service-%i ${WEBHOOK_LB_ID}
+
+ExecStop=/opt/bin/peekaboo-down webhook-service-%i ${WEBHOOK_LB_ID}
+
 Restart=always
 
 [Install]

@@ -7,6 +7,7 @@ EnvironmentFile=/etc/deconst/environment.sh
 
 ExecStartPre=-/usr/bin/docker kill content-service-%i
 ExecStartPre=-/usr/bin/docker rm content-service-%i
+
 ExecStart=/usr/bin/docker run \
   --rm=true \
   --name=content-service-%i \
@@ -21,6 +22,10 @@ ExecStart=/usr/bin/docker run \
   --env=CONTENT_LOG_LEVEL=${CONTENT_LOG_LEVEL} \
   --publish=0.0.0.0::8080 \
   quay.io/deconst/content-service
+
+ExecStartPost=/opt/bin/peekaboo-up content-service-%i ${CONTENT_LB_ID}
+
+ExecStop=/opt/bin/peekaboo-down content-service-%i ${CONTENT_LB_ID}
 
 Restart=always
 
