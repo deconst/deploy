@@ -5,7 +5,7 @@
     pod_names: "[{% for i in range(1, pod_count + 1) %}{{ i }}{% if not loop.last %},{% endif %}{% endfor %}]"
   tags: service
 
-- name: deconst configuration directory
+- name: necessary directories
   file:
     path: "{{ item }}"
     state: directory
@@ -42,6 +42,14 @@
   - peekaboo-down
   sudo: yes
   tags: services
+
+- name: systemd-docker binary
+  get_url: dest=/opt/bin/systemd-docker url=https://github.com/ibuildthecloud/systemd-docker/releases/download/v0.2.0/systemd-docker
+  sudo: yes
+
+- name: systemd-docker is executable
+  file: path=/opt/bin/systemd-docker mode=0755
+  sudo: yes
 
 - name: unit files
   copy:

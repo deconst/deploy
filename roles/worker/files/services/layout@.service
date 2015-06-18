@@ -6,17 +6,19 @@ After=docker.service
 [Service]
 EnvironmentFile=/etc/deconst/environment.sh
 TimeoutStartSec=0
+Type=notify
+NotifyAccess=all
 
-ExecStartPre=-/usr/bin/docker kill layout-service-%i
-ExecStartPre=-/usr/bin/docker rm layout-service-%i
-
-ExecStart=/usr/bin/docker run \
-  --rm=true \
+ExecStart=/opt/bin/systemd-docker run \
+  --rm \
   --name=layout-service-%i \
   --env=CONTROL_REPO_URL=${CONTROL_REPO_URL} \
   --env=CONTROL_REPO_BRANCH=${CONTROL_REPO_BRANCH} \
   --env=LAYOUT_LOG_LEVEL=${LAYOUT_LOG_LEVEL} \
   quay.io/deconst/layout-service
+
+ExecStop=/usr/bin/docker stop --time=2 layout-service-%i
+ExecStop=/usr/bin/docker rm -f layout-service-%i
 
 Restart=always
 
