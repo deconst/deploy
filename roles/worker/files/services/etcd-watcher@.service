@@ -17,6 +17,7 @@ ExecStart=/opt/bin/systemd-docker run \
   --env=ETCDCTL_PEERS=${ETCDCTL_PEERS} \
   --env=MAPPING_SERVICE_URL=http://mapping-service:8080 \
   --env=LAYOUT_SERVICE_URL=http://layout-service:8080 \
+  --log-driver=syslog \
   quay.io/deconst/etcd-watcher
 
 ExecStop=/usr/bin/docker stop --time=2 etcd-watcher-%i

@@ -21,6 +21,7 @@ ExecStart=/opt/bin/systemd-docker run \
   --env=PRESENTED_URL_DOMAIN=${PRESENTED_URL_DOMAIN} \
   --env=PRESENTER_LOG_LEVEL=${PRESENTER_LOG_LEVEL} \
   --publish=0.0.0.0::8080 \
+  --log-driver=syslog \
   quay.io/deconst/presenter
 
 ExecStartPost=/opt/bin/peekaboo-up presenter-%i ${PRESENTER_LB_ID}

@@ -22,6 +22,7 @@ ExecStart=/opt/bin/systemd-docker run \
   --env=ASSET_CONTAINER=${ASSET_CONTAINER} \
   --env=CONTENT_LOG_LEVEL=${CONTENT_LOG_LEVEL} \
   --publish=0.0.0.0::8080 \
+  --log-driver=syslog \
   quay.io/deconst/content-service
 
 ExecStartPost=/opt/bin/peekaboo-up content-service-%i ${CONTENT_LB_ID}
