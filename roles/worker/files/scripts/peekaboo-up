@@ -25,7 +25,7 @@ while ! /usr/bin/docker inspect ${CONTAINER_NAME} >/dev/null 2>&1 ; do
     exit 1
   }
 
-  echo "Waiting for ${CONTAINER_NAME} to launch."
+  echo "Waiting for ${CONTAINER_NAME} to launch: ${ATTEMPT}"
   ATTEMPT=$(( ${ATTEMPT} + 1 ))
 
   sleep 1
@@ -40,6 +40,8 @@ APP_PORT=$(/usr/bin/docker inspect \
   echo "Unable to find the application port for container ${CONTAINER_NAME}" >&2
   exit 1
 }
+
+echo "Adding ${CONTAINER_NAME}:${APP_PORT} to the load balancer ${LOAD_BALANCER_ID}."
 
 /usr/bin/docker run \
   --rm=true \

@@ -33,6 +33,8 @@ APP_PORT=$(/usr/bin/docker inspect \
   exit 1
 }
 
+echo "Draining ${CONTAINER_NAME}:${APP_PORT} from the load balancer ${LOAD_BALANCER_ID}."
+
 /usr/bin/docker run \
   --rm=true \
   --net=host \
@@ -46,6 +48,8 @@ APP_PORT=$(/usr/bin/docker inspect \
 
 # Give connections a chance to drain.
 sleep 3
+
+echo "Disabling ${CONTAINER_NAME}:${APP_PORT} on the load balancer ${LOAD_BALANCER_ID}."
 
 /usr/bin/docker run \
   --rm=true \
