@@ -46,7 +46,6 @@ echo "Adding ${CONTAINER_NAME}:${APP_PORT} to the load balancer ${LOAD_BALANCER_
 /usr/bin/docker run \
   --rm=true \
   --net=host \
-  --name=peekaboo-up-${CONTAINER_NAME} \
   --env=LOAD_BALANCER_ID=${LOAD_BALANCER_ID} \
   --env=OS_USERNAME=${RACKSPACE_USERNAME} \
   --env=OS_PASSWORD=${RACKSPACE_APIKEY} \

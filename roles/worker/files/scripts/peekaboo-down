@@ -38,7 +38,6 @@ echo "Draining ${CONTAINER_NAME}:${APP_PORT} from the load balancer ${LOAD_BALAN
 /usr/bin/docker run \
   --rm=true \
   --net=host \
-  --name=peekaboo-down-${CONTAINER_NAME} \
   --env=LOAD_BALANCER_ID=${LOAD_BALANCER_ID} \
   --env=OS_USERNAME=${RACKSPACE_USERNAME} \
   --env=OS_PASSWORD=${RACKSPACE_APIKEY} \
@@ -54,7 +53,6 @@ echo "Disabling ${CONTAINER_NAME}:${APP_PORT} on the load balancer ${LOAD_BALANC
 /usr/bin/docker run \
   --rm=true \
   --net=host \
-  --name=peekaboo-down-${CONTAINER_NAME} \
   --env=LOAD_BALANCER_ID=${LOAD_BALANCER_ID} \
   --env=OS_USERNAME=${RACKSPACE_USERNAME} \
   --env=OS_PASSWORD=${RACKSPACE_APIKEY} \
