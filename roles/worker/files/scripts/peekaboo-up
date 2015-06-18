@@ -17,6 +17,9 @@ USAGE
 CONTAINER_NAME=${1:-}
 LOAD_BALANCER_ID=${2:-}
 
+# Ensure that the peekaboo image is present.
+/usr/bin/docker pull rgbkrk/peekaboo
+
 # Wait for the container to exist.
 ATTEMPT=0
 while ! /usr/bin/docker inspect ${CONTAINER_NAME} >/dev/null 2>&1 ; do
