@@ -1,9 +1,11 @@
 [Unit]
 Description=Deconst Content Service %I
 Requires=docker.service
+After=docker.service
 
 [Service]
 EnvironmentFile=/etc/deconst/environment.sh
+TimeoutStartSec=0
 
 ExecStartPre=-/usr/bin/docker kill content-service-%i
 ExecStartPre=-/usr/bin/docker rm content-service-%i

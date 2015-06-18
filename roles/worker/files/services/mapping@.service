@@ -1,9 +1,11 @@
 [Unit]
 Description=Deconst Mapping Service %I
 Requires=docker.service
+After=docker.service
 
 [Service]
 EnvironmentFile=/etc/deconst/environment.sh
+TimeoutStartSec=0
 
 ExecStartPre=-/usr/bin/docker kill mapping-service-%i
 ExecStartPre=-/usr/bin/docker rm mapping-service-%i

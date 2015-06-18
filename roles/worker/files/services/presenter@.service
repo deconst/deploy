@@ -5,6 +5,7 @@ After=   docker.service content@%i.service mapping@%i.service layout@%i.service
 
 [Service]
 EnvironmentFile=/etc/deconst/environment.sh
+TimeoutStartSec=0
 
 ExecStartPre=-/usr/bin/docker kill presenter-%i
 ExecStartPre=-/usr/bin/docker rm presenter-%i
