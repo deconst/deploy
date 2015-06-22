@@ -9,8 +9,6 @@ TimeoutStartSec=0
 Type=notify
 NotifyAccess=all
 
-ExecStartPre=/usr/bin/docker pull quay.io/deconst/presenter
-
 ExecStart=/opt/bin/systemd-docker run \
   --rm \
   --name=presenter-%i \

@@ -43,6 +43,16 @@
   sudo: yes
   tags: services
 
+- name: pull script
+  template:
+    src: pulls.sh.j2
+    dest: /opt/bin/pulls.sh
+    owner: root
+    group: root
+    mode: 0755
+  sudo: yes
+  tags: services
+
 - name: systemd-docker binary
   get_url: dest=/opt/bin/systemd-docker url=https://github.com/ibuildthecloud/systemd-docker/releases/download/v0.2.0/systemd-docker
   sudo: yes
@@ -51,10 +61,12 @@
   file: path=/opt/bin/systemd-docker mode=0755
   sudo: yes
 
-- name: ensure peekaboo is up to date
-  command: docker pull rgbkrk/peekaboo
-  register: peekaboo_pull
-  changed_when: peekaboo_pull.stdout.find("Downloaded newer") > 0
+- name: ensure containers are up to date
+  command: /opt/bin/pulls.sh
+  register: service_pulls
+  changed_when: service_pulls.rc == 2
+  notify:
+  - restart services
 
 - name: unit files
   copy:

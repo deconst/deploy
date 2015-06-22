@@ -20,3 +20,11 @@ services:
 - webhook
 - etcd-watcher
 - presenter
+
+containers:
+- content-service
+- etcd-watcher
+- layout-service
+- mapping-service
+- presenter
+- webhook-service
