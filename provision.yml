@@ -28,9 +28,15 @@
       name: "{{ item.name }}"
       ansible_ssh_host: "{{ item.rax_accessipv4 }}"
       fresh_host: yes
-      groups: deconst-worker
+      groups: deconst-worker-{{ instance }}-{{ deployment }}
     when: rax_build_workers.action == "create"
     with_items: rax_build_workers.success
+
+  - name: add all hosts to the correct groups
+    add_host:
+      name: "{{ item.name }}"
+      groups: deconst-worker
+    with_items: rax_build_workers.instances
 
   - name: identify full cluster rebuilds
     set_fact:

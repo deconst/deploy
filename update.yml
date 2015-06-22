@@ -1,0 +1,22 @@
+---
+# Perform a rolling restart of all services across the cluster to pull and relaunch with the
+# latest images.
+
+- include: provision.yml
+
+- hosts: deconst-worker
+  vars_files:
+  - vars.yml
+  - credentials.yml
+  tasks:
+
+  - name: pod name ranges
+    set_fact:
+      pod_names: "[{% for i in range(1, pod_count + 1) %}{{ i }}{% if not loop.last %},{% endif %}{% endfor %}]"
+
+  - name: restart services
+    service: name={{ item[1] }}@{{ item[0] }}.service state=restarted
+    with_nested:
+    - pod_names
+    - services
+    sudo: yes
