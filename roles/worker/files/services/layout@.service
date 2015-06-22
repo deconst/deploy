@@ -15,7 +15,6 @@ ExecStart=/opt/bin/systemd-docker run \
   --env=CONTROL_REPO_URL=${CONTROL_REPO_URL} \
   --env=CONTROL_REPO_BRANCH=${CONTROL_REPO_BRANCH} \
   --env=LAYOUT_LOG_LEVEL=${LAYOUT_LOG_LEVEL} \
-  --log-driver=syslog \
   quay.io/deconst/layout-service
 
 ExecStop=/usr/bin/docker stop --time=2 layout-service-%i

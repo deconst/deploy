@@ -15,7 +15,6 @@ ExecStart=/opt/bin/systemd-docker run \
   --env=CONTROL_REPO_TOKEN=${CONTROL_REPO_TOKEN} \
   --env=WEBHOOK_LOG_LEVEL=${WEBHOOK_LOG_LEVEL} \
   --publish=0.0.0.0::8080 \
-  --log-driver=syslog \
   quay.io/deconst/webhook-service
 
 ExecStartPost=/opt/bin/peekaboo-up webhook-service-%i ${WEBHOOK_LB_ID}
