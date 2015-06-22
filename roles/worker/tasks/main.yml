@@ -63,7 +63,7 @@
     owner: root
     group: root
     mode: 0644
-  with_items: launcher_units
+  with_items: services
   register: units
   sudo: yes
   tags: service
@@ -80,6 +80,6 @@
   service: name={{ item[1] }}@{{ item[0] }}.service state=started enabled=true
   with_nested:
   - pod_names
-  - launcher_units
+  - services
   sudo: yes
   tags: service
