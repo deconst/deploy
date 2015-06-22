@@ -51,6 +51,11 @@
   file: path=/opt/bin/systemd-docker mode=0755
   sudo: yes
 
+- name: ensure peekaboo is up to date
+  command: docker pull rgbkrk/peekaboo
+  register: peekaboo_pull
+  changed_when: peekaboo_pull.stdout.find("Downloaded newer") > 0
+
 - name: unit files
   copy:
     src: services/{{ item }}@.service
