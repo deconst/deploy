@@ -11,4 +11,4 @@ setup_inventory
 setup_galaxy
 
 cd ${ROOT}
-exec ansible-playbook -i ${ROOT}/inventory ${ROOT}/site.yml $*
+exec ansible-playbook -i ${ROOT}/inventory ${ROOT}/update.yml $*
