@@ -8,6 +8,8 @@ TimeoutStartSec=0
 Type=notify
 NotifyAccess=all
 
+ExecStartPre=/usr/bin/docker pull quay.io/deconst/webhook-service
+
 ExecStart=/opt/bin/systemd-docker run \
   --rm \
   --name=webhook-service-%i \
