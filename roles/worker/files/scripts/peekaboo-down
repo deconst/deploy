@@ -43,12 +43,12 @@ echo "Draining ${CONTAINER_NAME}:${APP_PORT} from the load balancer ${LOAD_BALAN
   --env=OS_PASSWORD=${RACKSPACE_APIKEY} \
   --env=OS_REGION_NAME=${RACKSPACE_REGION} \
   --env=APP_PORT=${APP_PORT} \
-  rgbkrk/peekaboo -drain
+  rgbkrk/peekaboo -timeout 600 -drain
 
 # Give connections a chance to drain.
 sleep 3
 
-echo "Disabling ${CONTAINER_NAME}:${APP_PORT} on the load balancer ${LOAD_BALANCER_ID}."
+echo "Deleting ${CONTAINER_NAME}:${APP_PORT} on the load balancer ${LOAD_BALANCER_ID}."
 
 /usr/bin/docker run \
   --rm=true \
@@ -58,4 +58,4 @@ echo "Disabling ${CONTAINER_NAME}:${APP_PORT} on the load balancer ${LOAD_BALANC
   --env=OS_PASSWORD=${RACKSPACE_APIKEY} \
   --env=OS_REGION_NAME=${RACKSPACE_REGION} \
   --env=APP_PORT=${APP_PORT} \
-  rgbkrk/peekaboo -disable
+  rgbkrk/peekaboo -timeout 600 -delete
