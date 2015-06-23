@@ -1,16 +1,28 @@
 #!/bin/bash
 
+source ${ROOT}/script/include/credentials.sh
+
 # Bootstrap the localhost inventory to use the current Python intepreter.
 setup_inventory() {
-  [ -f ${ROOT}/inventory/localhost ] || {
-    PYTHON=$(which python)
+  local INSTANCE=$(credential instance)
+  local DEPLOYMENT=$(credential deployment)
+  local PYTHON=$(which python)
 
-    cat <<EOF >${ROOT}/inventory/localhost
+  cat <<EOF >${ROOT}/inventory/static
 [local]
 localhost ansible_python_interpreter=${PYTHON}
+
+# Common group configuration
+
+[deconst-worker-${INSTANCE}-${DEPLOYMENT}]
+
+[deconst-all:children]
+deconst-worker-${INSTANCE}-${DEPLOYMENT}
+
+[deconst-all:vars]
+ansible_ssh_user=core
+ansible_python_interpreter="PATH=/home/core/bin:$PATH python"
 EOF
-    echo ">> Ansible localhost inventory bootstrapped to use the current Python interpreter."
-  }
 }
 
 # Bootstrap roles from Ansible Galaxy if necessary.
