@@ -59,10 +59,14 @@
 - name: ensure containers are up to date
   command: /opt/bin/pulls.sh
   register: service_pulls
+  failed_when: service_pulls.rc == 1
   changed_when: service_pulls.rc == 2
   tags: update
   notify:
   - restart services
+
+- name: show the pull result
+  debug: var=service_pulls.stdout_lines
 
 - name: unit files
   copy:
