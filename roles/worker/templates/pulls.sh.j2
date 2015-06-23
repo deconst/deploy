@@ -6,7 +6,7 @@ PIDS=""
 
 pull_it()
 {
-  local OUTPUT=$(docker pull quay.io/deconst/${1} 2>&1)
+  local OUTPUT=$(docker pull ${1} 2>&1)
 
   (echo "${OUTPUT}" | grep -l 'Error:' >/dev/null 2>&1) && {
     echo "Error pulling image: ${1}" >&2
