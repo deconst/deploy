@@ -17,7 +17,7 @@
       group: deconst-worker-{{ instance }}-{{ deployment }}
       count: "{{ worker_count }}"
       exact_count: yes
-      image: "{{ image_id_coreos_beta }}"
+      image: "{{ image_coreos_beta }}"
       flavor: "{{ worker_flavor }}"
       key_name: "{{ rackspace_keyname }}"
       wait: yes
