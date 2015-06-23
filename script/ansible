@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -ueo pipefail
+
+ROOT=$(cd $(dirname $0)/.. && pwd)
+
+source ${ROOT}/script/include/credentials.sh
+source ${ROOT}/script/include/setup.sh
+
+setup_inventory
+
+exec ansible deconst-all -i ${ROOT}/inventory "$@"
