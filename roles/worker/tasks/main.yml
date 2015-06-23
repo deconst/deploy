@@ -3,8 +3,88 @@
 - name: pod name ranges
   set_fact:
     pod_names: "[{% for i in range(1, pod_count + 1) %}{{ i }}{% if not loop.last %},{% endif %}{% endfor %}]"
-  tags: service
 
-- include: units.yml
+- name: necessary directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  with_items:
+  - /etc/deconst
+  - /opt/bin
+  sudo: yes
 
-- include: containers.yml
+- name: environment variables
+  template:
+    src: deconst-environment.j2
+    dest: /etc/deconst/environment.sh
+    owner: root
+    group: root
+    mode: 0600
+  sudo: yes
+  notify:
+  - restart services
+
+- name: utility scripts
+  copy:
+    src: scripts/{{ item }}
+    dest: /opt/bin/{{ item }}
+    owner: root
+    group: root
+    mode: 0755
+  with_items:
+  - peekaboo-up
+  - peekaboo-down
+  sudo: yes
+
+- name: pull script
+  template:
+    src: pulls.sh.j2
+    dest: /opt/bin/pulls.sh
+    owner: root
+    group: root
+    mode: 0755
+  sudo: yes
+
+- name: systemd-docker binary
+  get_url: dest=/opt/bin/systemd-docker url=https://github.com/ibuildthecloud/systemd-docker/releases/download/v0.2.0/systemd-docker
+  sudo: yes
+
+- name: systemd-docker is executable
+  file: path=/opt/bin/systemd-docker mode=0755
+  sudo: yes
+
+- name: ensure containers are up to date
+  command: /opt/bin/pulls.sh
+  register: service_pulls
+  changed_when: service_pulls.rc == 2
+  tags: update
+  notify:
+  - restart services
+
+- name: unit files
+  copy:
+    src: services/{{ item }}@.service
+    dest: /etc/systemd/system/{{ item }}@.service
+    owner: root
+    group: root
+    mode: 0644
+  with_items: services
+  register: units
+  sudo: yes
+  notify:
+  - restart services
+
+- name: reload unit files
+  command: systemctl daemon-reload
+  when: units | changed
+  sudo: yes
+
+- name: container services
+  service: name={{ item[1] }}@{{ item[0] }}.service state=started enabled=true
+  with_nested:
+  - pod_names
+  - services
+  sudo: yes

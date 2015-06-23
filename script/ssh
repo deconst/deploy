@@ -1,0 +1,44 @@
+#!/usr/bin/env python
+
+import pyrax
+import yaml
+import re
+import os
+import sys
+
+if len(sys.argv) != 2:
+    print "Usage: {} <hostname>".format(sys.argv[0])
+    sys.exit(1)
+
+hostname = sys.argv[1]
+
+# Get our bearings on the filesystem.
+root = os.path.realpath(os.path.join(os.path.dirname(__file__), ".."))
+
+# Collect credentials.
+with open(os.path.join(root, "credentials.yml")) as credfile:
+    creds = yaml.load(credfile)
+rackspace_username = creds["rackspace_username"]
+rackspace_apikey = creds["rackspace_api_key"]
+rackspace_region = creds["rackspace_region"]
+admin_apikey = re.sub(r'\s+', "", creds["content_admin_apikey"])
+
+pyrax.set_setting("identity_type", "rackspace")
+pyrax.set_setting("region", rackspace_region)
+pyrax.set_credentials(rackspace_username, rackspace_apikey)
+cs = pyrax.cloudservers
+
+the_server = None
+for server in cs.servers.list():
+    if hostname in server.name:
+        if not the_server:
+            the_server = server
+        else:
+            raise Exception("More than one server with that name found.")
+
+if not the_server:
+    raise Exception("No servers with that name found.")
+
+address = the_server.accessIPv4
+
+os.execlp("ssh", "script/ssh", "core@{}".format(address))

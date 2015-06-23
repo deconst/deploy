@@ -1,0 +1,36 @@
+[Unit]
+Description=Deconst Content Service %I
+Requires=docker.service
+After=docker.service
+
+[Service]
+EnvironmentFile=/etc/deconst/environment.sh
+TimeoutStartSec=0
+Type=notify
+NotifyAccess=all
+
+ExecStart=/opt/bin/systemd-docker run \
+  --rm \
+  --name=content-service-%i \
+  --env=RACKSPACE_USERNAME=${RACKSPACE_USERNAME} \
+  --env=RACKSPACE_APIKEY=${RACKSPACE_APIKEY} \
+  --env=RACKSPACE_REGION=${RACKSPACE_REGION} \
+  --env=RACKSPACE_SERVICENET=${RACKSPACE_SERVICENET} \
+  --env=MONGODB_URL=${MONGODB_URL} \
+  --env=ADMIN_APIKEY=${ADMIN_APIKEY} \
+  --env=CONTENT_CONTAINER=${CONTENT_CONTAINER} \
+  --env=ASSET_CONTAINER=${ASSET_CONTAINER} \
+  --env=CONTENT_LOG_LEVEL=${CONTENT_LOG_LEVEL} \
+  --publish=0.0.0.0::8080 \
+  quay.io/deconst/content-service
+
+ExecStartPost=/opt/bin/peekaboo-up content-service-%i ${CONTENT_LB_ID}
+
+ExecStop=/opt/bin/peekaboo-down content-service-%i ${CONTENT_LB_ID}
+ExecStop=/usr/bin/docker stop --time=2 content-service-%i
+ExecStop=/usr/bin/docker rm -f content-service-%i
+
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
