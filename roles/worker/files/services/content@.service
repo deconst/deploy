@@ -31,6 +31,7 @@ ExecStop=/usr/bin/docker stop --time=2 content-service-%i
 ExecStop=/usr/bin/docker rm -f content-service-%i
 
 Restart=always
+RestartSec=30
 
 [Install]
 WantedBy=multi-user.target
