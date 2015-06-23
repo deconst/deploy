@@ -49,11 +49,9 @@
       wait: yes
       state: present
     register: clb_presenter
-    tags: network
 
   - name: locate the load balancer VIP
     set_fact: clb_vip_id={{ clb_presenter.balancer.virtual_ips[0].id }}
-    tags: network
 
   - name: content service load balancer
     rax_clb:
@@ -63,7 +61,6 @@
       wait: yes
       state: present
     register: clb_content_service
-    tags: network
 
   - name: webhook service load balancer
     rax_clb:
@@ -73,7 +70,6 @@
       wait: yes
       state: present
     register: clb_webhook_service
-    tags: network
 
   - name: force the generation of a new token for a fresh cluster
     file: path=.etcd_cluster_token state=absent

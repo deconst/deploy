@@ -3,7 +3,6 @@
 - name: pod name ranges
   set_fact:
     pod_names: "[{% for i in range(1, pod_count + 1) %}{{ i }}{% if not loop.last %},{% endif %}{% endfor %}]"
-  tags: service
 
 - name: necessary directories
   file:
@@ -16,7 +15,6 @@
   - /etc/deconst
   - /opt/bin
   sudo: yes
-  tags: service
 
 - name: environment variables
   template:
@@ -26,7 +24,6 @@
     group: root
     mode: 0600
   sudo: yes
-  tags: service
   notify:
   - restart services
 
@@ -41,7 +38,6 @@
   - peekaboo-up
   - peekaboo-down
   sudo: yes
-  tags: services
 
 - name: pull script
   template:
@@ -51,7 +47,6 @@
     group: root
     mode: 0755
   sudo: yes
-  tags: services
 
 - name: systemd-docker binary
   get_url: dest=/opt/bin/systemd-docker url=https://github.com/ibuildthecloud/systemd-docker/releases/download/v0.2.0/systemd-docker
@@ -65,6 +60,7 @@
   command: /opt/bin/pulls.sh
   register: service_pulls
   changed_when: service_pulls.rc == 2
+  tags: update
   notify:
   - restart services
 
@@ -78,7 +74,6 @@
   with_items: services
   register: units
   sudo: yes
-  tags: service
   notify:
   - restart services
 
@@ -86,7 +81,6 @@
   command: systemctl daemon-reload
   when: units | changed
   sudo: yes
-  tags: service
 
 - name: container services
   service: name={{ item[1] }}@{{ item[0] }}.service state=started enabled=true
@@ -94,4 +88,3 @@
   - pod_names
   - services
   sudo: yes
-  tags: service

@@ -6,4 +6,3 @@
   - pod_names
   - services
   sudo: yes
-  tags: service
