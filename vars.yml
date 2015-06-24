@@ -1,10 +1,10 @@
 ---
 # Common variables
 
-image_ubuntu_1504: Ubuntu 15.04 (Vivid Vervet) (PVHVM)
-image_coreos_stable: CoreOS (Stable)
-image_coreos_beta: CoreOS (Beta)
-image_coreos_alpha: CoreOS (Alpha)
+image_id_ubuntu_1404: 6909f56c-bd77-411a-8c0e-c37876b68d1d
+image_id_coreos_stable: a202bb99-23d3-4c42-a26f-778c2f974e6a
+image_id_coreos_beta: 21289dcb-d757-4a45-9058-28151386d155
+image_id_coreos_alpha: f8f8c267-b3a8-49a9-839f-09977b458762
 
 etcd_api_port: 2379
 etcd_peer_port: 2380
@@ -12,19 +12,3 @@ etcd_peer_port: 2380
 presenter_lb_port: 80
 content_service_lb_port: 8000
 webhook_service_lb_port: 8003
-
-services:
-- content
-- mapping
-- layout
-- webhook
-- etcd-watcher
-- presenter
-
-containers:
-- content-service
-- etcd-watcher
-- layout-service
-- mapping-service
-- presenter
-- webhook-service

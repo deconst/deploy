@@ -5,10 +5,41 @@ set -ueo pipefail
 ROOT=$(cd $(dirname $0)/.. && pwd)
 
 source ${ROOT}/script/include/credentials.sh
-source ${ROOT}/script/include/setup.sh
 
-setup_inventory
-setup_galaxy
+# Set localhost's ansible_python_interpreter path from the current environment.
+[ -f ${ROOT}/inventory/localhost ] || {
+  PYTHON=$(which python)
 
-cd ${ROOT}
+  cat <<EOF >${ROOT}/inventory/localhost
+[local]
+localhost ansible_python_interpreter=${PYTHON}
+EOF
+  echo ">> Ansible localhost inventory bootstrapped to use the current Python interpreter."
+}
+
+# Fetch roles from Galaxy if necessary.
+([ -f ${ROOT}/.galaxy ] && diff ${ROOT}/.galaxy ${ROOT}/requirements.txt >/dev/null 2>&1) || {
+  ([ -d /etc/ansible/roles ] && [ -w /etc/ansible/roles ] && [ -x /etc/ansible/roles ]) || {
+    cat <<EOM 1>&2
+>> /etc/ansible/roles does not exist as a writable directory! You have two options:
+>> 1. Run ansible-galaxy manually with sudo.
+
+   sudo ansible-galaxy --force --role-file ${ROOT}/requirements.txt
+   cp ${ROOT}/requirements.txt ${ROOT}/.galaxy
+
+>> 2. Create and chown /etc/ansible/roles.
+
+   sudo mkdir -p /etc/ansible/roles
+   sudo chown -R ${USER} /etc/ansible/roles
+EOM
+    exit 1
+  }
+
+  ansible-galaxy install --force --role-file ${ROOT}/requirements.txt
+
+  cp requirements.txt ${ROOT}/.galaxy
+  echo ">> Ansible Galaxy roles initialized."
+  echo ">> \"rm ${ROOT}/.galaxy\" to force re-initialization."
+}
+
 exec ansible-playbook -i ${ROOT}/inventory ${ROOT}/site.yml $*
