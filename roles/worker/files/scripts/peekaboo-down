@@ -1,0 +1,61 @@
+#!/bin/bash
+#
+# Drains connections from an about-to-be-terminated service from the load balancer.
+
+set -eou pipefail
+
+[ ! $# = 2 ] && {
+  cat <<USAGE >&2
+Usage: peekaboo-down <container> <lb id>
+
+ Drains connections from a node on a load balancer that corresponds to the first published port of a
+ named Docker container.
+USAGE
+  exit 1
+}
+
+CONTAINER_NAME=${1:-}
+LOAD_BALANCER_ID=${2:-}
+
+# Exit quietly if the container does not exist.
+/usr/bin/docker inspect ${CONTAINER_NAME} >/dev/null 2>&1 || {
+  echo "Container ${CONTAINER_NAME} does not exist."
+  exit 0
+}
+
+# Locate the published port to add to the load balancer.
+APP_PORT=$(/usr/bin/docker inspect \
+  --format='{{index .NetworkSettings.Ports "8080/tcp" 0 "HostPort" }}' \
+  ${CONTAINER_NAME})
+
+[ -z ${APP_PORT} ] && {
+  echo "Unable to find the application port for container ${CONTAINER_NAME}" >&2
+  exit 1
+}
+
+echo "Draining ${CONTAINER_NAME}:${APP_PORT} from the load balancer ${LOAD_BALANCER_ID}."
+
+/usr/bin/docker run \
+  --rm=true \
+  --net=host \
+  --env=LOAD_BALANCER_ID=${LOAD_BALANCER_ID} \
+  --env=OS_USERNAME=${RACKSPACE_USERNAME} \
+  --env=OS_PASSWORD=${RACKSPACE_APIKEY} \
+  --env=OS_REGION_NAME=${RACKSPACE_REGION} \
+  --env=APP_PORT=${APP_PORT} \
+  rgbkrk/peekaboo -timeout 600 -drain
+
+# Give connections a chance to drain.
+sleep 3
+
+echo "Deleting ${CONTAINER_NAME}:${APP_PORT} on the load balancer ${LOAD_BALANCER_ID}."
+
+/usr/bin/docker run \
+  --rm=true \
+  --net=host \
+  --env=LOAD_BALANCER_ID=${LOAD_BALANCER_ID} \
+  --env=OS_USERNAME=${RACKSPACE_USERNAME} \
+  --env=OS_PASSWORD=${RACKSPACE_APIKEY} \
+  --env=OS_REGION_NAME=${RACKSPACE_REGION} \
+  --env=APP_PORT=${APP_PORT} \
+  rgbkrk/peekaboo -timeout 600 -delete
