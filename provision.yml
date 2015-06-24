@@ -13,8 +13,8 @@
   - name: worker hosts
     rax:
       state: present
-      name: deconst-worker-%03d
-      group: deconst-worker
+      name: deconst-worker-{{ instance }}-{{ deployment }}-%03d
+      group: deconst-worker-{{ instance }}-{{ deployment }}
       count: "{{ worker_count }}"
       exact_count: yes
       image: "{{ image_coreos_beta }}"
@@ -28,9 +28,15 @@
       name: "{{ item.name }}"
       ansible_ssh_host: "{{ item.rax_accessipv4 }}"
       fresh_host: yes
-      groups: deconst-worker
+      groups: deconst-worker-{{ instance }}-{{ deployment }}
     when: rax_build_workers.action == "create"
     with_items: rax_build_workers.success
+
+  - name: add all hosts to the correct groups
+    add_host:
+      name: "{{ item.name }}"
+      groups: deconst-worker
+    with_items: rax_build_workers.instances
 
   - name: identify full cluster rebuilds
     set_fact:
@@ -38,36 +44,32 @@
 
   - name: presenter load balancer
     rax_clb:
-      name: deconst-presenter
+      name: deconst-{{ instance }}-presenter
       port: "{{ presenter_lb_port }}"
       wait: yes
       state: present
     register: clb_presenter
-    tags: network
 
   - name: locate the load balancer VIP
     set_fact: clb_vip_id={{ clb_presenter.balancer.virtual_ips[0].id }}
-    tags: network
 
   - name: content service load balancer
     rax_clb:
-      name: deconst-content-service
+      name: deconst-{{ instance }}-content
       port: "{{ content_service_lb_port }}"
       vip_id: "{{ clb_vip_id }}"
       wait: yes
       state: present
     register: clb_content_service
-    tags: network
 
   - name: webhook service load balancer
     rax_clb:
-      name: deconst-webhook-service
+      name: deconst-{{ instance }}-webhook
       port: "{{ webhook_service_lb_port }}"
       vip_id: "{{ clb_vip_id }}"
       wait: yes
       state: present
     register: clb_webhook_service
-    tags: network
 
   - name: force the generation of a new token for a fresh cluster
     file: path=.etcd_cluster_token state=absent
