@@ -4,4 +4,6 @@ set -ueo pipefail
 
 ROOT=$(cd $(dirname $0)/.. && pwd)
 
-exec ${ROOT}/script/ansible -m shell -a "docker ps -a"
+source ${ROOT}/script/include/credentials.sh
+
+exec ansible deconst-all -i ${ROOT}/inventory -m shell -a "docker ps -a"

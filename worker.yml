@@ -8,3 +8,11 @@
   roles:
   - firewalled
   - worker
+
+- hosts: deconst-worker
+  serial: 1
+  vars_files:
+  - vars.yml
+  - credentials.yml
+  roles:
+  - loadbalanced

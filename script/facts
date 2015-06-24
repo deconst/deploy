@@ -4,4 +4,6 @@ set -ueo pipefail
 
 ROOT=$(cd $(dirname $0)/.. && pwd)
 
-exec ${ROOT}/script/ansible -m setup -a "$1"
+source ${ROOT}/script/include/credentials.sh
+
+ansible deconst-all -i ${ROOT}/inventory -m setup -a "$1"

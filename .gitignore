@@ -1,4 +1,4 @@
 credentials.yml
-inventory/static
+inventory/localhost
 .galaxy
 .etcd_cluster_token

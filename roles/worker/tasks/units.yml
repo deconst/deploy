@@ -1,0 +1,24 @@
+---
+
+# Register the unit files to relaunch our containers on system reboot.
+
+- name: unit file templates
+  template:
+    src: "{{ item[1] }}.service.j2"
+    dest: /etc/systemd/system/{{ item[1] }}-{{ item[0] }}.service
+    owner: root
+    group: root
+    mode: 0644
+  with_nested:
+  - pod_names
+  - launcher_units
+  sudo: yes
+  tags: service
+
+- name: enable the launcher units
+  service: name={{ item[1] }}-{{ item[0] }}.service enabled=true
+  with_nested:
+  - pod_names
+  - launcher_units
+  sudo: yes
+  tags: service

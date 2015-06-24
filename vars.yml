@@ -12,19 +12,3 @@ etcd_peer_port: 2380
 presenter_lb_port: 80
 content_service_lb_port: 8000
 webhook_service_lb_port: 8003
-
-services:
-- content
-- mapping
-- layout
-- webhook
-- etcd-watcher
-- presenter
-
-containers:
-- content-service
-- etcd-watcher
-- layout-service
-- mapping-service
-- presenter
-- webhook-service

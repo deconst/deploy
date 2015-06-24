@@ -14,8 +14,6 @@ python -V
 
 # Install virtualenv and virtualenvwrapper, if desired.
 sudo pip install virtualenv virtualenvwrapper
-source /usr/local/bin/virtualenvwrapper.sh
-
 mkvirtualenv deconst-ansible
 
 # Install Ansible and pyrax.
@@ -42,6 +40,7 @@ To deploy or update a cluster:
 ## Utilities
 
 This repository contains a number of utilities to assist in basic ops work. Each script keys off of the credentials in `credentials.yml`, so it will use the correct Rackspace account and hosts.
+
 
  * `script/status` performs a `docker status` on each host. It's useful for quickly seeing if all expected services are up and running.
  * `script/logs <component>` tails the Docker container logs of each matching service across the cluster. The number of lines given can be controlled by setting `LOG_LINES`. For example: `LOG_LINES=50 script/logs presenter`.
