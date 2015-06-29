@@ -1,7 +1,7 @@
 [Unit]
 Description=Deconst Presenter %I
-Requires=docker.service content@%i.service mapping@%i.service layout@%i.service
-After=   docker.service content@%i.service mapping@%i.service layout@%i.service
+Requires=docker.service deconst-content@%i.service deconst-mapping@%i.service deconst-layout@%i.service
+After=   docker.service cdeconst-ontent@%i.service deconst-mapping@%i.service deconst-layout@%i.service
 
 [Service]
 EnvironmentFile=/etc/deconst/environment.sh

@@ -1,7 +1,7 @@
 [Unit]
 Description=Deconst Etcd Watcher %I
-Requires=docker.service mapping@%i.service layout@%i.service etcd2.service
-After=   docker.service mapping@%i.service layout@%i.service etcd2.service
+Requires=docker.service deconst-mapping@%i.service deconst-layout@%i.service etcd2.service
+After=   docker.service deconst-mapping@%i.service deconst-layout@%i.service etcd2.service
 
 [Service]
 EnvironmentFile=/etc/deconst/environment.sh
