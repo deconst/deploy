@@ -4,21 +4,17 @@
   template: src=rules-save.j2 dest=/var/lib/iptables/rules-save
   sudo: yes
   register: firewall_rules
-  tags: network
 
 - name: enable the iptables service
   service: name=iptables-restore.service enabled=yes
   sudo: yes
-  tags: network
 
 - name: invoke the iptables service
   service: name=iptables-restore.service state=started
   when: firewall_rules | changed
   sudo: yes
-  tags: network
 
 - name: restart the docker daemon to reapply its iptables rules
   service: name=docker.service state=restarted
   when: firewall_rules | changed
   sudo: yes
-  tags: network

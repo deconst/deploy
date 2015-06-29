@@ -8,7 +8,5 @@ source ${ROOT}/script/include/credentials.sh
 source ${ROOT}/script/include/setup.sh
 
 setup_inventory
-setup_galaxy
 
-cd ${ROOT}
-exec ansible-playbook -i ${ROOT}/inventory ${ROOT}/site.yml $*
+exec ansible deconst-all -i ${ROOT}/inventory "$@"
