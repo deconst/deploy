@@ -1,8 +1,0 @@
----
-
-- name: restart services
-  service: name={{ item[1] }}@{{ item[0] }}.service state=restarted
-  with_nested:
-  - pod_names
-  - services
-  sudo: yes

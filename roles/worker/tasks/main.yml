@@ -24,8 +24,7 @@
     group: root
     mode: 0600
   sudo: yes
-  notify:
-  - restart services
+  register: environment
 
 - name: utility scripts
   copy:
@@ -62,8 +61,6 @@
   failed_when: service_pulls.rc == 1
   changed_when: service_pulls.rc == 2
   tags: update
-  notify:
-  - restart services
 
 - name: show the pull result
   debug: var=service_pulls.stdout_lines
@@ -78,8 +75,6 @@
   with_items: services
   register: units
   sudo: yes
-  notify:
-  - restart services
 
 - name: reload unit files
   command: systemctl daemon-reload
@@ -91,4 +86,13 @@
   with_nested:
   - pod_names
   - services
+  register: containers
+  sudo: yes
+
+- name: restart services
+  service: name={{ item[1] }}@{{ item[0] }}.service state=restarted
+  with_nested:
+  - pod_names
+  - services
+  when: (environment|changed or service_pulls|changed or units|changed) and not (containers|changed)
   sudo: yes
