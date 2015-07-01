@@ -18,7 +18,7 @@
 {% endfor %}
 
 # etcd peering and clients over ServiceNet
-{% for host in groups['deconst-worker'] %}
+{% for host in groups['deconst-worker']|sort %}
 -A INPUT -i eth1 -p tcp --source {{ hostvars[host].ansible_eth1.ipv4.address }} --dport 2380 -j ACCEPT
 -A INPUT -i eth1 -p tcp --source {{ hostvars[host].ansible_eth1.ipv4.address }} --dport 2379 -j ACCEPT
 {% endfor %}

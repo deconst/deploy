@@ -13,7 +13,7 @@ RestartSec=10s
 LimitNOFILE=40000
 
 # Static cluster bootstrapping configuration
-Environment=ETCD_INITIAL_CLUSTER={% for host in groups['deconst-worker'] -%}
+Environment=ETCD_INITIAL_CLUSTER={% for host in groups['deconst-worker']|sort -%}
   {{ host }}=http://{{ hostvars[host].ansible_eth1.ipv4.address }}:{{ etcd_peer_port }}
   {%- if not loop.last %},{% endif -%}
 {%- endfor %}
