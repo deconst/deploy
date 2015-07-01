@@ -15,16 +15,10 @@ webhook_service_lb_port: 8003
 
 services:
 - deconst-content
-- deconst-mapping
-- deconst-layout
 - deconst-webhook
-- deconst-etcd-watcher
 - deconst-presenter
 
 containers:
 - content-service
-- etcd-watcher
-- layout-service
-- mapping-service
-- presenter
 - webhook-service
+- presenter
