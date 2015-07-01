@@ -7,4 +7,6 @@
 
 - include: worker.yml tags=worker
 
+- include: restart.yml tags=restart
+
 - include: webhook.yml tags=webhook

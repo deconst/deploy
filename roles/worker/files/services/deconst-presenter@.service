@@ -1,7 +1,7 @@
 [Unit]
 Description=Deconst Presenter %I
-Requires=docker.service deconst-content@%i.service deconst-mapping@%i.service deconst-layout@%i.service
-After=   docker.service cdeconst-ontent@%i.service deconst-mapping@%i.service deconst-layout@%i.service
+Requires=docker.service deconst-content@%i.service
+After=   docker.service deconst-content@%i.service
 
 [Service]
 EnvironmentFile=/etc/deconst/environment.sh
@@ -13,13 +13,11 @@ ExecStart=/opt/bin/systemd-docker run \
   --rm \
   --name=presenter-%i \
   --link=content-service-%i:content-service \
-  --link=mapping-service-%i:mapping-service \
-  --link=layout-service-%i:layout-service \
   --env=CONTENT_SERVICE_URL=http://content-service:8080/ \
-  --env=MAPPING_SERVICE_URL=http://mapping-service:8080/ \
-  --env=LAYOUT_SERVICE_URL=http://layout-service:8080/ \
+  --env=CONTROL_REPO_PATH=/var/deconst/control
   --env=PRESENTED_URL_DOMAIN=${PRESENTED_URL_DOMAIN} \
   --env=PRESENTER_LOG_LEVEL=${PRESENTER_LOG_LEVEL} \
+  --volume=/var/deconst/control:/var/deconst/control:ro \
   --publish=0.0.0.0::8080 \
   quay.io/deconst/presenter
 

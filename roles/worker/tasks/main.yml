@@ -13,6 +13,7 @@
     mode: 0755
   with_items:
   - /etc/deconst
+  - /var/deconst
   - /opt/bin
   sudo: yes
 
@@ -76,6 +77,15 @@
   register: units
   sudo: yes
 
+- name: control repository
+  git:
+    repo: "{{ control_repository_url }}"
+    version: "{{ control_repository_branch }}"
+    dest: /var/deconst/control
+    force: yes
+  sudo: yes
+  tags: control
+
 - name: reload unit files
   command: systemctl daemon-reload
   when: units | changed
@@ -87,12 +97,4 @@
   - pod_names
   - services
   register: containers
-  sudo: yes
-
-- name: restart services
-  service: name={{ item[1] }}@{{ item[0] }}.service state=restarted
-  with_nested:
-  - pod_names
-  - services
-  when: (environment|changed or service_pulls|changed or units|changed) and not (containers|changed)
   sudo: yes
