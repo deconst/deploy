@@ -15,12 +15,10 @@ webhook_service_lb_port: 8003
 
 services:
 - deconst-content
-- deconst-webhook
 - deconst-presenter
 
 containers:
 - content-service
-- webhook-service
 - presenter
 
 # Current public key for github.com.

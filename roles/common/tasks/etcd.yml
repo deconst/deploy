@@ -16,10 +16,3 @@
 - name: etcd2 service
   service: name=etcd2.service enabled=yes state=started
   sudo: yes
-
-- name: ensure etcd2 is listening
-  wait_for: port={{ etcd_api_port }} delay=5 state=started
-
-- name: bootstrap the etcd key
-  command: etcdctl set /deconst/control_updated 1
-  changed_when: no

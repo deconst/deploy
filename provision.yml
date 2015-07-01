@@ -62,15 +62,6 @@
       state: present
     register: clb_content_service
 
-  - name: webhook service load balancer
-    rax_clb:
-      name: deconst-{{ instance }}-webhook
-      port: "{{ webhook_service_lb_port }}"
-      vip_id: "{{ clb_vip_id }}"
-      wait: yes
-      state: present
-    register: clb_webhook_service
-
   - name: force the generation of a new token for a fresh cluster
     file: path=.etcd_cluster_token state=absent
     when: fresh_cluster
