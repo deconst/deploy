@@ -1,0 +1,20 @@
+---
+# Coordinate an orderly restart of the cluster if necessary.
+#
+# The variables in the "when:" clause are populated by the tasks in the worker role. This task
+# has been split out from the main role so that it can be performed serially.
+
+- hosts: deconst-worker
+  vars_files:
+  - vars.yml
+  - credentials.yml
+  serial: 1
+  tasks:
+
+  - name: restart services
+    service: name={{ item[1] }}@{{ item[0] }}.service state=restarted
+    with_nested:
+    - pod_names
+    - services
+    when: (environment|changed or service_pulls|changed or units|changed) and not (containers|changed)
+    sudo: yes
