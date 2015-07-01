@@ -14,7 +14,7 @@ ExecStart=/opt/bin/systemd-docker run \
   --name=presenter-%i \
   --link=content-service-%i:content-service \
   --env=CONTENT_SERVICE_URL=http://content-service:8080/ \
-  --env=CONTROL_REPO_PATH=/var/deconst/control
+  --env=CONTROL_REPO_PATH=/var/deconst/control \
   --env=PRESENTED_URL_DOMAIN=${PRESENTED_URL_DOMAIN} \
   --env=PRESENTER_LOG_LEVEL=${PRESENTER_LOG_LEVEL} \
   --volume=/var/deconst/control:/var/deconst/control:ro \
