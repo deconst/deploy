@@ -13,6 +13,7 @@
     mode: 0755
   with_items:
   - /etc/deconst
+  - /var/deconst
   - /opt/bin
   sudo: yes
 
@@ -75,6 +76,15 @@
   with_items: services
   register: units
   sudo: yes
+
+- name: control repository
+  git:
+    repo: "{{ control_repository_url }}"
+    version: "{{ control_repository_branch }}"
+    dest: /var/deconst/control
+    force: yes
+  sudo: yes
+  tags: control
 
 - name: reload unit files
   command: systemctl daemon-reload
