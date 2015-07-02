@@ -22,6 +22,7 @@
       key_name: "{{ rackspace_keyname }}"
       wait: yes
     register: rax_build_workers
+    tags: control
 
   - name: add newly provisioned workers to the correct groups
     add_host:
@@ -37,6 +38,7 @@
       name: "{{ item.name }}"
       groups: deconst-worker
     with_items: rax_build_workers.instances
+    tags: control
 
   - name: identify full cluster rebuilds
     set_fact:
