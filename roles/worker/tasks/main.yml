@@ -52,8 +52,15 @@
   get_url: dest=/opt/bin/systemd-docker url=https://github.com/ibuildthecloud/systemd-docker/releases/download/v0.2.0/systemd-docker
   sudo: yes
 
-- name: systemd-docker is executable
-  file: path=/opt/bin/systemd-docker mode=0755
+- name: peekaboo binary
+  get_url: dest=/opt/bin/peekaboo url=https://github.com/rgbkrk/peekaboo/releases/download/v0.0.1-alpha/peekaboo
+  sudo: yes
+
+- name: systemd-docker and peekaboo are executable
+  file: path=/opt/bin/{{ item }} mode=0755
+  with_items:
+  - systemd-docker
+  - peekaboo
   sudo: yes
 
 - name: ensure containers are up to date
