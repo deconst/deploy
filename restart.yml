@@ -18,3 +18,4 @@
     - services
     when: (environment|changed or service_pulls|changed or units|changed) and not (containers|changed)
     sudo: yes
+    tags: restart
