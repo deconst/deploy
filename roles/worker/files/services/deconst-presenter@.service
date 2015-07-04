@@ -9,6 +9,8 @@ TimeoutSec=5min
 Type=notify
 NotifyAccess=all
 
+ExecStartPre=-/usr/bin/docker rm -f presenter-%i
+
 ExecStart=/opt/bin/systemd-docker run \
   --name=presenter-%i \
   --link=content-service-%i:content-service \
