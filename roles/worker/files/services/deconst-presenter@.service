@@ -10,7 +10,6 @@ Type=notify
 NotifyAccess=all
 
 ExecStart=/opt/bin/systemd-docker run \
-  --rm \
   --name=presenter-%i \
   --link=content-service-%i:content-service \
   --env=CONTENT_SERVICE_URL=http://content-service:8080/ \
