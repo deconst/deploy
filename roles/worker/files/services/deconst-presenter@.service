@@ -9,9 +9,8 @@ TimeoutSec=5min
 Type=notify
 NotifyAccess=all
 
-ExecStartPre=-/usr/bin/docker rm -f presenter-%i
-
 ExecStart=/opt/bin/systemd-docker run \
+  --rm \
   --name=presenter-%i \
   --link=content-service-%i:content-service \
   --env=CONTENT_SERVICE_URL=http://content-service:8080/ \
