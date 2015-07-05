@@ -9,9 +9,8 @@ TimeoutSec=5min
 Type=notify
 NotifyAccess=all
 
-ExecStartPre=-/usr/bin/docker rm -f content-service-%i
-
 ExecStart=/opt/bin/systemd-docker run \
+  --rm \
   --name=content-service-%i \
   --env=RACKSPACE_USERNAME=${RACKSPACE_USERNAME} \
   --env=RACKSPACE_APIKEY=${RACKSPACE_APIKEY} \
