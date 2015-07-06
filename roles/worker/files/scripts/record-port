@@ -1,0 +1,48 @@
+#!/bin/bash
+#
+# Record the port number of the container named as the first argument.
+
+set -eou pipefail
+
+CONTAINER_NAME=${1:-}
+
+[ -z "${CONTAINER_NAME}" ] && {
+  cat <<USAGE >&2
+Usage: record-port <container>
+
+  Creates a file containing the publicly exposed port of a named container to a file at:
+  /var/deconst/ports/<container-name>.port
+USAGE
+  exit 1
+}
+
+PORT_PATH=/var/deconst/ports/${CONTAINER_NAME}.port
+
+# Remove any pre-existing file at that path.
+[ -e "${PORT_PATH}" ] && {
+  echo "Removing pre-existing file ${PORT_PATH}."
+  rm -f "${PORT_PATH}"
+}
+
+# Wait for the container to exist.
+ATTEMPT=0
+while ! /usr/bin/docker inspect ${CONTAINER_NAME} >/dev/null 2>&1 ; do
+  [ ${ATTEMPT} -lt 300 ] || {
+    echo "${CONTAINER_NAME} never launched." >&2
+    exit 1
+  }
+
+  echo "Waiting for ${CONTAINER_NAME} to launch: ${ATTEMPT}"
+  ATTEMPT=$(( ${ATTEMPT} + 1 ))
+
+  sleep 1
+done
+
+# Locate the published port to add to the load balancer.
+APP_PORT=$(/usr/bin/docker inspect \
+  --format='{{index .NetworkSettings.Ports "8080/tcp" 0 "HostPort" }}' \
+  ${CONTAINER_NAME})
+
+# Write the port number to the appropriate path.
+echo "Writing port ${APP_PORT} to ${PORT_PATH} for container ${CONTAINER_NAME}."
+echo -n ${APP_PORT} > ${PORT_PATH}

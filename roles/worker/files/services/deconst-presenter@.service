@@ -21,6 +21,7 @@ ExecStart=/opt/bin/systemd-docker run \
   --publish=0.0.0.0::8080 \
   quay.io/deconst/presenter
 
+ExecStartPost=/opt/bin/record-port presenter-%i
 ExecStartPost=/opt/bin/peekaboo-up presenter-%i ${PRESENTER_LB_ID}
 
 ExecStop=/opt/bin/peekaboo-down presenter-%i ${PRESENTER_LB_ID}
