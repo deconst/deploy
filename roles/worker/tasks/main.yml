@@ -13,7 +13,7 @@
     mode: 0755
   with_items:
   - /etc/deconst
-  - /var/deconst
+  - /var/deconst/ports
   - /opt/bin
   sudo: yes
 
@@ -35,6 +35,7 @@
     group: root
     mode: 0755
   with_items:
+  - record-port
   - peekaboo-up
   - peekaboo-down
   sudo: yes

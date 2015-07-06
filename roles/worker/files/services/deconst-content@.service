@@ -24,6 +24,7 @@ ExecStart=/opt/bin/systemd-docker run \
   --publish=0.0.0.0::8080 \
   quay.io/deconst/content-service
 
+ExecStartPost=/opt/bin/record-port content-service-%i
 ExecStartPost=/opt/bin/peekaboo-up content-service-%i ${CONTENT_LB_ID}
 
 ExecStop=/opt/bin/peekaboo-down content-service-%i ${CONTENT_LB_ID}

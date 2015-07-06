@@ -17,16 +17,16 @@ USAGE
 CONTAINER_NAME=${1:-}
 LOAD_BALANCER_ID=${2:-}
 
-# Exit quietly if the container does not exist.
-/usr/bin/docker inspect ${CONTAINER_NAME} >/dev/null 2>&1 || {
-  echo "Container ${CONTAINER_NAME} does not exist."
-  exit 0
+# Locate the published port to add to the load balancer.
+
+PORT_PATH=/var/deconst/ports/${CONTAINER_NAME}.port
+
+[ -e ${PORT_PATH} ] || {
+  echo "Port file ${PORT_PATH} does not exist."
+  exit 1
 }
 
-# Locate the published port to add to the load balancer.
-APP_PORT=$(/usr/bin/docker inspect \
-  --format='{{index .NetworkSettings.Ports "8080/tcp" 0 "HostPort" }}' \
-  ${CONTAINER_NAME})
+APP_PORT=$(cat ${PORT_PATH})
 
 [ -z ${APP_PORT} ] && {
   echo "Unable to find the application port for container ${CONTAINER_NAME}" >&2
@@ -46,5 +46,8 @@ export APP_PORT=${APP_PORT}
 # Give connections a chance to drain.
 sleep 3
 
-echo "Deleting ${CONTAINER_NAME}:${APP_PORT} on the load balancer ${LOAD_BALANCER_ID}."
+echo "Deleting ${CONTAINER_NAME}:${APP_PORT} from the load balancer ${LOAD_BALANCER_ID}."
 /opt/bin/peekaboo -delete
+
+echo "Removing port file ${PORT_PATH}."
+rm -f "${PORT_PATH}"
