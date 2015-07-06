@@ -30,7 +30,7 @@ lines = int(os.environ.get("LOG_LINES", "100"))
 
 for server in cs.servers.list():
     group = server.metadata.get('group')
-    if not group.startswith("deconst-worker"):
+    if not group or not group.startswith("deconst-worker"):
         continue
 
     print "*{:*^78}*".format(" SERVER: " + server.name + " ")
