@@ -25,14 +25,17 @@ rackspace_apikey = creds["rackspace_api_key"]
 rackspace_region = creds["rackspace_region"]
 admin_apikey = re.sub(r'\s+', "", creds["content_admin_apikey"])
 
+instance_name = creds["instance"]
+
 pyrax.set_setting("identity_type", "rackspace")
 pyrax.set_setting("region", rackspace_region)
 pyrax.set_credentials(rackspace_username, rackspace_apikey)
 clb = pyrax.cloud_loadbalancers
 
 the_lb = None
+content_lb_name = "deconst-{}-content".format(instance_name)
 for lb in clb.list():
-    if lb.name == "deconst-content-service":
+    if lb.name == content_lb_name:
         the_lb = lb
 
 if not the_lb:
