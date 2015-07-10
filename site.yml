@@ -5,6 +5,8 @@
 
 - include: common.yml tags=common
 
+- include: elastic.yml tags=elastic
+
 - include: worker.yml tags=worker
 
 - include: restart.yml tags=restart
