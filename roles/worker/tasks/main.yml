@@ -4,19 +4,6 @@
   set_fact:
     pod_names: "[{% for i in range(1, pod_count + 1) %}{{ i }}{% if not loop.last %},{% endif %}{% endfor %}]"
 
-- name: necessary directories
-  file:
-    path: "{{ item }}"
-    state: directory
-    owner: root
-    group: root
-    mode: 0755
-  with_items:
-  - /etc/deconst
-  - /var/deconst/ports
-  - /opt/bin
-  sudo: yes
-
 - name: environment variables
   template:
     src: deconst-environment.j2
@@ -40,32 +27,16 @@
   - peekaboo-down
   sudo: yes
 
-- name: pull script
-  template:
-    src: pulls.sh.j2
-    dest: /opt/bin/pulls.sh
-    owner: root
-    group: root
-    mode: 0755
-  sudo: yes
-
-- name: systemd-docker binary
-  get_url: dest=/opt/bin/systemd-docker url=https://github.com/ibuildthecloud/systemd-docker/releases/download/v0.2.0/systemd-docker
-  sudo: yes
-
 - name: peekaboo binary
   get_url: dest=/opt/bin/peekaboo url=https://github.com/rgbkrk/peekaboo/releases/download/v0.0.1-alpha/peekaboo
   sudo: yes
 
-- name: systemd-docker and peekaboo are executable
-  file: path=/opt/bin/{{ item }} mode=0755
-  with_items:
-  - systemd-docker
-  - peekaboo
+- name: peekaboo is executable
+  file: path=/opt/bin/peekaboo mode=0755
   sudo: yes
 
 - name: ensure containers are up to date
-  command: /opt/bin/pulls.sh
+  command: /opt/bin/multipull rgbkrk/peekaboo {% for image in containers %}quay.io/deconst/{{ image }} {% endfor %}
   register: service_pulls
   failed_when: service_pulls.rc == 1
   changed_when: service_pulls.rc == 2
