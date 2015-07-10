@@ -1,5 +1,0 @@
----
-
-- name: trust GitHub users
-  authorized_key: user=core state=present key=https://github.com/{{ item }}.keys
-  with_items: github_usernames

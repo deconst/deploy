@@ -1,0 +1,49 @@
+#!/bin/bash
+#
+
+IMAGES="$*"
+PIDS=""
+
+pull_it()
+{
+  local OUTPUT=$(docker pull ${1} 2>&1)
+
+  (echo "${OUTPUT}" | grep -l 'Error:' >/dev/null 2>&1) && {
+    echo "Error pulling image: ${1}" >&2
+    echo "${OUTPUT}" >&2
+    return 1
+  }
+
+  (echo "${OUTPUT}" | grep -l 'newer image' >/dev/null 2>&1) && {
+    echo "Updated image pulled: ${1}"
+    return 2
+  }
+
+  # Successful pull of nothing
+  echo "Image already up to date: ${1}"
+  return 0
+}
+
+for IMAGE in ${IMAGES}; do
+  pull_it ${IMAGE} &
+  PIDS="${PIDS} $!"
+done
+
+echo "Waiting for all pulls to complete."
+UPDATE="false"
+FAILURE="false"
+for PID in ${PIDS}; do
+  wait ${PID}
+  STATUS=$?
+
+  [ "${STATUS}" = "1" ] && FAILURE="true"
+  [ "${STATUS}" = "2" ] && UPDATE="true"
+done
+echo "All images pulled."
+
+[ ${UPDATE} = "true" ] && echo "At least one image was updated."
+[ ${FAILURE} = "true" ] && echo "At least one pull failed."
+
+[ ${UPDATE} = "true" ] && exit 2
+[ ${FAILURE} = "true" ] && exit 1
+exit 0

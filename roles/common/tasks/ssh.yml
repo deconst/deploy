@@ -1,0 +1,18 @@
+---
+
+- name: disable password authentication over SSH
+  copy: src=sshd_config dest=/etc/ssh/sshd_config owner=root group=root mode=0644
+  sudo: yes
+
+- name: trust github's public key
+  lineinfile:
+    dest: /etc/ssh/ssh_known_hosts
+    create: yes
+    state: present
+    line: "{{ github_ssh_pubkey | replace(' ', '') | trim }}"
+    regexp: "^github\\.com"
+  sudo: yes
+
+- name: trust GitHub users
+  authorized_key: user=core state=present key=https://github.com/{{ item }}.keys
+  with_items: github_usernames
