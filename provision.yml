@@ -13,8 +13,8 @@
   - name: worker hosts
     rax:
       state: present
-      name: deconst-worker-{{ instance }}-{{ deployment }}-%03d
-      group: deconst-worker-{{ instance }}-{{ deployment }}
+      name: deconst-{{ instance }}-worker-{{ deployment }}-%03d
+      group: deconst-{{ instance }}-worker-{{ deployment }}
       count: "{{ worker_count }}"
       exact_count: yes
       image: "{{ image_coreos_beta }}"
@@ -29,18 +29,18 @@
       name: "{{ item.name }}"
       ansible_ssh_host: "{{ item.rax_accessipv4 }}"
       fresh_host: yes
-      groups: deconst-worker-{{ instance }}-{{ deployment }}
+      groups: deconst-{{ instance }}-worker-{{ deployment }}
     when: rax_build_workers.action == "create"
     with_items: rax_build_workers.success
 
-  - name: add all hosts to the correct groups
+  - name: add all worker hosts to the correct groups
     add_host:
       name: "{{ item.name }}"
       groups: deconst-worker
     with_items: rax_build_workers.instances
     tags: control
 
-  - name: identify full cluster rebuilds
+  - name: identify full worker cluster rebuilds
     set_fact:
       fresh_cluster: "{{ (rax_build_workers.action == 'create' and rax_build_workers.success | length == worker_count) | bool }}"
 
