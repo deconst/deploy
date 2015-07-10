@@ -1,0 +1,35 @@
+# {{ ansible_managed }}
+
+[Unit]
+Description=etcd2
+Conflicts=etcd.service
+
+[Service]
+User=etcd
+Environment=ETCD_DATA_DIR=/var/lib/etcd2
+ExecStart=/usr/bin/etcd2
+Restart=always
+RestartSec=10s
+LimitNOFILE=40000
+
+# Static cluster bootstrapping configuration
+Environment=ETCD_INITIAL_CLUSTER={% for host in groups['deconst-worker']|sort -%}
+  {{ host }}=http://{{ hostvars[host].ansible_eth1.ipv4.address }}:{{ etcd_peer_port }}
+  {%- if not loop.last %},{% endif -%}
+{%- endfor %}
+
+Environment=ETCD_INITIAL_ADVERTISE_PEER_URLS=http://{{ ansible_eth1.ipv4.address }}:{{ etcd_peer_port }}
+Environment=ETCD_INITIAL_CLUSTER_STATE={% if hostvars.localhost.fresh_cluster %}new{% else %}existing{% endif %}
+
+Environment=ETCD_INITIAL_CLUSTER_TOKEN={{ hostvars.localhost.etcd_cluster_token }}
+
+# General service configuration
+
+Environment=ETCD_NAME={{ inventory_hostname }}
+Environment=ETCD_LISTEN_PEER_URLS=http://127.0.0.1:{{ etcd_peer_port }},http://{{ ansible_eth1.ipv4.address }}:{{ etcd_peer_port }}
+Environment=ETCD_LISTEN_CLIENT_URLS=http://127.0.0.1:{{ etcd_api_port }},{{ etcd_api_url }}
+Environment=ETCD_ADVERTISE_CLIENT_URLS={{ etcd_api_url }}
+Environment=ETCD_ELECTION_TIMEOUT=1200
+
+[Install]
+WantedBy=multi-user.target
