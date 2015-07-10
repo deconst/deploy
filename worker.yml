@@ -6,5 +6,5 @@
   - vars.yml
   - credentials.yml
   roles:
-  - firewalled
+  - etcd
   - worker
