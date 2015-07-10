@@ -14,14 +14,16 @@ localhost ansible_python_interpreter=${PYTHON}
 
 # Common group configuration
 
-[deconst-worker-${INSTANCE}-${DEPLOYMENT}]
-
-[deconst-all:children]
-deconst-worker-${INSTANCE}-${DEPLOYMENT}
-
-[deconst-all:vars]
+[deconst-${INSTANCE}-worker-${DEPLOYMENT}:vars]
 ansible_ssh_user=core
 ansible_python_interpreter="PATH=/home/core/bin:$PATH python"
+
+[deconst-${INSTANCE}-elastic:vars]
+ansible_ssh_user=root
+
+[deconst-all:children]
+deconst-${INSTANCE}-worker-${DEPLOYMENT}
+deconst-${INSTANCE}-elastic
 EOF
 }
 
