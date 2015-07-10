@@ -44,6 +44,28 @@
     set_fact:
       fresh_cluster: "{{ (rax_build_workers.action == 'create' and rax_build_workers.success | length == worker_count) | bool }}"
 
+  - name: elasticsearch hosts
+    rax:
+      state: present
+      name: deconst-{{ instance }}-elastic-%03d
+      group: deconst-{{ instance }}-elastic
+      count: "{{ elastic_count }}"
+      exact_count: yes
+      image: "{{ image_coreos_beta_onmetal }}"
+      flavor: "{{ elastic_flavor }}"
+      key_name: "{{ rackspace_keyname }}"
+      wait: yes
+    register: rax_build_elastic
+    tags: elastic
+
+  - name: add all elasticsearch hosts to the correct groups
+    add_host:
+      name: "{{ item.name }}"
+      ansible_ssh_host: "{{ item.rax_accessipv4 }}"
+      groups: deconst-elastic
+    with_items: rax_build_elastic.instances
+    tags: elastic
+
   - name: presenter load balancer
     rax_clb:
       name: deconst-{{ instance }}-presenter

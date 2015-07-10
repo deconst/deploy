@@ -1,10 +1,11 @@
 ---
 # Common variables
 
-image_ubuntu_1504: Ubuntu 15.04 (Vivid Vervet) (PVHVM)
 image_coreos_stable: CoreOS (Stable)
 image_coreos_beta: CoreOS (Beta)
 image_coreos_alpha: CoreOS (Alpha)
+
+image_coreos_beta_onmetal: OnMetal - CoreOS (Beta)
 
 etcd_api_port: 2379
 etcd_peer_port: 2380
