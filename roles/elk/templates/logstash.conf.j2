@@ -9,13 +9,13 @@ output {
     protocol => "http"
     host => [
     {%- for elastic_host in elasticsearch_hosts -%}
-      "{{ elastic_host }}:{{ elastic_api_port }}"
+      "{{ elastic_host }}:{{ elasticsearch_api_port }}"
       {%- if not loop.last %},{% endif -%}
     {%- endfor -%}
     ]
-    {%- if elasticsearch_api_proto == "https" %}
+{% if elasticsearch_api_proto == "https" %}
     ssl => true
-    {%- endif %}
+{% endif %}
     user => "{{ elasticsearch_username }}"
     password => "{{ elasticsearch_password }}"
   }
