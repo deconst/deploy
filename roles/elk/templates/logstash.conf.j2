@@ -1,0 +1,23 @@
+input {
+  http {
+    port => 5000
+  }
+}
+
+output {
+  elasticsearch {
+    protocol => "http",
+    host => [
+    {% for elastic_host in elasticsearch_hosts %}
+      "{{ elastic_host }}"
+      {%- if not loop.last %},{% endif %}
+    {% endfor %}
+    ],
+    port => "{{ elasticsearch_api_port }}",
+    {% if elasticsearch_api_proto == "https" %}
+    ssl => true,
+    {% endif %}
+    user => "{{ elasticsearch_username }}",
+    password => "{{ elasticsearch_password }}"
+  }
+}

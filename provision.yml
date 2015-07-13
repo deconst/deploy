@@ -51,7 +51,7 @@
       group: deconst-{{ instance }}-elastic
       count: "{{ elastic_count }}"
       exact_count: yes
-      image: "{{ image_coreos_beta_onmetal }}"
+      image: "{{ image_coreos_beta }}"
       flavor: "{{ elastic_flavor }}"
       key_name: "{{ rackspace_keyname }}"
       wait: yes
@@ -110,4 +110,4 @@
       state: present
       line: "{{ lookup('pipe', 'ssh-keyscan -t rsa ' + item.rax_accessipv4 )}}"
       regexp: "^{{ item.rax_accessipv4 }}"
-    with_items: rax_build_workers.success
+    with_items: "{{ rax_build_workers.success|union(rax_build_elastic.success) }}"

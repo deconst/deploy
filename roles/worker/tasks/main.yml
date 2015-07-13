@@ -36,14 +36,14 @@
   sudo: yes
 
 - name: ensure containers are up to date
-  command: /opt/bin/multipull rgbkrk/peekaboo {% for image in containers %}quay.io/deconst/{{ image }} {% endfor %}
-  register: service_pulls
-  failed_when: service_pulls.rc == 1
-  changed_when: service_pulls.rc == 2
+  command: /opt/bin/multipull rgbkrk/peekaboo {% for image in worker_containers %}quay.io/deconst/{{ image }} {% endfor %}
+  register: worker_pulls
+  failed_when: worker_pulls.rc == 1
+  changed_when: worker_pulls.rc == 2
   tags: update
 
 - name: show the pull result
-  debug: var=service_pulls.stdout_lines
+  debug: var=worker_pulls.stdout_lines
 
 - name: unit files
   copy:
@@ -52,8 +52,8 @@
     owner: root
     group: root
     mode: 0644
-  with_items: services
-  register: units
+  with_items: worker_services
+  register: worker_units
   sudo: yes
 
 - name: control repository
@@ -67,13 +67,13 @@
 
 - name: reload unit files
   command: systemctl daemon-reload
-  when: units | changed
+  when: worker_units | changed
   sudo: yes
 
 - name: container services
   service: name={{ item[1] }}@{{ item[0] }}.service state=started enabled=true
   with_nested:
   - pod_names
-  - services
-  register: containers
+  - worker_services
+  register: worker_service_results
   sudo: yes

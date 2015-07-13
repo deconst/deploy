@@ -15,7 +15,7 @@
     service: name={{ item[1] }}@{{ item[0] }}.service state=restarted
     with_nested:
     - pod_names
-    - services
-    when: (environment|changed or service_pulls|changed or units|changed) and not (containers|changed)
+    - worker_services
+    when: (environment|changed or worker_pulls|changed or worker_units|changed) and not (worker_service_results|changed)
     sudo: yes
     tags: restart

@@ -5,8 +5,6 @@ image_coreos_stable: CoreOS (Stable)
 image_coreos_beta: CoreOS (Beta)
 image_coreos_alpha: CoreOS (Alpha)
 
-image_coreos_beta_onmetal: OnMetal - CoreOS (Beta)
-
 etcd_api_port: 2379
 etcd_peer_port: 2380
 
@@ -14,13 +12,21 @@ presenter_lb_port: 80
 content_service_lb_port: 8000
 webhook_service_lb_port: 8003
 
-services:
+worker_services:
 - deconst-content
 - deconst-presenter
 
-containers:
+worker_containers:
 - content-service
 - presenter
+
+elastic_services:
+- deconst-kibana
+- deconst-logstash
+
+elastic_containers:
+- kibana
+- logstash
 
 # Current public key for github.com.
 # Update with: ssh-keyscan -t rsa github.com

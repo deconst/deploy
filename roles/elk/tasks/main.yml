@@ -1,0 +1,65 @@
+---
+# Launch containers for ELK minus the E, configured to talk to our hosted Elasticsearch
+
+- name: ensure containers are up to date
+  command: /opt/bin/multipull {{ elastic_containers|join(" ") }}
+  register: elastic_pulls
+  failed_when: elastic_pulls.rc == 1
+  changed_when: elastic_pulls.rc == 2
+  tags: update
+
+- name: show the pull result
+  debug: var=elastic_pulls.stdout_lines
+
+- name: configuration directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  with_items:
+  - /etc/logstash
+  - /etc/kibana
+  sudo: yes
+
+- name: logstash configuration
+  template:
+    src: logstash.conf.j2
+    dest: /etc/logstash/logstash.conf
+    owner: root
+    group: root
+    mode: 0644
+  sudo: yes
+
+- name: kibana configuration
+  template:
+    src: kibana.yml.j2
+    dest: /etc/kibana/kibana.yml
+    owner: root
+    group: root
+    mode: 0644
+  sudo: yes
+
+- name: unit files
+  copy:
+    src: "{{ item }}.service"
+    dest: /etc/systemd/system/{{ item }}.service
+    owner: root
+    group: root
+    mode: 0644
+  with_items: elastic_services
+  register: units
+  sudo: yes
+
+- name: reload unit files
+  command: systemctl daemon-reload
+  when: units | changed
+  sudo: yes
+
+- name: container services
+  service: name={{ item }}.service state=started enabled=true
+  with_items:
+  - worker_services
+  register: elastic_service_results
+  sudo: yes
