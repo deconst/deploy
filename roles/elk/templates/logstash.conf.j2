@@ -6,18 +6,17 @@ input {
 
 output {
   elasticsearch {
-    protocol => "http",
+    protocol => "http"
     host => [
-    {% for elastic_host in elasticsearch_hosts %}
-      "{{ elastic_host }}"
-      {%- if not loop.last %},{% endif %}
-    {% endfor %}
-    ],
-    port => "{{ elasticsearch_api_port }}",
-    {% if elasticsearch_api_proto == "https" %}
-    ssl => true,
-    {% endif %}
-    user => "{{ elasticsearch_username }}",
+    {%- for elastic_host in elasticsearch_hosts -%}
+      "{{ elastic_host }}:{{ elastic_api_port }}"
+      {%- if not loop.last %},{% endif -%}
+    {%- endfor -%}
+    ]
+    {%- if elasticsearch_api_proto == "https" %}
+    ssl => true
+    {%- endif %}
+    user => "{{ elasticsearch_username }}"
     password => "{{ elasticsearch_password }}"
   }
 }
