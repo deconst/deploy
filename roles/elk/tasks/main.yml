@@ -59,7 +59,6 @@
 
 - name: container services
   service: name={{ item }}.service state=started enabled=true
-  with_items:
-  - worker_services
+  with_items: elastic_services
   register: elastic_service_results
   sudo: yes
