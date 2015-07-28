@@ -2,7 +2,7 @@
   "network": {
     "servers": [
 {%- for logstash_host in groups['deconst-elastic']|sort -%}
-  "{{ logstash_host }}:5000"
+  "{{ hostvars[host].ansible_eth1.ipv4.address }}:5000"
   {%- if not loop.last %},{% endif -%}
 {%- endfor -%}
     ],
