@@ -48,8 +48,8 @@
   - name: elasticsearch hosts
     rax:
       state: present
-      name: deconst-{{ instance }}-elastic-%03d
-      group: deconst-{{ instance }}-elastic
+      name: deconst-{{ instance }}-elastic-{{ deployment }}-%03d
+      group: deconst-{{ instance }}-elastic-{{ deployment }}
       count: "{{ elastic_count }}"
       exact_count: yes
       image: "{{ image_coreos_beta }}"

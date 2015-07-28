@@ -16,7 +16,7 @@ localhost ansible_python_interpreter=${PYTHON}
 
 [deconst-${INSTANCE}-worker-${DEPLOYMENT}:vars]
 
-[deconst-${INSTANCE}-elastic:vars]
+[deconst-${INSTANCE}-elastic-${DEPLOYMENT}:vars]
 
 [deconst-all:children]
 deconst-${INSTANCE}-worker-${DEPLOYMENT}
