@@ -35,7 +35,7 @@
   - name: install the CA certificate
     copy:
       src: certificates/ca.pem
-      dest: /usr/share/ca-certificates/deconst-ca.pem
+      dest: /etc/ssl/certs/deconst-ca.pem
       mode: 0644
     sudo: yes
 
