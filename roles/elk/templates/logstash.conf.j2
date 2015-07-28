@@ -1,8 +1,8 @@
 input {
   lumberjack {
     port => 5000
-    ssl_certificate => "/certificates/{{ inventory_hostname }}-cert.pem"
-    ssl_key => "/certificates/{{ inventory_hostname }}-key.pem"
+    ssl_certificate => "/certificates/host-cert.pem"
+    ssl_key => "/certificates/host-key.pem"
   }
 }
 

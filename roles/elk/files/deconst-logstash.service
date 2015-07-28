@@ -11,6 +11,8 @@ ExecStart=/opt/bin/systemd-docker run \
   --rm \
   --name=%n \
   --volume=/etc/logstash/logstash.conf:/etc/logstash/logstash.conf:ro \
+  --volume=/etc/ssl/private/host-cert.pem:/certificates/host-cert.pem:ro \
+  --volume=/etc/ssl/private/host-key.pem:/certificates/host-key.pem:ro \
   --publish=0.0.0.0:5000:5000 \
   logstash \
   logstash -f /etc/logstash/logstash.conf

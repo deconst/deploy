@@ -42,7 +42,7 @@
   - name: install the host certificate
     copy:
       src: certificates/{{ inventory_hostname }}-cert.pem
-      dest: /etc/ssl/private/{{ inventory_hostname }}-cert.pem
+      dest: /etc/ssl/private/host-cert.pem
       mode: 0644
       owner: root
       group: root
@@ -51,7 +51,7 @@
   - name: install the host private key
     copy:
       src: certificates/{{ inventory_hostname }}-key.pem
-      dest: /etc/ssl/private/{{ inventory_hostname }}-key.pem
+      dest: /etc/ssl/private/host-key.pem
       mode: 0644
       owner: root
       group: root
