@@ -39,7 +39,7 @@
 
 {% if inventory_hostname in groups['deconst-elastic'] %}
 # Kibana access from the public internets
--A DOCKER -i eth0 --dport 5601 -j ACCEPT
+-A DOCKER -i eth0 -p tcp --dport 5601 -j ACCEPT
 -A DOCKER -i eth0 -j DROP
 
 # Accept logstash logs over ServiceNet
