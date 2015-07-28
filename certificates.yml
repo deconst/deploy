@@ -28,7 +28,7 @@
       --volume ${PWD}/certificates/:/certificates/
       cloudpipe/keymaster signed-keypair
       -n {{ inventory_hostname }}
-      -h {{ ansible_default_ipv4 }}
+      -h {{ ansible_eth1.ipv4.address }}
       -p both
       creates=certificates/{{ inventory_hostname }}-cert.pem
 
