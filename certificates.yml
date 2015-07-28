@@ -1,0 +1,58 @@
+---
+# Distribute SSL certificates to each host.
+
+- hosts: local
+  connection: local
+  gather_facts: no
+  tasks:
+
+  - name: password file
+    shell: >
+      head -c 128 /dev/random > certificates/password
+      creates=certificates/password
+
+  - name: generate a private CA
+    command: >
+      docker run --rm
+      --volume ${PWD}/certificates/:/certificates/
+      cloudpipe/keymaster ca
+      creates=certificates/ca.pem
+
+- hosts: deconst-all
+  gather_facts: no
+  tasks:
+
+  - name: generate a host certificate
+    local_action: >
+      command docker run --rm
+      --volume ${PWD}/certificates/:/certificates/
+      cloudpipe/keymaster signed-keypair
+      -n {{ inventory_hostname }}
+      -h {{ ansible_default_ipv4 }}
+      -p both
+      creates=certificates/{{ inventory_hostname }}-cert.pem
+
+  - name: install the CA certificate
+    copy:
+      src: certificates/ca.pem
+      dest: /usr/share/ca-certificates/deconst-ca.pem
+      mode: 0644
+    sudo: yes
+
+  - name: install the host certificate
+    copy:
+      src: certificates/{{ inventory_hostname }}-cert.pem
+      dest: /etc/ssl/private/{{ inventory_hostname }}-cert.pem
+      mode: 0644
+      owner: root
+      group: root
+    sudo: yes
+
+  - name: install the host private key
+    copy:
+      src: certificates/{{ inventory_hostname }}-key.pem
+      dest: /etc/ssl/private/{{ inventory_hostname }}-key.pem
+      mode: 0644
+      owner: root
+      group: root
+    sudo: yes
