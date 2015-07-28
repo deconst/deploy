@@ -2,8 +2,7 @@
 Description=Logstash Forwarder
 
 [Service]
-ExecStart=/bin/bash -c "/usr/bin/journalctl -o json -f |
-  /opt/bin/logstash-forwarder -config /etc/deconst/logstash-forwarder-config.json"
+ExecStart=/bin/bash -c "/usr/bin/journalctl -o json -f | /opt/bin/logstash-forwarder -config /etc/deconst/logstash-forwarder-config.json"
 
 Restart=always
 RestartSec=5
