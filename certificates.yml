@@ -29,6 +29,7 @@
       cloudpipe/keymaster signed-keypair
       -n {{ inventory_hostname }}
       -h {{ ansible_eth1.ipv4.address }}
+      -s IP:{{ ansible_eth1.ipv4.address }}
       -p both
       creates=certificates/{{ inventory_hostname }}-cert.pem
 
