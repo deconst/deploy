@@ -63,7 +63,7 @@
     add_host:
       name: "{{ item.name }}"
       ansible_ssh_host: "{{ item.rax_accessipv4 }}"
-      groups: deconst-elastic
+      groups: deconst-elastic,deconst-{{ instance }}-elastic-{{ deployment }}
     with_items: rax_build_elastic.instances
     tags: elastic
 
