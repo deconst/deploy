@@ -19,3 +19,9 @@
     when: (environment|changed or worker_pulls|changed or worker_units|changed) and not (worker_service_results|changed)
     sudo: yes
     tags: restart
+
+  - name: restart logstash-forwarder
+    service: name=logstash-forwarder state=restarted
+    when: (lf_binary|changed or lf_config|changed or lf_unit|changed) and not (lf_service_result|changed)
+    sudo: yes
+    tags: restart

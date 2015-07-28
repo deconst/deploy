@@ -1,0 +1,20 @@
+{
+  "network": {
+    "servers": [
+{%- for logstash_host in groups['deconst-elastic']|sort -%}
+  "{{ logstash_host }}:5000"
+  {%- if not loop.last %},{% endif -%}
+{%- endfor -%}
+    ],
+    "ssl certificate": "/etc/ssl/private/{{ inventory_hostname }}-cert.pem",
+    "ssl key": "/etc/ssl/private/{{ inventory_hostname }}-key.pem",
+    "ssl ca": "/etc/ssl/certs/deconst-ca.pem",
+    "timeout": 15
+  },
+  "files": [
+    {
+      "paths": [ "-" ],
+      "fields": { "type": "stdin" }
+    }
+  ]
+}

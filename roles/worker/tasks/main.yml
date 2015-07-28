@@ -14,6 +14,16 @@
   sudo: yes
   register: environment
 
+- name: logstash-forwarder configuration
+  template:
+    src: logstash-forwarder-config.json.j2
+    dest: /etc/deconst/logstash-forwarder-config.json
+    owner: root
+    group: root
+    mode: 0644
+  sudo: yes
+  register: lf_config
+
 - name: utility scripts
   copy:
     src: scripts/{{ item }}
@@ -31,8 +41,16 @@
   get_url: dest=/opt/bin/peekaboo url=https://github.com/rgbkrk/peekaboo/releases/download/v0.0.1-alpha/peekaboo
   sudo: yes
 
-- name: peekaboo is executable
-  file: path=/opt/bin/peekaboo mode=0755
+- name: logstash-forwarder binary
+  get_url: dest=/opt/bin/logstash-forwarder url=https://download.elastic.co/logstash-forwarder/binaries/logstash-forwarder_linux_amd64
+  register: lf_binary
+  sudo: yes
+
+- name: binaries are executable
+  file: path=/opt/bin/{{ item }} mode=0755
+  with_items:
+  - peekaboo
+  - logstash-forwarder
   sudo: yes
 
 - name: ensure containers are up to date
@@ -45,7 +63,7 @@
 - name: show the pull result
   debug: var=worker_pulls.stdout_lines
 
-- name: unit files
+- name: deconst service unit files
   copy:
     src: services/{{ item }}@.service
     dest: /etc/systemd/system/{{ item }}@.service
@@ -54,6 +72,16 @@
     mode: 0644
   with_items: worker_services
   register: worker_units
+  sudo: yes
+
+- name: logstash forwarder unit file
+  copy:
+    src: services/logstash-forwarder.service
+    dest: /etc/systemd/system/logstash-forwarder.service
+    owner: root
+    group: root
+    mode: 0644
+  register: lf_unit
   sudo: yes
 
 - name: control repository
@@ -67,7 +95,7 @@
 
 - name: reload unit files
   command: systemctl daemon-reload
-  when: worker_units | changed
+  when: worker_units|changed or lf_unit|changed
   sudo: yes
 
 - name: container services
@@ -76,4 +104,9 @@
   - pod_names
   - worker_services
   register: worker_service_results
+  sudo: yes
+
+- name: logstash-forwarder service
+  service: name=logstash-forwarder.service state=started enabled=true
+  register: lf_service_result
   sudo: yes
