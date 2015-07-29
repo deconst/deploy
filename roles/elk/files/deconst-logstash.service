@@ -14,7 +14,7 @@ ExecStart=/opt/bin/systemd-docker run \
   --volume=/etc/ssl/private/host-cert.pem:/certificates/host-cert.pem:ro \
   --volume=/etc/ssl/private/host-key.pem:/certificates/host-key.pem:ro \
   --publish=0.0.0.0:5000:5000 \
-  logstash \
+  logstash:1.5.2 \
   logstash -f /etc/logstash/logstash.conf
 
 ExecStop=-/usr/bin/docker stop --time=2 %n
