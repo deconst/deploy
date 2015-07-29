@@ -30,6 +30,7 @@
     owner: root
     group: root
     mode: 0644
+  register: logstash_config
   sudo: yes
 
 - name: kibana configuration
@@ -39,6 +40,7 @@
     owner: root
     group: root
     mode: 0644
+  register: kibana_config
   sudo: yes
 
 - name: unit files
