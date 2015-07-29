@@ -9,6 +9,7 @@ input {
 filter {
   json {
     source => "message"
+    remove_field => "_CMDLINE"
   }
 }
 
