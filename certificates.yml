@@ -8,7 +8,9 @@
 
   - name: password file
     shell: >
-      head -c 128 /dev/random > certificates/password
+      touch certificates/password &&
+      chmod 600 certificates/password &&
+      head -c 128 /dev/random | base64 > certificates/password
       creates=certificates/password
 
   - name: generate a private CA
