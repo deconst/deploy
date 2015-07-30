@@ -43,7 +43,7 @@
 
   - name: identify full worker cluster rebuilds
     set_fact:
-      fresh_cluster: "{{ (rax_build_workers.action == 'create' and rax_build_workers.success | length == worker_count) | bool }}"
+      fresh_worker_cluster: "{{ (rax_build_workers.action == 'create' and rax_build_workers.success | length == worker_count) | bool }}"
 
   - name: elasticsearch hosts
     rax:
@@ -67,6 +67,10 @@
     with_items: rax_build_elastic.instances
     tags: elastic
 
+  - name: identify full elastic cluster rebuilds
+    set_fact:
+      fresh_elastic_cluster: "{{ (rax_build_elastic.action == 'create' and rax_build_elastic.success | length == elastic_count) | bool }}"
+
   - name: presenter load balancer
     rax_clb:
       name: deconst-{{ instance }}-presenter
@@ -87,9 +91,9 @@
       state: present
     register: clb_content_service
 
-  - name: force the generation of a new token for a fresh cluster
+  - name: force the generation of a new token for a fresh worker cluster
     file: path=.etcd_cluster_token state=absent
-    when: fresh_cluster
+    when: fresh_worker_cluster
 
   - name: etcd cluster token
     set_fact:

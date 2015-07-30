@@ -19,7 +19,7 @@ Environment=ETCD_INITIAL_CLUSTER={% for host in groups['deconst-worker']|sort -%
 {%- endfor %}
 
 Environment=ETCD_INITIAL_ADVERTISE_PEER_URLS=http://{{ ansible_eth1.ipv4.address }}:{{ etcd_peer_port }}
-Environment=ETCD_INITIAL_CLUSTER_STATE={% if hostvars.localhost.fresh_cluster %}new{% else %}existing{% endif %}
+Environment=ETCD_INITIAL_CLUSTER_STATE={% if hostvars.localhost.fresh_worker_cluster %}new{% else %}existing{% endif %}
 
 Environment=ETCD_INITIAL_CLUSTER_TOKEN={{ hostvars.localhost.etcd_cluster_token }}
 
