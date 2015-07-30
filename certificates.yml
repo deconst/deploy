@@ -11,6 +11,7 @@
 
   - name: password file
     shell: >
+      mkdir certificates &&
       touch certificates/password &&
       chmod 600 certificates/password &&
       head -c 128 /dev/random | base64 > certificates/tmppassword &&
