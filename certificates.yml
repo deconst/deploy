@@ -4,6 +4,7 @@
 - hosts: local
   connection: local
   gather_facts: no
+  tags: certificates
   vars:
     gencerts: "{{ fresh_worker_cluster and fresh_elastic_cluster }}"
   tasks:
@@ -12,33 +13,65 @@
     shell: >
       touch certificates/password &&
       chmod 600 certificates/password &&
-      head -c 128 /dev/random | base64 > certificates/password
+      head -c 128 /dev/random | base64 > certificates/tmppassword &&
+      cat certificates/tmppassword > certificates/password &&
+      cat certificates/tmppassword >> certificates/password &&
+      rm certificates/tmppassword
       creates=certificates/password
     when: gencerts
 
   - name: generate a private CA
-    command: >
-      docker run --rm
-      --volume ${PWD}/certificates/:/certificates/
-      cloudpipe/keymaster ca
+    shell: >
+      echo "01" >> certificates/ca.srl &&
+      openssl genrsa \
+        -aes256 \
+        -passout file:certificates/password \
+        -out certificates/ca-key.pem 2048 &&
+      openssl req \
+        -new -x509 -batch \
+        -days 365 \
+        -passin file:certificates/password \
+        -key certificates/ca-key.pem \
+        -out certificates/ca.pem
       creates=certificates/ca.pem
     when: gencerts
 
 - hosts: deconst-all
-  gather_facts: no
+  tags: certificates
   vars:
     gencerts: "{{ fresh_host|default(False) }}"
+  serial: 1
   tasks:
 
   - name: generate a host certificate
-    local_action: >
-      command docker run --rm
-      --volume ${PWD}/certificates/:/certificates/
-      cloudpipe/keymaster signed-keypair
-      -n {{ inventory_hostname }}
-      -h {{ ansible_eth1.ipv4.address }}
-      -s IP:{{ ansible_eth1.ipv4.address }}
-      -p both
+    local_action: |
+      shell echo "extendedKeyUsage = clientAuth,serverAuth" >> /tmp/ext-{{ inventory_hostname }}.cnf &&
+      echo "subjectAltName=IP:{{ ansible_eth1.ipv4.address }}" >> /tmp/ext-{{ inventory_hostname }}.cnf &&
+      openssl genrsa \
+        -aes256 \
+        -passout file:certificates/password \
+        -out certificates/{{ inventory_hostname }}-key.pem 2048 &&
+      openssl req \
+        -subj "/CN={{ ansible_eth1.ipv4.address }}" \
+        -new \
+        -batch \
+        -passin file:certificates/password \
+        -key certificates/{{ inventory_hostname }}-key.pem \
+        -passout file:certificates/password \
+        -out certificates/{{ inventory_hostname }}-req.csr &&
+      openssl x509 -req \
+        -days 365 \
+        -passin file:certificates/password \
+        -in certificates/{{ inventory_hostname }}-req.csr \
+        -CA certificates/ca.pem \
+        -CAkey certificates/ca-key.pem \
+        -CAserial certificates/ca.srl \
+        -extfile /tmp/ext-{{ inventory_hostname }}.cnf \
+        -out certificates/{{ inventory_hostname }}-cert.pem &&
+      openssl rsa \
+        -passin file:certificates/password \
+        -in certificates/{{ inventory_hostname }}-key.pem \
+        -out certificates/{{ inventory_hostname }}-key.pem
       creates=certificates/{{ inventory_hostname }}-cert.pem
     when: gencerts
 

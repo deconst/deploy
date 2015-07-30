@@ -44,6 +44,7 @@
   - name: identify full worker cluster rebuilds
     set_fact:
       fresh_worker_cluster: "{{ (rax_build_workers.action == 'create' and rax_build_workers.success | length == worker_count) | bool }}"
+    tags: always
 
   - name: elasticsearch hosts
     rax:
@@ -57,7 +58,7 @@
       key_name: "{{ rackspace_keyname }}"
       wait: yes
     register: rax_build_elastic
-    tags: elastic
+    tags: always
 
   - name: add newly provisioned elastic hosts to the correct groups
     add_host:
@@ -75,11 +76,12 @@
       ansible_ssh_host: "{{ item.rax_accessipv4 }}"
       groups: deconst-elastic,deconst-{{ instance }}-elastic-{{ deployment }}
     with_items: rax_build_elastic.instances
-    tags: elastic
+    tags: always
 
   - name: identify full elastic cluster rebuilds
     set_fact:
       fresh_elastic_cluster: "{{ (rax_build_elastic.action == 'create' and rax_build_elastic.success | length == elastic_count) | bool }}"
+    tags: always
 
   - name: presenter load balancer
     rax_clb:
