@@ -59,6 +59,16 @@
     register: rax_build_elastic
     tags: elastic
 
+  - name: add newly provisioned elastic hosts to the correct groups
+    add_host:
+      name: "{{ item.name }}"
+      ansible_ssh_host: "{{ item.rax_accessipv4 }}"
+      fresh_host: yes
+      groups: deconst-{{ instance }}-elastic-{{ deployment }}
+    when: rax_build_elastic.action == "create"
+    with_items: rax_build_elastic.success
+    tags: always
+
   - name: add all elasticsearch hosts to the correct groups
     add_host:
       name: "{{ item.name }}"

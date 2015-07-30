@@ -4,6 +4,8 @@
 - hosts: local
   connection: local
   gather_facts: no
+  vars:
+    gencerts: "{{ fresh_worker_cluster and fresh_elastic_cluster }}"
   tasks:
 
   - name: password file
@@ -12,6 +14,7 @@
       chmod 600 certificates/password &&
       head -c 128 /dev/random | base64 > certificates/password
       creates=certificates/password
+    when: gencerts
 
   - name: generate a private CA
     command: >
@@ -19,9 +22,12 @@
       --volume ${PWD}/certificates/:/certificates/
       cloudpipe/keymaster ca
       creates=certificates/ca.pem
+    when: gencerts
 
 - hosts: deconst-all
   gather_facts: no
+  vars:
+    gencerts: "{{ fresh_host|default(False) }}"
   tasks:
 
   - name: generate a host certificate
@@ -34,6 +40,7 @@
       -s IP:{{ ansible_eth1.ipv4.address }}
       -p both
       creates=certificates/{{ inventory_hostname }}-cert.pem
+    when: gencerts
 
   - name: install the CA certificate
     copy:
@@ -41,6 +48,7 @@
       dest: /etc/ssl/certs/deconst-ca.pem
       mode: 0644
     sudo: yes
+    when: gencerts
 
   - name: install the host certificate
     copy:
@@ -50,6 +58,7 @@
       owner: root
       group: root
     sudo: yes
+    when: gencerts
 
   - name: install the host private key
     copy:
@@ -59,3 +68,4 @@
       owner: root
       group: root
     sudo: yes
+    when: gencerts
