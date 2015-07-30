@@ -1,0 +1,105 @@
+---
+# Distribute SSL certificates to each host.
+
+- hosts: local
+  connection: local
+  gather_facts: no
+  tags: certificates
+  vars:
+    gencerts: "{{ fresh_worker_cluster and fresh_elastic_cluster }}"
+  tasks:
+
+  - name: password file
+    shell: >
+      mkdir certificates &&
+      touch certificates/password &&
+      chmod 600 certificates/password &&
+      head -c 128 /dev/random | base64 > certificates/tmppassword &&
+      cat certificates/tmppassword > certificates/password &&
+      cat certificates/tmppassword >> certificates/password &&
+      rm certificates/tmppassword
+      creates=certificates/password
+    when: gencerts
+
+  - name: generate a private CA
+    shell: >
+      echo "01" >> certificates/ca.srl &&
+      openssl genrsa \
+        -aes256 \
+        -passout file:certificates/password \
+        -out certificates/ca-key.pem 2048 &&
+      openssl req \
+        -new -x509 -batch \
+        -days 365 \
+        -passin file:certificates/password \
+        -key certificates/ca-key.pem \
+        -out certificates/ca.pem
+      creates=certificates/ca.pem
+    when: gencerts
+
+- hosts: deconst-all
+  tags: certificates
+  vars:
+    gencerts: "{{ fresh_host|default(False) }}"
+  serial: 1
+  tasks:
+
+  - name: generate a host certificate
+    local_action: |
+      shell echo "extendedKeyUsage = clientAuth,serverAuth" >> /tmp/ext-{{ inventory_hostname }}.cnf &&
+      echo "subjectAltName=IP:{{ ansible_eth1.ipv4.address }}" >> /tmp/ext-{{ inventory_hostname }}.cnf &&
+      openssl genrsa \
+        -aes256 \
+        -passout file:certificates/password \
+        -out certificates/{{ inventory_hostname }}-key.pem 2048 &&
+      openssl req \
+        -subj "/CN={{ ansible_eth1.ipv4.address }}" \
+        -new \
+        -batch \
+        -passin file:certificates/password \
+        -key certificates/{{ inventory_hostname }}-key.pem \
+        -passout file:certificates/password \
+        -out certificates/{{ inventory_hostname }}-req.csr &&
+      openssl x509 -req \
+        -days 365 \
+        -passin file:certificates/password \
+        -in certificates/{{ inventory_hostname }}-req.csr \
+        -CA certificates/ca.pem \
+        -CAkey certificates/ca-key.pem \
+        -CAserial certificates/ca.srl \
+        -extfile /tmp/ext-{{ inventory_hostname }}.cnf \
+        -out certificates/{{ inventory_hostname }}-cert.pem &&
+      openssl rsa \
+        -passin file:certificates/password \
+        -in certificates/{{ inventory_hostname }}-key.pem \
+        -out certificates/{{ inventory_hostname }}-key.pem
+      creates=certificates/{{ inventory_hostname }}-cert.pem
+    when: gencerts
+
+  - name: install the CA certificate
+    copy:
+      src: certificates/ca.pem
+      dest: /etc/ssl/certs/deconst-ca.pem
+      mode: 0644
+    sudo: yes
+    when: gencerts
+
+  - name: install the host certificate
+    copy:
+      src: certificates/{{ inventory_hostname }}-cert.pem
+      dest: /etc/ssl/private/host-cert.pem
+      mode: 0644
+      owner: root
+      group: root
+    sudo: yes
+    when: gencerts
+
+  - name: install the host private key
+    copy:
+      src: certificates/{{ inventory_hostname }}-key.pem
+      dest: /etc/ssl/private/host-key.pem
+      mode: 0644
+      owner: root
+      group: root
+    sudo: yes
+    when: gencerts

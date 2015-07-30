@@ -1,0 +1,25 @@
+---
+
+- name: necessary directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  with_items:
+  - /etc/deconst
+  - /var/deconst/ports
+  - /opt/bin
+  sudo: yes
+
+- name: docker-py
+  pip: name=docker-py state=present version=1.1.0
+
+- name: systemd-docker binary
+  get_url: dest=/opt/bin/systemd-docker url=https://github.com/ibuildthecloud/systemd-docker/releases/download/v0.2.0/systemd-docker
+  sudo: yes
+
+- name: systemd-docker is executable
+  file: path=/opt/bin/systemd-docker mode=0755
+  sudo: yes

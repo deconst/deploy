@@ -13,8 +13,8 @@
   - name: worker hosts
     rax:
       state: present
-      name: deconst-worker-{{ instance }}-{{ deployment }}-%03d
-      group: deconst-worker-{{ instance }}-{{ deployment }}
+      name: deconst-{{ instance }}-worker-{{ deployment }}-%03d
+      group: deconst-{{ instance }}-worker-{{ deployment }}
       count: "{{ worker_count }}"
       exact_count: yes
       image: "{{ image_coreos_beta }}"
@@ -22,27 +22,66 @@
       key_name: "{{ rackspace_keyname }}"
       wait: yes
     register: rax_build_workers
-    tags: control
+    tags: always
 
   - name: add newly provisioned workers to the correct groups
     add_host:
       name: "{{ item.name }}"
       ansible_ssh_host: "{{ item.rax_accessipv4 }}"
       fresh_host: yes
-      groups: deconst-worker-{{ instance }}-{{ deployment }}
+      groups: deconst-{{ instance }}-worker-{{ deployment }}
     when: rax_build_workers.action == "create"
     with_items: rax_build_workers.success
+    tags: always
 
-  - name: add all hosts to the correct groups
+  - name: add all worker hosts to the correct groups
     add_host:
       name: "{{ item.name }}"
       groups: deconst-worker
     with_items: rax_build_workers.instances
-    tags: control
+    tags: always
 
-  - name: identify full cluster rebuilds
+  - name: identify full worker cluster rebuilds
     set_fact:
-      fresh_cluster: "{{ (rax_build_workers.action == 'create' and rax_build_workers.success | length == worker_count) | bool }}"
+      fresh_worker_cluster: "{{ (rax_build_workers.action == 'create' and rax_build_workers.success | length == worker_count) | bool }}"
+    tags: always
+
+  - name: elasticsearch hosts
+    rax:
+      state: present
+      name: deconst-{{ instance }}-elastic-{{ deployment }}-%03d
+      group: deconst-{{ instance }}-elastic-{{ deployment }}
+      count: "{{ elastic_count }}"
+      exact_count: yes
+      image: "{{ image_coreos_beta }}"
+      flavor: "{{ elastic_flavor }}"
+      key_name: "{{ rackspace_keyname }}"
+      wait: yes
+    register: rax_build_elastic
+    tags: always
+
+  - name: add newly provisioned elastic hosts to the correct groups
+    add_host:
+      name: "{{ item.name }}"
+      ansible_ssh_host: "{{ item.rax_accessipv4 }}"
+      fresh_host: yes
+      groups: deconst-{{ instance }}-elastic-{{ deployment }}
+    when: rax_build_elastic.action == "create"
+    with_items: rax_build_elastic.success
+    tags: always
+
+  - name: add all elasticsearch hosts to the correct groups
+    add_host:
+      name: "{{ item.name }}"
+      ansible_ssh_host: "{{ item.rax_accessipv4 }}"
+      groups: deconst-elastic,deconst-{{ instance }}-elastic-{{ deployment }}
+    with_items: rax_build_elastic.instances
+    tags: always
+
+  - name: identify full elastic cluster rebuilds
+    set_fact:
+      fresh_elastic_cluster: "{{ (rax_build_elastic.action == 'create' and rax_build_elastic.success | length == elastic_count) | bool }}"
+    tags: always
 
   - name: presenter load balancer
     rax_clb:
@@ -64,9 +103,9 @@
       state: present
     register: clb_content_service
 
-  - name: force the generation of a new token for a fresh cluster
+  - name: force the generation of a new token for a fresh worker cluster
     file: path=.etcd_cluster_token state=absent
-    when: fresh_cluster
+    when: fresh_worker_cluster
 
   - name: etcd cluster token
     set_fact:
@@ -88,4 +127,4 @@
       state: present
       line: "{{ lookup('pipe', 'ssh-keyscan -t rsa ' + item.rax_accessipv4 )}}"
       regexp: "^{{ item.rax_accessipv4 }}"
-    with_items: rax_build_workers.success
+    with_items: "{{ rax_build_workers.success|union(rax_build_elastic.success) }}"

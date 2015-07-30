@@ -17,6 +17,7 @@
 -A INPUT -i eth0 -p tcp -m tcp --dport 22 -j ACCEPT
 {% endfor %}
 
+{% if inventory_hostname in groups['deconst-worker'] %}
 # etcd peering and clients over ServiceNet
 {% for host in groups['deconst-worker']|sort %}
 -A INPUT -i eth1 -p tcp --source {{ hostvars[host].ansible_eth1.ipv4.address }} --dport 2380 -j ACCEPT
@@ -25,12 +26,26 @@
 
 # Enable containers on this host to connect to its host-level etcd
 -A INPUT -i docker0 -p tcp --dport 2379 -j ACCEPT
+{% endif %}
 
 # Allow packets from established connections through.
 -A DOCKER -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 
+{% if inventory_hostname in groups['deconst-worker'] %}
 # Allow access to service ports in each pod from only the load balancer, via ServiceNet
 -A DOCKER -i eth0 -j DROP
 -A DOCKER -i eth1 ! --source {{ hostvars.localhost.clb_content_service.balancer.sourceAddresses.ipv4Servicenet }} -j DROP
+{% endif %}
+
+{% if inventory_hostname in groups['deconst-elastic'] %}
+# Kibana access from the public internets
+-A DOCKER -i eth0 -p tcp --dport 5601 -j ACCEPT
+-A DOCKER -i eth0 -j DROP
+
+# Accept logstash logs over ServiceNet
+{% for host in groups['deconst-worker']|sort %}
+-A DOCKER -i eth1 -p tcp --source {{ hostvars[host].ansible_eth1.ipv4.address }} --dport 5000 -j ACCEPT
+{% endfor %}
+{% endif %}
 
 COMMIT

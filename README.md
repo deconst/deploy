@@ -31,6 +31,9 @@ To deploy or update a cluster:
     ```bash
     cp credentials.example.yml credentials.yml
     ${EDITOR} credentials.yml
+
+    # Or:
+    gpg -o credentials.yml ~/control-repo/credentials-staging.yml.gpg
     ```
 
  2. Run the playbook with the `deploy` script.
@@ -39,6 +42,20 @@ To deploy or update a cluster:
     script/deploy
     ```
 
+### Parameters
+
+To only update the control repository's content map, layout map or templates:
+
+```bash
+script/deploy --tags control
+```
+
+To force the generation of new TLS certificates:
+
+```bash
+script/deploy --extra-vars="gencerts=yes"
+```
+
 ## Utilities
 
 This repository contains a number of utilities to assist in basic ops work. Each script keys off of the credentials in `credentials.yml`, so it will use the correct Rackspace account and hosts.
@@ -46,5 +63,6 @@ This repository contains a number of utilities to assist in basic ops work. Each
  * `script/status` performs a `docker status` on each host. It's useful for quickly seeing if all expected services are up and running.
  * `script/logs <component>` tails the Docker container logs of each matching service across the cluster. The number of lines given can be controlled by setting `LOG_LINES`. For example: `LOG_LINES=50 script/logs presenter`.
  * `script/genkey <name>` reads the admin API key from your credentials file and issues a new API key with the provided name.
- * `script/ips` lists the IP addresses of each host in the cluster. This is useful for a quick `ssh` session.
+ * `script/ssh <hostpattern>` logs in to a uniquely identified host in the cluster.
+ * `script/ips` lists the IP addresses of each host in the cluster.
  * `script/facts` allows you to probe for a specific Ansible fact collected from each host on the cluster. For example, `script/facts 'filter=ansible_eth1'` will show the ServiceNet address of each host.

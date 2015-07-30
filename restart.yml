@@ -15,7 +15,29 @@
     service: name={{ item[1] }}@{{ item[0] }}.service state=restarted
     with_nested:
     - pod_names
-    - services
-    when: (environment|changed or service_pulls|changed or units|changed) and not (containers|changed)
+    - worker_services
+    when: (environment|changed or worker_pulls|changed or worker_units|changed) and not (worker_service_results|changed)
+    sudo: yes
+    tags: restart
+
+  - name: restart logstash-forwarder
+    service: name=logstash-forwarder state=restarted
+    when: (lf_binary|changed or lf_config|changed or lf_unit|changed) and not (lf_service_result|changed)
+    sudo: yes
+    tags: restart
+
+- hosts: deconst-elastic
+  serial: 1
+  tasks:
+
+  - name: restart logstash
+    service: name=deconst-logstash.service state=restarted
+    when: (elastic_pulls|changed or logstash_config|changed or units|changed) and not (elastic_service_results|changed)
+    sudo: yes
+    tags: restart
+
+  - name: restart kibana
+    service: name=deconst-kibana.service state=restarted
+    when: (elastic_pulls|changed or kibana_config|changed or units|changed) and not (elastic_service_results|changed)
     sudo: yes
     tags: restart

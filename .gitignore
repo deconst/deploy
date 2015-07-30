@@ -2,3 +2,4 @@ credentials.yml
 inventory/static
 .galaxy
 .etcd_cluster_token
+certificates/

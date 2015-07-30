@@ -1,0 +1,9 @@
+---
+# Configure or update the Elasticsearch cluster.
+
+- hosts: deconst-elastic
+  vars_files:
+  - vars.yml
+  - credentials.yml
+  roles:
+  - elk

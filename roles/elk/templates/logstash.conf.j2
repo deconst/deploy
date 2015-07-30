@@ -1,0 +1,31 @@
+input {
+  lumberjack {
+    port => 5000
+    ssl_certificate => "/certificates/host-cert.pem"
+    ssl_key => "/certificates/host-key.pem"
+  }
+}
+
+filter {
+  json {
+    source => "message"
+    remove_field => "_CMDLINE"
+  }
+}
+
+output {
+  elasticsearch {
+    protocol => "http"
+    host => [
+    {%- for elastic_host in elasticsearch_hosts -%}
+      "{{ elastic_host }}:{{ elasticsearch_api_port }}"
+      {%- if not loop.last %},{% endif -%}
+    {%- endfor -%}
+    ]
+{% if elasticsearch_api_proto == "https" %}
+    ssl => true
+{% endif %}
+    user => "{{ elasticsearch_username }}"
+    password => "{{ elasticsearch_password }}"
+  }
+}

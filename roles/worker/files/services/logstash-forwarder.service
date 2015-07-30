@@ -1,0 +1,11 @@
+[Unit]
+Description=Logstash Forwarder
+
+[Service]
+ExecStart=/bin/bash -c "/usr/bin/journalctl -u deconst-* -o json -f | /opt/bin/logstash-forwarder -config /etc/deconst/logstash-forwarder-config.json"
+
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

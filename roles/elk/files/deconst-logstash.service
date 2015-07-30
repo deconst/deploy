@@ -1,0 +1,27 @@
+[Unit]
+Description=Deconst Logstash
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=notify
+NotifyAccess=all
+
+ExecStart=/opt/bin/systemd-docker run \
+  --rm \
+  --name=%n \
+  --volume=/etc/logstash/logstash.conf:/etc/logstash/logstash.conf:ro \
+  --volume=/etc/ssl/private/host-cert.pem:/certificates/host-cert.pem:ro \
+  --volume=/etc/ssl/private/host-key.pem:/certificates/host-key.pem:ro \
+  --publish=0.0.0.0:5000:5000 \
+  logstash:1.5.2 \
+  logstash -f /etc/logstash/logstash.conf
+
+ExecStop=-/usr/bin/docker stop --time=2 %n
+ExecStop=-/usr/bin/docker rm -f %n
+
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

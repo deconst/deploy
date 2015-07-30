@@ -18,6 +18,7 @@ ExecStart=/opt/bin/systemd-docker run \
   --env=PRESENTED_URL_DOMAIN=${PRESENTED_URL_DOMAIN} \
   --env=PRESENTER_DIAGNOSTICS=${PRESENTER_DIAGNOSTICS} \
   --env=PRESENTER_LOG_LEVEL=${PRESENTER_LOG_LEVEL} \
+  --env=PRESENTER_LOG_COLOR=false \
   --volume=/var/deconst/control:/var/deconst/control:ro \
   --publish=0.0.0.0::8080 \
   quay.io/deconst/presenter

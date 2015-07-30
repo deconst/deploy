@@ -14,10 +14,13 @@ localhost ansible_python_interpreter=${PYTHON}
 
 # Common group configuration
 
-[deconst-worker-${INSTANCE}-${DEPLOYMENT}]
+[deconst-${INSTANCE}-worker-${DEPLOYMENT}:vars]
+
+[deconst-${INSTANCE}-elastic-${DEPLOYMENT}:vars]
 
 [deconst-all:children]
-deconst-worker-${INSTANCE}-${DEPLOYMENT}
+deconst-${INSTANCE}-worker-${DEPLOYMENT}
+deconst-${INSTANCE}-elastic-${DEPLOYMENT}
 
 [deconst-all:vars]
 ansible_ssh_user=core

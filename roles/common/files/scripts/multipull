@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 
-IMAGES="rgbkrk/peekaboo {% for image in containers %}quay.io/deconst/{{ image }} {% endfor %}"
+IMAGES="$*"
 PIDS=""
 
 pull_it()
