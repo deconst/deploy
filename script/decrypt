@@ -1,0 +1,8 @@
+#!/bin/bash
+
+ROOT=$(cd $(dirname $0)/.. && pwd)
+
+SRC=${1:-${ROOT}/credentials.yml.enc}
+DEST=${ROOT}/credentials.yml
+
+exec openssl enc -d -md sha1 -aes-256-cbc -in ${SRC} -out ${DEST}
