@@ -11,6 +11,24 @@ filter {
     source => "message"
     remove_field => "_CMDLINE"
   }
+
+  mutate {
+    rename => {
+      "_SYSTEMD_UNIT" => "SYSTEMD_UNIT"
+      "_HOSTNAME" => "HOSTNAME"
+      "_PID" => "PID"
+      "message" => "JOURNALD_MESSAGE"
+      "MESSAGE" => "RAW_MESSAGE"
+    }
+  }
+
+  json {
+    source => "RAW_MESSAGE"
+  }
+
+  mutate {
+    remove_field => ["JOURNALD_MESSAGE", "RAW_MESSAGE"]
+  }
 }
 
 output {
