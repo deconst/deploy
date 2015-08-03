@@ -22,6 +22,7 @@ ExecStart=/opt/bin/systemd-docker run \
   --env=ASSET_CONTAINER=${ASSET_CONTAINER} \
   --env=CONTENT_LOG_LEVEL=${CONTENT_LOG_LEVEL} \
   --env=CONTENT_LOG_COLOR=false \
+  --env=NODE_ENV=${NODE_ENV} \
   --publish=0.0.0.0::8080 \
   quay.io/deconst/content-service
 
