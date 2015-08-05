@@ -2,7 +2,7 @@
 # Launch containers for ELK minus the E, configured to talk to our hosted Elasticsearch
 
 - name: ensure containers are up to date
-  command: /opt/bin/multipull {{ elastic_containers|join(" ") }}
+  command: /opt/bin/multipull kibana logstash:1.5.2 quay.io/deconst/curator
   register: elastic_pulls
   failed_when: elastic_pulls.rc == 1
   changed_when: elastic_pulls.rc == 2
@@ -21,6 +21,7 @@
   with_items:
   - /etc/logstash
   - /etc/kibana
+  - /etc/curator
   sudo: yes
 
 - name: logstash configuration
@@ -43,14 +44,27 @@
   register: kibana_config
   sudo: yes
 
-- name: unit files
-  copy:
-    src: "{{ item }}.service"
-    dest: /etc/systemd/system/{{ item }}.service
+- name: curator configuration
+  template:
+    src: curator-env.sh.j2
+    dest: /etc/curator/environment.sh
     owner: root
     group: root
     mode: 0644
-  with_items: elastic_services
+  sudo: yes
+
+- name: unit files
+  copy:
+    src: "{{ item }}"
+    dest: /etc/systemd/system/{{ item }}
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+  - deconst-kibana.service
+  - deconst-logstash.service
+  - deconst-curator.service
+  - deconst-curator.timer
   register: units
   sudo: yes
 
@@ -60,8 +74,11 @@
   sudo: yes
 
 - name: container services
-  service: name={{ item }}.service state=started enabled=true
-  with_items: elastic_services
+  service: name={{ item }} state=started enabled=true
+  with_items:
+  - deconst-kibana.service
+  - deconst-logstash.service
+  - deconst-curator.timer
   register: elastic_service_results
   sudo: yes
 

@@ -1,0 +1,10 @@
+ELASTICSEARCH_HOST={{ elasticsearch_hosts[0] }}
+ELASTICSEARCH_PORT={{ elasticsearch_api_port }}
+{% if elasticsearch_api_proto == "https" %}
+ELASTICSEARCH_SSL="true"
+{% endif %}
+ELASTICSEARCH_USERNAME={{ elasticsearch_username }}
+ELASTICSEARCH_PASSWORD={{ elasticsearch_password }}
+
+DAYS={{ elasticsearch_keep_days }}
+ACTION={{ elasticsearch_curator_action }}

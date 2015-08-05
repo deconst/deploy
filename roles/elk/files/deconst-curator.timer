@@ -1,0 +1,8 @@
+[Unit]
+Description=Deconst Curator Timer
+
+[Timer]
+OnCalendar=daily
+
+[Install]
+WantedBy=timers.target
