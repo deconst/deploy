@@ -11,11 +11,16 @@
   serial: 1
   tasks:
 
+  # The service module is smart: when you use it with with_nested or with_items, it consolidates
+  # actions into a single invocation of the underlying binary (systemctl). However, this is exactly
+  # what we *don't* want here, because then all of the services do the charging herd thing on their
+  # load balancers.
+  #
+  # Instead, manually restart each pod together by invoking systemctl directly.
   - name: restart services
-    service: name={{ item[1] }}@{{ item[0] }}.service state=restarted
-    with_nested:
+    command: systemctl restart deconst-content@{{ item }}.service deconst-presenter@{{ item }}.service
+    with_items:
     - pod_names
-    - worker_services
     when: (environment|changed or worker_pulls|changed or worker_units|changed) and not (worker_service_results|changed)
     sudo: yes
     tags: restart
