@@ -20,14 +20,6 @@ worker_containers:
 - content-service
 - presenter
 
-elastic_services:
-- deconst-kibana
-- deconst-logstash
-
-elastic_containers:
-- kibana
-- logstash:1.5.2
-
 # Current public key for github.com.
 # Update with: ssh-keyscan -t rsa github.com
 github_ssh_pubkey: >-
