@@ -11,18 +11,31 @@
   serial: 1
   tasks:
 
-  - name: restart services
-    service: name={{ item[1] }}@{{ item[0] }}.service state=restarted
-    with_nested:
+  # The service module is smart: when you use it with with_nested or with_items, it consolidates
+  # actions into a single invocation of the underlying binary (systemctl). However, this is exactly
+  # what we *don't* want here, because then all of the services do the charging herd thing on their
+  # load balancers.
+  #
+  # Instead, manually restart each pod together by invoking systemctl directly.
+  - name: restart service pods
+    command: systemctl restart deconst-content@{{ item }}.service deconst-presenter@{{ item }}.service
+    with_items:
     - pod_names
-    - worker_services
-    when: (environment|changed or worker_pulls|changed or worker_units|changed) and not (worker_service_results|changed)
+    when: service_pod_restart|default(false)
+    sudo: yes
+    tags: restart
+
+  - name: restart presenters only
+    command: systemctl restart deconst-presenter@{{ item }}.service
+    with_items:
+    - pod_names
+    when: presenter_restart|default(false)
     sudo: yes
     tags: restart
 
   - name: restart logstash-forwarder
     service: name=logstash-forwarder state=restarted
-    when: (lf_binary|changed or lf_config|changed or lf_unit|changed) and not (lf_service_result|changed)
+    when: logstash_forwarder_restart|default(false)
     sudo: yes
     tags: restart
 
@@ -32,12 +45,12 @@
 
   - name: restart logstash
     service: name=deconst-logstash.service state=restarted
-    when: (elastic_pulls|changed or logstash_config|changed or units|changed) and not (elastic_service_results|changed)
+    when: logstash_restart|default(false)
     sudo: yes
     tags: restart
 
   - name: restart kibana
     service: name=deconst-kibana.service state=restarted
-    when: (elastic_pulls|changed or kibana_config|changed or units|changed) and not (elastic_service_results|changed)
+    when: kibana_restart|default(false)
     sudo: yes
     tags: restart

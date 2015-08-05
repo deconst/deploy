@@ -64,3 +64,10 @@
   with_items: elastic_services
   register: elastic_service_results
   sudo: yes
+
+- name: compute restart control vars
+  set_fact:
+    logstash_restart: >
+      {{ (elastic_pulls|changed or logstash_config|changed or units|changed) and not (elastic_service_results|changed) }}
+    kibana_restart: >
+      {{ (elastic_pulls|changed or kibana_config|changed or units|changed) and not (elastic_service_results|changed) }}
