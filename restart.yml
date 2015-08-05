@@ -19,16 +19,14 @@
   # Instead, manually restart each pod together by invoking systemctl directly.
   - name: restart service pods
     command: systemctl restart deconst-content@{{ item }}.service deconst-presenter@{{ item }}.service
-    with_items:
-    - pod_names
+    with_items: pod_names
     when: service_pod_restart|default(false)|bool
     sudo: yes
     tags: restart
 
   - name: restart presenters only
     command: systemctl restart deconst-presenter@{{ item }}.service
-    with_items:
-    - pod_names
+    with_items: pod_names
     when: presenter_restart|default(false)|bool
     sudo: yes
     tags: restart
