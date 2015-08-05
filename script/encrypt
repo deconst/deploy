@@ -14,4 +14,4 @@ DEST=${1:-${ROOT}}
   DEST="${DEST}/credentials-${INSTANCE}.yml.enc"
 }
 
-exec openssl enc -md sha1 -salt -aes-256-cbc -in ${SRC} -out ${DEST}
+exec openssl enc -md sha1 -aes-256-cbc -in ${SRC} -out ${DEST}
