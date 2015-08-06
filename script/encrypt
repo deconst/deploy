@@ -26,6 +26,6 @@ EOM
 }
 
 exec gpg --symmetric \
-  --no-use-agent --cert-digest-algo SHA512 --cipher-algo AES256 \
+  --no-use-agent --digest-algo SHA512 --cipher-algo AES256 \
   --output "${DEST}" \
   "${SRC}"
