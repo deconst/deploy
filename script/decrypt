@@ -5,7 +5,15 @@ ROOT=$(cd $(dirname $0)/.. && pwd)
 SRC=${1:-${ROOT}/credentials.yml.enc}
 DEST=${ROOT}/credentials.yml
 
-PASSOPT=""
-[ -n "${PASSPHRASE:-}" ] && PASSOPT="-pass env:PASSPHRASE"
+which gpg >/dev/null 2>&1 || {
+  cat <<EOM >&2
+You don't have gpg installed! To be able to use script/encrypt and script/decrypt, you'll need
+to track it down.
 
-exec openssl enc -d -md sha256 -aes-256-cbc ${PASSOPT} -in ${SRC} -out ${DEST}
+On a Mac, you can download the GPG suite from https://gpgtools.org/ or, if you use Homebrew,
+"brew install gpg".
+EOM
+  exit 1
+}
+
+exec gpg --decrypt --output ${DEST} ${SRC}
