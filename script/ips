@@ -1,7 +1,30 @@
-#!/bin/bash
+#!/usr/bin/env python
 
-set -ueo pipefail
+import pyrax
+import yaml
+import os
+import sys
+import subprocess
+import re
 
-ROOT=$(cd $(dirname $0)/.. && pwd)
+# Get our bearings on the filesystem.
+root = os.path.realpath(os.path.join(os.path.dirname(__file__), ".."))
 
-${ROOT}/script/facts 'filter=ansible_default_ipv4'
+# Collect credentials.
+with open(os.path.join(root, "credentials.yml")) as credfile:
+    creds = yaml.load(credfile)
+rackspace_username = creds["rackspace_username"]
+rackspace_apikey = creds["rackspace_api_key"]
+rackspace_region = creds["rackspace_region"]
+instance = creds["instance"]
+
+pyrax.set_setting("identity_type", "rackspace")
+pyrax.set_credentials(rackspace_username, rackspace_apikey)
+cs = pyrax.connect_to_cloudservers(region=rackspace_region)
+
+for server in cs.servers.list():
+    group = server.metadata.get('group')
+    if not group or not group.startswith("deconst-{}".format(instance)):
+        continue
+
+    print "{} {}".format(server.name, server.accessIPv4)
