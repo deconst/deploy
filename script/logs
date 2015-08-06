@@ -16,6 +16,7 @@ with open(os.path.join(root, "credentials.yml")) as credfile:
 rackspace_username = creds["rackspace_username"]
 rackspace_apikey = creds["rackspace_api_key"]
 rackspace_region = creds["rackspace_region"]
+instance = creds["instance"]
 
 pyrax.set_setting("identity_type", "rackspace")
 pyrax.set_credentials(rackspace_username, rackspace_apikey)
@@ -30,7 +31,7 @@ lines = int(os.environ.get("LOG_LINES", "100"))
 
 for server in cs.servers.list():
     group = server.metadata.get('group')
-    if not group or not group.startswith("deconst-worker"):
+    if not group or not group.startswith("deconst-{}".format(instance)):
         continue
 
     print "*{:*^78}*".format(" SERVER: " + server.name + " ")
