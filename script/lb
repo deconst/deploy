@@ -1,0 +1,200 @@
+#!/usr/bin/env python
+
+import pyrax
+import yaml
+import os
+import sys
+import subprocess
+import re
+import argparse
+
+parser = argparse.ArgumentParser(description="Manage deconst load balancer health.")
+
+arggroup = parser.add_mutually_exclusive_group()
+arggroup.add_argument("-r", "--report", action="store_true",
+                      help="Report whether or not the correct nodes are in place.")
+arggroup.add_argument("-f", "--fix", action="store_true",
+                      help="Add missing nodes and remove extra nodes.")
+
+parser.add_argument("-d", "--drain", action="store_true",
+                    help="Drain connections from nodes for 5 seconds before removal.")
+parser.add_argument("-v", "--verbose", action="store_true",
+                    help="Be more chatty.")
+
+args = parser.parse_args()
+
+if not args.report and not args.fix:
+    # Default to report.
+    args.report = True
+
+# Get our bearings on the filesystem.
+root = os.path.realpath(os.path.join(os.path.dirname(__file__), ".."))
+
+# Collect credentials.
+with open(os.path.join(root, "credentials.yml")) as credfile:
+    creds = yaml.load(credfile)
+rackspace_username = creds["rackspace_username"]
+rackspace_apikey = creds["rackspace_api_key"]
+rackspace_region = creds["rackspace_region"]
+instance_name = creds["instance"]
+
+pyrax.set_setting("identity_type", "rackspace")
+pyrax.set_credentials(rackspace_username, rackspace_apikey)
+cs = pyrax.connect_to_cloudservers(region=rackspace_region)
+clb = pyrax.connect_to_cloud_loadbalancers(region=rackspace_region)
+
+# Find the load balancers.
+
+content_lb_name = "deconst-{}-content".format(instance_name)
+presenter_lb_name = "deconst-{}-presenter".format(instance_name)
+content_lb, presenter_lb = None, None
+for lb in clb.list():
+    if lb.name == content_lb_name:
+        content_lb = lb
+    elif lb.name == presenter_lb_name:
+        presenter_lb = lb
+
+if not content_lb:
+    print "Unable to locate the content load balancer!"
+    sys.exit(1)
+
+if not presenter_lb:
+    print "Unable to locate the presenter load balancer!"
+    sys.exit(1)
+
+# Identify which ports should be mapped to which hosts from each load balancer.
+
+presenter_ports = []
+content_ports = []
+
+for server in cs.servers.list():
+    group = server.metadata.get('group')
+    if not group or not group.startswith("deconst-{}-worker".format(instance_name)):
+        continue
+
+    addr = server.accessIPv4
+    ssh_addr = "core@{}".format(addr)
+    snet = server.addresses['private'][0]['addr']
+
+    containers = subprocess.check_output(["ssh", ssh_addr, "docker", "ps", "-a"])
+    for line in containers.split("\n"):
+        parts = line.split()
+        if not parts or parts[0] == "CONTAINER":
+            continue
+
+        container_name, port_mapping = parts[-1], parts[-2]
+
+        if container_name.startswith("presenter"):
+            dest = presenter_ports
+        elif container_name.startswith("content-service"):
+            dest = content_ports
+        else:
+            continue
+
+        m = re.match("0\.0\.0\.0:(\d+)->\d+", port_mapping)
+        if not m:
+            print "Unable to parse port mapping [{}]!".format(port_mapping)
+            print "Container [{}] on host [{}].".format(container_name, server.name)
+            continue
+        else:
+            port = int(m.group(1))
+
+        dest.append((snet, port))
+
+if not presenter_ports:
+    print "No presenter ports found!"
+    sys.exit(1)
+
+if not content_ports:
+    print "No content service ports found!"
+    sys.exit(1)
+
+# Audit the service ports against the load balancer nodes.
+# Accumulate a list of actions to take against each.
+
+def audit_lb_nodes(lb, expected_ports):
+    missing_nodes = set(expected_ports)
+    extra_nodes = []
+
+    if args.verbose:
+        print "EXISTING NODES:"
+
+    for node in lb.nodes:
+        t = (node.address, node.port)
+        if t in missing_nodes:
+            if args.verbose:
+                print " {:<15} => {}".format(node.address, node.port)
+            missing_nodes.remove(t)
+        else:
+            extra_nodes.append(node)
+
+    if args.report:
+        if extra_nodes:
+            print "EXTRA NODES:"
+            for node in extra_nodes:
+                print "  {:<15} => {}".format(node.address, node.port)
+
+        if missing_nodes:
+            print "MISSING NODES:"
+            for (addr, port) in missing_nodes:
+                print "  {:<15} => {}".format(addr, port)
+
+        if not extra_nodes and not missing_nodes:
+            print "All nodes are in their expected state."
+
+    if args.fix:
+        if extra_nodes:
+            if args.drain:
+                print "Draining connections from {} unrecognized nodes.".format(len(extra_nodes))
+
+                for node in extra_nodes:
+                    if node.condition != "ENABLED":
+                        if args.verbose:
+                            print " skipping non-enabled node {}:{}".format(node.address, node.port)
+                        continue
+
+                    if args.verbose:
+                        print " draining {}:{} ..".format(node.address, node.port),
+                    node.condition = "DRAINING"
+                    node.update()
+                    pyrax.utils.wait_until(lb, "status", "ACTIVE", interval=1, attempts=30)
+                    if args.verbose:
+                        print "ok"
+
+            print "Deleting {} unrecognized nodes.".format(len(extra_nodes))
+
+            for node in extra_nodes:
+                if args.verbose:
+                    print " deleting {}:{} ..".format(node.address, node.port),
+                node.delete()
+                pyrax.utils.wait_until(lb, "status", "ACTIVE", interval=1, attempts=30)
+                if args.verbose:
+                    print "ok"
+
+            print "Unrecognized nodes deleted."
+        elif args.verbose:
+            print "No extra nodes to delete."
+
+        if missing_nodes:
+            print "Adding {} missing nodes.".format(len(missing_nodes))
+
+            to_add = []
+            for (addr, port) in missing_nodes:
+                if args.verbose:
+                    print " constructing node for {}:{}".format(addr, port)
+                to_add.append(clb.Node(address=addr, port=port, condition="ENABLED"))
+
+            print " applying changes ..",
+            lb.add_nodes(to_add)
+            pyrax.utils.wait_until(lb, "status", "ACTIVE", interval=1, attempts=30)
+            print "ok"
+        elif args.verbose:
+            print "No missing nodes to add."
+
+print
+print "CONTENT SERVICE LOAD BALANCER"
+audit_lb_nodes(content_lb, content_ports)
+
+print
+print "PRESENTER LOAD BALANCER"
+audit_lb_nodes(presenter_lb, presenter_ports)
