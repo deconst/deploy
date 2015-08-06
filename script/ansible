@@ -9,4 +9,19 @@ source ${ROOT}/script/include/setup.sh
 
 setup_inventory
 
-exec ansible deconst-all -i ${ROOT}/inventory "$@"
+INSTANCE=$(credential instance)
+DEPLOYMENT=$(credential deployment)
+
+PATTERN=deconst-all
+case "${1:-}" in
+  worker)
+    shift
+    PATTERN=deconst-${INSTANCE}-worker-${DEPLOYMENT}
+    ;;
+  elastic)
+    shift
+    PATTERN=deconst-${INSTANCE}-elastic-${DEPLOYMENT}
+    ;;
+esac
+
+exec ansible ${PATTERN} -i ${ROOT}/inventory "$@"
