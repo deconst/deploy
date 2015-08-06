@@ -6,7 +6,7 @@ import re
 import os
 import sys
 
-if len(sys.argv) > 3:
+if len(sys.argv) > 2:
     print "Usage: {} <hostname>".format(sys.argv[0])
     sys.exit(1)
 
