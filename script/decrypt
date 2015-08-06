@@ -5,4 +5,7 @@ ROOT=$(cd $(dirname $0)/.. && pwd)
 SRC=${1:-${ROOT}/credentials.yml.enc}
 DEST=${ROOT}/credentials.yml
 
-exec openssl enc -d -md sha256 -aes-256-cbc -in ${SRC} -out ${DEST}
+PASSOPT=""
+[ -n "${PASSPHRASE}" ] && PASSOPT="-pass env:PASSPHRASE"
+
+exec openssl enc -d -md sha256 -aes-256-cbc ${PASSOPT} -in ${SRC} -out ${DEST}

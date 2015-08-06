@@ -14,4 +14,7 @@ DEST=${1:-${ROOT}}
   DEST="${DEST}/credentials-${INSTANCE}.yml.enc"
 }
 
-exec openssl enc -md sha256 -aes-256-cbc -in ${SRC} -out ${DEST}
+PASSOPT=""
+[ -n "${PASSPHRASE}" ] && PASSOPT="-pass env:PASSPHRASE"
+
+exec openssl enc -md sha256 -aes-256-cbc ${PASSOPT} -in ${SRC} -out ${DEST}
