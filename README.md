@@ -78,4 +78,3 @@ This repository contains a number of utilities to assist in basic ops work. Each
  * `script/genkey <name>` reads the admin API key from your credentials file and issues a new API key with the provided name.
  * `script/ssh <hostpattern>` logs in to a uniquely identified host in the cluster.
  * `script/ips` lists the IP addresses of each host in the cluster.
- * `script/facts` allows you to probe for a specific Ansible fact collected from each host on the cluster. For example, `script/facts 'filter=ansible_eth1'` will show the ServiceNet address of each host.
