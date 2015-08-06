@@ -22,9 +22,18 @@ pyrax.set_setting("identity_type", "rackspace")
 pyrax.set_credentials(rackspace_username, rackspace_apikey)
 cs = pyrax.connect_to_cloudservers(region=rackspace_region)
 
-for server in cs.servers.list():
+pattern = "deconst-{}".format(instance)
+all_servers = cs.servers.list()
+
+matching_servers = []
+for server in all_servers:
     group = server.metadata.get('group')
-    if not group or not group.startswith("deconst-{}".format(instance)):
+    if not group or not group.startswith(pattern):
         continue
 
+    matching_servers.append(server)
+
+matching_servers.sort(key=lambda s: s.name)
+
+for server in matching_servers:
     print "{} {}".format(server.name, server.accessIPv4)
