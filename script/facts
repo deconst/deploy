@@ -1,7 +1,0 @@
-#!/bin/bash
-
-set -ueo pipefail
-
-ROOT=$(cd $(dirname $0)/.. && pwd)
-
-exec ${ROOT}/script/ansible -m setup -a "$1"
