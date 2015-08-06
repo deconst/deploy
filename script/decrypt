@@ -1,0 +1,19 @@
+#!/bin/bash
+
+ROOT=$(cd $(dirname $0)/.. && pwd)
+
+SRC=${1:-${ROOT}/credentials.yml.enc}
+DEST=${ROOT}/credentials.yml
+
+which gpg >/dev/null 2>&1 || {
+  cat <<EOM >&2
+You don't have gpg installed! To be able to use script/encrypt and script/decrypt, you'll need
+to track it down.
+
+On a Mac, you can download the GPG suite from https://gpgtools.org/ or, if you use Homebrew,
+"brew install gpg".
+EOM
+  exit 1
+}
+
+exec gpg --decrypt --output ${DEST} ${SRC}

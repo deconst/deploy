@@ -33,7 +33,7 @@ To deploy or update a cluster:
     ${EDITOR} credentials.yml
 
     # Or:
-    gpg -o credentials.yml ~/control-repo/credentials-staging.yml.gpg
+    script/decrypt ~/cred-repo/credentials-staging.yml.enc
     ```
 
  2. Run the playbook with the `deploy` script.

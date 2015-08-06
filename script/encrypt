@@ -1,0 +1,31 @@
+#!/bin/bash
+
+set -ueo pipefail
+
+ROOT=$(cd $(dirname $0)/.. && pwd)
+
+source ${ROOT}/script/include/credentials.sh
+
+INSTANCE=$(credential instance)
+SRC=${ROOT}/credentials.yml
+DEST=${1:-${ROOT}}
+
+which gpg >/dev/null 2>&1 || {
+  cat <<EOM >&2
+You don't have gpg installed! To be able to use script/encrypt and script/decrypt, you'll need
+to track it down.
+
+On a Mac, you can download the GPG suite from https://gpgtools.org/ or, if you use Homebrew,
+"brew install gpg".
+EOM
+  exit 1
+}
+
+[ -d "${DEST}" ] && {
+  DEST="${DEST}/credentials-${INSTANCE}.yml.enc"
+}
+
+exec gpg --symmetric \
+  --no-use-agent --digest-algo SHA512 --cipher-algo AES256 \
+  --output "${DEST}" \
+  "${SRC}"
