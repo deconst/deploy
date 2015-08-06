@@ -15,6 +15,6 @@ DEST=${1:-${ROOT}}
 }
 
 PASSOPT=""
-[ -n "${PASSPHRASE}" ] && PASSOPT="-pass env:PASSPHRASE"
+[ -n "${PASSPHRASE:-}" ] && PASSOPT="-pass env:PASSPHRASE"
 
 exec openssl enc -md sha256 -aes-256-cbc ${PASSOPT} -in ${SRC} -out ${DEST}
