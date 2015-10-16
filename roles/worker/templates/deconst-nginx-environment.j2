@@ -1,6 +1,11 @@
 # Environment variables used by the deconst nginx container.
 # {{ ansible_managed }}
 
+RACKSPACE_USERNAME={{ rackspace_username }}
+RACKSPACE_APIKEY={{ rackspace_api_key }}
+RACKSPACE_REGION={{ rackspace_region }}
+RACKSPACE_SERVICENET="true"
+
 # Load balancer IDs
 
 CONTENT_LB_ID={{ hostvars.localhost.clb_content_service.balancer.id }}
