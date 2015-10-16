@@ -78,7 +78,7 @@
   sudo: yes
 
 - name: ensure containers are up to date
-  command: /opt/bin/multipull rgbkrk/peekaboo {% for image in worker_containers %}quay.io/deconst/{{ image }} {% endfor %}
+  command: /opt/bin/multipull {% for image in worker_containers %}quay.io/deconst/{{ image }} {% endfor %}
   register: worker_pulls
   failed_when: worker_pulls.rc == 1
   changed_when: worker_pulls.rc == 2

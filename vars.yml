@@ -15,10 +15,12 @@ webhook_service_lb_port: 8003
 worker_services:
 - deconst-content
 - deconst-presenter
+- deconst-nginx
 
 worker_containers:
 - content-service
 - presenter
+- nginx
 
 # Current public key for github.com.
 # Update with: ssh-keyscan -t rsa github.com
