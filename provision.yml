@@ -87,6 +87,7 @@
     rax_clb:
       name: deconst-{{ instance }}-presenter
       port: "{{ presenter_lb_port }}"
+      protocol: HTTPS
       wait: yes
       state: present
     register: clb_presenter
@@ -98,6 +99,7 @@
     rax_clb:
       name: deconst-{{ instance }}-content
       port: "{{ content_service_lb_port }}"
+      protocol: HTTPS
       vip_id: "{{ clb_vip_id }}"
       wait: yes
       timeout: 120

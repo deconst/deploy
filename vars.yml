@@ -8,9 +8,8 @@ image_coreos_alpha: CoreOS (Alpha)
 etcd_api_port: 2379
 etcd_peer_port: 2380
 
-presenter_lb_port: 80
-content_service_lb_port: 8000
-webhook_service_lb_port: 8003
+presenter_lb_port: 443
+content_service_lb_port: 9000
 
 worker_services:
 - deconst-content
