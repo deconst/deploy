@@ -18,7 +18,7 @@ USAGE
   exit 1
 }
 
-while ${1:-}; do
+for CONTAINER_PORT in "$@"; do
   CONTAINER_PORT=${1:-}
   PORT_PATH=/var/deconst/ports/${CONTAINER_NAME}.${CONTAINER_PORT}.port
 
@@ -48,6 +48,4 @@ while ${1:-}; do
   # Write the port number to the appropriate path.
   echo "Writing port ${APP_PORT} to ${PORT_PATH} for container ${CONTAINER_NAME} @ ${CONTAINER_PORT}."
   echo -n ${APP_PORT} > ${PORT_PATH}
-
-  shift
 done
