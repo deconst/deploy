@@ -138,6 +138,6 @@
 - name: compute restart control vars
   set_fact:
     service_pod_restart: >
-      {{ (environment|changed or worker_pulls|changed or worker_units|changed) and not worker_service_results|changed }}
+      {{ (nginx_environment|changed or service_environment|changed or worker_pulls|changed or worker_units|changed) and not worker_service_results|changed }}
     logstash_forwarder_restart: >
       {{ (lf_binary|changed or lf_config|changed or lf_unit|changed) and not lf_service_result|changed }}
