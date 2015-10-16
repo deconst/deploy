@@ -1,0 +1,7 @@
+# Environment variables used by the deconst nginx container.
+# {{ ansible_managed }}
+
+# Load balancer IDs
+
+CONTENT_LB_ID={{ hostvars.localhost.clb_content_service.balancer.id }}
+PRESENTER_LB_ID={{ hostvars.localhost.clb_presenter.balancer.id }}

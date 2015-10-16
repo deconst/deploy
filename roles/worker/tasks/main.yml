@@ -5,15 +5,25 @@
     pod_names: "[{% for i in range(1, pod_count + 1) %}{{ i }}{% if not loop.last %},{% endif %}{% endfor %}]"
   tags: always
 
-- name: environment variables
+- name: service environment variables
   template:
-    src: deconst-environment.j2
-    dest: /etc/deconst/environment.sh
+    src: deconst-service-environment.j2
+    dest: /etc/deconst/service-environment.sh
     owner: root
     group: root
     mode: 0600
   sudo: yes
-  register: environment
+  register: service_environment
+
+- name: nginx environment variables
+  template:
+    src: deconst-nginx-environment.j2
+    dest: /etc/deconst/nginx-environment.sh
+    owner: root
+    group: root
+    mode: 0600
+  sudo: yes
+  register: nginx_environment
 
 - name: TLS credentials
   template:
