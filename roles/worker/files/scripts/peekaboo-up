@@ -4,7 +4,7 @@
 
 set -eou pipefail
 
-[ ! $# = 2 ] && {
+[ ! $# = 3 ] && {
   cat <<USAGE >&2
 Usage: peekaboo-up <container> <port> <lb id>
 
