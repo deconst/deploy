@@ -43,11 +43,11 @@ while ${1:-}; do
   done
 
   # Locate the published port to add to the load balancer.
-  CONTAINER_PORT=$(/usr/bin/docker port "${CONTAINER_NAME}" "${CONTAINER_PORT}" | cut -d ':' -f 2)
+  APP_PORT=$(/usr/bin/docker port "${CONTAINER_NAME}" "${CONTAINER_PORT}" | cut -d ':' -f 2)
 
   # Write the port number to the appropriate path.
-  echo "Writing port ${CONTAINER_PORT} to ${PORT_PATH} for container ${CONTAINER_NAME}."
-  echo -n ${CONTAINER_PORT} > ${PORT_PATH}
+  echo "Writing port ${APP_PORT} to ${PORT_PATH} for container ${CONTAINER_NAME} @ ${CONTAINER_PORT}."
+  echo -n ${APP_PORT} > ${PORT_PATH}
 
   shift
 done
