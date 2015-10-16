@@ -13,7 +13,7 @@
     regexp: "^github\\.com"
   sudo: yes
 
-- name: trust GitHub users
-  authorized_key: user=core state=present key=https://github.com/{{ item }}.keys
-  with_items: github_usernames
+- name: trust administrator ssh keys
+  shell: echo '{{ item.pubkey }}' | update-ssh-keys -a {{ item.name }}
+  with_items: admin_ssh_pubkeys
   tags: keys
