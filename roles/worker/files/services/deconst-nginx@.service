@@ -25,8 +25,8 @@ ExecStartPost=/opt/bin/record-port nginx-%i 9000
 ExecStartPost=/opt/bin/peekaboo-up nginx-%i 443 ${PRESENTER_LB_ID}
 ExecStartPost=/opt/bin/peekaboo-up nginx-%i 9000 ${CONTENT_LB_ID}
 
-ExecStop=/opt/bin/peekaboo-down nginx-%i.443 ${PRESENTER_LB_ID}
-ExecStop=/opt/bin/peekaboo-down nginx-%i.9000 ${PRESENTER_LB_ID}
+ExecStop=/opt/bin/peekaboo-down nginx-%i 443 ${PRESENTER_LB_ID}
+ExecStop=/opt/bin/peekaboo-down nginx-%i 9000 ${PRESENTER_LB_ID}
 
 ExecStop=/usr/bin/docker stop --time=2 presenter-%i
 ExecStop=/usr/bin/docker rm -f presenter-%i
