@@ -36,7 +36,7 @@
   register: certificate
   with_items:
   - certificate.pem
-  - certificate-key.pem
+  - certificate_key.pem
 
 - name: logstash-forwarder configuration
   template:
