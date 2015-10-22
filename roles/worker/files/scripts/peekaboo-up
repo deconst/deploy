@@ -4,22 +4,23 @@
 
 set -eou pipefail
 
-[ ! $# = 2 ] && {
+[ ! $# = 3 ] && {
   cat <<USAGE >&2
-Usage: peekaboo-up <container> <lb id>
+Usage: peekaboo-up <container> <port> <lb id>
 
- Adds or updates a node on a load balancer that corresponds to the first published port of a
- named Docker container.
+ Adds or updates a node on a load balancer that corresponds to a published port of a named
+ Docker container.
 USAGE
   exit 1
 }
 
 CONTAINER_NAME=${1:-}
-LOAD_BALANCER_ID=${2:-}
+CONTAINER_PORT=${2:-}
+LOAD_BALANCER_ID=${3:-}
 
 # Locate the published port to add to the load balancer.
 
-PORT_PATH=/var/deconst/ports/${CONTAINER_NAME}.port
+PORT_PATH=/var/deconst/ports/${CONTAINER_NAME}.${CONTAINER_PORT}.port
 
 [ -e ${PORT_PATH} ] || {
   echo "Port file ${PORT_PATH} does not exist."

@@ -78,28 +78,24 @@ for server in cs.servers.list():
 
     containers = subprocess.check_output(["ssh", ssh_addr, "docker", "ps", "-a"])
     for line in containers.split("\n"):
-        parts = line.split()
-        if not parts or parts[0] == "CONTAINER":
+        if not re.search("\\bnginx\S+\s*$", line):
             continue
 
-        container_name, port_mapping = parts[-1], parts[-2]
+        ms = re.findall("0\.0\.0\.0:(\d+)->(\d+)/tcp", line)
 
-        if container_name.startswith("presenter"):
-            dest = presenter_ports
-        elif container_name.startswith("content-service"):
-            dest = content_ports
-        else:
-            continue
-
-        m = re.match("0\.0\.0\.0:(\d+)->\d+", port_mapping)
-        if not m:
-            print "Unable to parse port mapping [{}]!".format(port_mapping)
+        if not ms:
+            print "Unable to parse port mapping [{}]!".format(line)
             print "Container [{}] on host [{}].".format(container_name, server.name)
             continue
-        else:
-            port = int(m.group(1))
 
-        dest.append((snet, port))
+        for match in ms:
+            port = int(match[0])
+            if match[1] == "443":
+                presenter_ports.append((snet, port))
+            elif match[1] == "9000":
+                content_ports.append((snet, port))
+            else:
+                print "Ignoring mapping to unrecognized internal port: {}".format(match[1])
 
 if not presenter_ports:
     print "No presenter ports found!"

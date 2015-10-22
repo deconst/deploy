@@ -5,15 +5,38 @@
     pod_names: "[{% for i in range(1, pod_count + 1) %}{{ i }}{% if not loop.last %},{% endif %}{% endfor %}]"
   tags: always
 
-- name: environment variables
+- name: service environment variables
   template:
-    src: deconst-environment.j2
-    dest: /etc/deconst/environment.sh
+    src: deconst-service-environment.j2
+    dest: /etc/deconst/service-environment.sh
     owner: root
     group: root
     mode: 0600
   sudo: yes
-  register: environment
+  register: service_environment
+
+- name: nginx environment variables
+  template:
+    src: deconst-nginx-environment.j2
+    dest: /etc/deconst/nginx-environment.sh
+    owner: root
+    group: root
+    mode: 0600
+  sudo: yes
+  register: nginx_environment
+
+- name: TLS credentials
+  template:
+    src: "{{ item }}.j2"
+    dest: /etc/deconst/ssl/{{ item }}
+    owner: root
+    group: root
+    mode: 0600
+  sudo: yes
+  register: certificate
+  with_items:
+  - certificate.pem
+  - certificate_key.pem
 
 - name: logstash-forwarder configuration
   template:
@@ -55,7 +78,7 @@
   sudo: yes
 
 - name: ensure containers are up to date
-  command: /opt/bin/multipull rgbkrk/peekaboo {% for image in worker_containers %}quay.io/deconst/{{ image }} {% endfor %}
+  command: /opt/bin/multipull {% for image in worker_containers %}quay.io/deconst/{{ image }} {% endfor %}
   register: worker_pulls
   failed_when: worker_pulls.rc == 1
   changed_when: worker_pulls.rc == 2
@@ -115,6 +138,6 @@
 - name: compute restart control vars
   set_fact:
     service_pod_restart: >
-      {{ (environment|changed or worker_pulls|changed or worker_units|changed) and not worker_service_results|changed }}
+      {{ (nginx_environment|changed or service_environment|changed or worker_pulls|changed or worker_units|changed) and not worker_service_results|changed }}
     logstash_forwarder_restart: >
       {{ (lf_binary|changed or lf_config|changed or lf_unit|changed) and not lf_service_result|changed }}

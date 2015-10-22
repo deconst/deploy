@@ -9,6 +9,7 @@
     mode: 0755
   with_items:
   - /etc/deconst
+  - /etc/deconst/ssl
   - /var/deconst/ports
   - /opt/bin
   sudo: yes

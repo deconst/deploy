@@ -4,7 +4,7 @@ Requires=docker.service
 After=docker.service
 
 [Service]
-EnvironmentFile=/etc/deconst/environment.sh
+EnvironmentFile=/etc/deconst/service-environment.sh
 TimeoutSec=5min
 Type=notify
 NotifyAccess=all
@@ -23,13 +23,8 @@ ExecStart=/opt/bin/systemd-docker run \
   --env=CONTENT_LOG_LEVEL=${CONTENT_LOG_LEVEL} \
   --env=CONTENT_LOG_COLOR=false \
   --env=NODE_ENV=${NODE_ENV} \
-  --publish=0.0.0.0::8080 \
   quay.io/deconst/content-service
 
-ExecStartPost=/opt/bin/record-port content-service-%i
-ExecStartPost=/opt/bin/peekaboo-up content-service-%i ${CONTENT_LB_ID}
-
-ExecStop=/opt/bin/peekaboo-down content-service-%i ${CONTENT_LB_ID}
 ExecStop=/usr/bin/docker stop --time=2 content-service-%i
 ExecStop=/usr/bin/docker rm -f content-service-%i
 

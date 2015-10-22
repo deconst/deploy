@@ -22,12 +22,20 @@ filter {
     }
   }
 
-  json {
-    source => "RAW_MESSAGE"
+  if ( [RAW_MESSAGE] =~ /^\{/ ) {
+    json {
+      source => "RAW_MESSAGE"
+    }
+  }
+
+  if ( [SYSTEMD_UNIT] =~ /^deconst-nginx/ ) {
+    grok {
+      match => [ "RAW_MESSAGE", "%{IP:clientIP} %{USER:ident} %{USER:auth} \[%{HTTPDATE:nginxTimestamp}\] \"%{WORD:method} /%{NOTSPACE:requestPath} HTTP/%{NUMBER:httpVersion}\" %{NUMBER:status} " ]
+    }
   }
 
   mutate {
-    remove_field => ["JOURNALD_MESSAGE", "RAW_MESSAGE"]
+    remove_field => ["JOURNALD_MESSAGE"]
   }
 }
 
