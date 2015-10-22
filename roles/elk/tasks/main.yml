@@ -2,7 +2,7 @@
 # Launch containers for ELK minus the E, configured to talk to our hosted Elasticsearch
 
 - name: ensure containers are up to date
-  command: /opt/bin/multipull kibana logstash:1.5.2 quay.io/deconst/curator
+  command: /opt/bin/multipull kibana:4.1.2 logstash:1.5.2 quay.io/deconst/curator
   register: elastic_pulls
   failed_when: elastic_pulls.rc == 1
   changed_when: elastic_pulls.rc == 2

@@ -12,7 +12,7 @@ ExecStart=/opt/bin/systemd-docker run \
   --name=%n \
   --publish=0.0.0.0:80:5601 \
   --volume=/etc/kibana/kibana.yml:/etc/kibana/kibana.yml:ro \
-  kibana \
+  kibana:4.1.2 \
   kibana -c /etc/kibana/kibana.yml
 
 ExecStop=-/usr/bin/docker stop --time=2 %n
