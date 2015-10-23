@@ -114,7 +114,7 @@
     copy:
       src: certificates/{{ inventory_hostname }}-dhparams.pem
       dest: /etc/ssl/private/dhparams.pem
-      mode: 0600
+      mode: 0644
       owner: root
       group: root
     sudo: yes
