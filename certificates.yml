@@ -76,6 +76,12 @@
       creates=certificates/{{ inventory_hostname }}-cert.pem
     when: gencerts
 
+  - name: generate strong DH parameters
+    local_action: |
+      shell openssl dhparam -out certificates/{{ inventory_hostname }}-dhparams.pem 2048
+      creates=certificates/{{ inventory_hostname }}-dhparams.pem
+    when: gencerts
+
   - name: install the CA certificate
     copy:
       src: certificates/ca.pem
@@ -99,6 +105,16 @@
       src: certificates/{{ inventory_hostname }}-key.pem
       dest: /etc/ssl/private/host-key.pem
       mode: 0644
+      owner: root
+      group: root
+    sudo: yes
+    when: gencerts
+
+  - name: install the DH parameters
+    copy:
+      src: certificates/{{ inventory_hostname }}-dhparams.pem
+      dest: /etc/ssl/private/dhparams.pem
+      mode: 0600
       owner: root
       group: root
     sudo: yes
