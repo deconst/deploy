@@ -113,7 +113,7 @@
   - name: install the DH parameters
     copy:
       src: certificates/{{ inventory_hostname }}-dhparams.pem
-      dest: /etc/ssl/private/dhparams.pem
+      dest: /etc/deconst/ssl/dhparams.pem
       mode: 0644
       owner: root
       group: root
