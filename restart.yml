@@ -31,6 +31,13 @@
     sudo: yes
     tags: restart
 
+  - name: restart nginx only
+    command: systemctl restart deconst-nginx@{{ item }}.service
+    with_items: pod_names
+    when: nginx_restart|default(false)|bool
+    sudo: yes
+    tags: restart
+
   - name: restart logstash-forwarder
     service: name=logstash-forwarder state=restarted
     when: logstash_forwarder_restart|default(false)|bool
