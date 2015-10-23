@@ -78,7 +78,7 @@
 
   - name: generate strong DH parameters
     local_action: |
-      openssl dhparam -out certificates/{{ inventory_hostname }}-dhparams.pem 2048
+      shell openssl dhparam -out certificates/{{ inventory_hostname }}-dhparams.pem 2048
       creates=certificates/{{ inventory_hostname }}-dhparams.pem
     when: gencerts
 
