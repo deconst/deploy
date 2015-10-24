@@ -1,0 +1,26 @@
+#!/bin/bash
+
+set -ueo pipefail
+
+ROOT=$(cd $(dirname $0)/.. && pwd)
+
+source ${ROOT}/script/include/credentials.sh
+
+USERNAME=$(credential rackspace_username)
+APIKEY=$(credential rackspace_api_key)
+REGION=$(credential rackspace_region | tr "[:upper:]" "[:lower:]")
+TENANT=${TENANT:-${1:-}}
+
+[ -z "${TENANT}" ] && {
+  echo "Please specify your tenant ID."
+  exit 1
+}
+
+TOKEN=`curl -s -X POST https://identity.api.rackspacecloud.com/v2.0/tokens \
+  -d '{"auth":{"RAX-KSKEY:apiKeyCredentials":{"username":"'${USERNAME}'", "apiKey":"'${APIKEY}'"}}}' \
+  -H "Content-type: application/json" | \
+  jq -r .access.token.id`
+
+curl -s \
+  -H "X-Auth-Token: ${TOKEN}" \
+  https://${REGION}.loadbalancers.api.rackspacecloud.com/v1.0/${TENANT}/limits | jq .
