@@ -44,6 +44,20 @@ To deploy or update a cluster:
 
 ### Parameters
 
+Deconst guards against inconsistent `credentials.yml` files being run by multiple maintainers. If you intentionally make changes to the credentials file, you'll need to provide extra variables to `script/deploy`.
+
+If you change the `deployment`, run with:
+
+```bash
+script/deploy -e 'new_deployment=true'
+```
+
+If you make any other local changes to a `credentials.yml` file, run with:
+
+```bash
+script/deploy -e 'credentials_update=true'
+```
+
 To only update the control repository's content map, layout map or templates:
 
 ```bash
