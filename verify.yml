@@ -1,0 +1,46 @@
+---
+# Verify that your version of credentials.yml is up to date, unless you're explicitly messing
+# with it.
+
+- name: checksum
+  hosts: local
+  connection: local
+  tasks:
+
+  - name: checksum your credentials.yml
+    command: shasum -a 256 credentials.yml
+    register: credentials_sha256
+    changed_when: no
+    tags: verify
+
+- name: verify
+  hosts: deconst-all
+  tasks:
+
+  - name: read an already-present credentials.sha256 file
+    command: cat ~/credentials.sha256
+    register: existing_credentials_sha256
+    ignore_errors: yes
+    changed_when: no
+    tags: verify
+
+  - name: ensure that the credentials file matches
+    fail:
+      msg: >
+        It looks like your local credentials.yml file differs from the last one that was used
+        against this cluster. If you have intentional local edits, re-run script/deploy with
+        this argument:
+
+          -e 'credentials_update=true'
+
+        Otherwise, please obtain the latest version of credentials.yml for this cluster and try
+        again.
+    when: >
+      hostvars.localhost.credentials_sha256.stdout != existing_credentials_sha256.stdout
+      and not credentials_update|default(false)
+    tags: verify
+
+  - name: record the new credentials SHA
+    shell: echo -n "{{ hostvars.localhost.credentials_sha256.stdout }}" > ~/credentials.sha256
+    changed_when: no
+    tags: verify
