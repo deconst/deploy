@@ -1,3 +1,5 @@
+*.pyc
+warnings.log
 credentials.yml
 inventory/static
 .galaxy
