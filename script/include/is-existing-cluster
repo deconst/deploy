@@ -1,0 +1,43 @@
+#!/usr/bin/env python
+
+import pyrax
+import yaml
+import os
+import sys
+import subprocess
+import re
+
+# Get our bearings on the filesystem.
+root = os.path.realpath(os.path.join(os.path.dirname(__file__), "..", ".."))
+
+# Collect credentials.
+with open(os.path.join(root, "credentials.yml")) as credfile:
+    creds = yaml.load(credfile)
+rackspace_username = creds["rackspace_username"]
+rackspace_apikey = creds["rackspace_api_key"]
+rackspace_region = creds["rackspace_region"]
+instance = creds["instance"]
+deployment = creds["deployment"]
+
+pyrax.set_setting("identity_type", "rackspace")
+pyrax.set_credentials(rackspace_username, rackspace_apikey)
+cs = pyrax.connect_to_cloudservers(region=rackspace_region)
+
+pattern = "deconst-{}".format(instance)
+all_servers = cs.servers.list()
+
+matching_servers = []
+for server in all_servers:
+    group = server.metadata.get('group')
+    if not group or not group.startswith(pattern):
+        continue
+
+    parts = group.split("-")
+    if parts[-1] != deployment:
+        continue
+
+    # At least one matching host exists
+    sys.exit(0)
+
+# No matching hosts
+sys.exit(1)

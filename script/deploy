@@ -7,6 +7,23 @@ ROOT=$(cd $(dirname $0)/.. && pwd)
 source ${ROOT}/script/include/credentials.sh
 source ${ROOT}/script/include/setup.sh
 
+# Avoid provisioning new deployments unless explicitly requested to do so.
+if ! ${ROOT}/script/include/is-existing-cluster 2>/dev/null; then
+  if echo "$@" | grep -q 'new_deployment=true'; then
+    echo "This is a new deployment."
+  else
+    cat <<EOM >&2
+It looks like you're trying to provision a new deployment.
+If this is what you really mean to do, add this argument:
+
+  -e 'new_deployment=true'
+
+Otherwise, it's likely that you need to update your credentials.yml file.
+EOM
+    exit 1
+  fi
+fi
+
 setup_inventory
 setup_galaxy
 
