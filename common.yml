@@ -9,6 +9,8 @@
   roles:
   - defunctzombie.coreos-bootstrap
 
+- include: verify.yml
+
 - hosts: deconst-all
   vars_files:
   - vars.yml
