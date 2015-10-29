@@ -1,12 +1,16 @@
 #!/usr/bin/env python
 
-import pyrax
-import yaml
 import os
 import sys
 import subprocess
 import re
 import argparse
+
+from include import utils
+utils.log_warnings()
+
+import pyrax
+import yaml
 
 parser = argparse.ArgumentParser(description="Manage deconst load balancer health.")
 
