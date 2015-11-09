@@ -15,8 +15,8 @@ ExecStart=/opt/bin/systemd-docker run \
   --link=content-service-%i:content-service \
   --env=CONTENT_SERVICE_URL=http://content-service:8080/ \
   --env=CONTROL_REPO_PATH=/var/control-repo \
-  --env=CONTROL_REPO_URL=${CONTROL_REPOSITORY_URL} \
-  --env=CONTROL_REPO_BRANCH=${CONTROL_REPOSITORY_BRANCH} \
+  --env=CONTROL_REPO_URL=${CONTROL_REPO_URL} \
+  --env=CONTROL_REPO_BRANCH=${CONTROL_REPO_BRANCH} \
   --env=PRESENTED_URL_PROTO=${PRESENTED_URL_PROTO} \
   --env=PRESENTED_URL_DOMAIN=${PRESENTED_URL_DOMAIN} \
   --env=PRESENTER_DIAGNOSTICS=${PRESENTER_DIAGNOSTICS} \
