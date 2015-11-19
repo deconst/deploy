@@ -37,7 +37,7 @@ APP_PORT=$(cat ${PORT_PATH})
 # Wait up to 10m for the application to respond on its public port.
 # This takes advantage of our convention to listen at `/version` with a simple JSON response.
 ATTEMPT=0
-while ! /usr/bin/curl --insecure --silent --fail https://localhost:${APP_PORT}/version ; do
+while ! /usr/bin/curl --insecure --silent --fail https://localhost:${APP_PORT}/version >/dev/null 2>&1 ; do
   [ ${ATTEMPT} -lt 1200 ] || {
     echo "No response from ${CONTAINER_NAME} on ${APP_PORT}." >&2
     exit 1
