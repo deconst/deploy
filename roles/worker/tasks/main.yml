@@ -108,15 +108,6 @@
   register: lf_unit
   sudo: yes
 
-- name: control repository
-  git:
-    repo: "{{ control_repository_url }}"
-    version: "{{ control_repository_branch }}"
-    dest: /var/deconst/control
-    force: yes
-  sudo: yes
-  tags: control
-
 - name: reload unit files
   command: systemctl daemon-reload
   when: worker_units|changed or lf_unit|changed
