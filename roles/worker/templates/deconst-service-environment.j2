@@ -16,6 +16,7 @@ PRESENTER_LB_ID={{ hostvars.localhost.clb_presenter.balancer.id }}
 # System Services
 
 MONGODB_URL={{ mongodb_uri }}
+ELASTICSEARCH_HOST={{ elasticsearch_api_proto }}://{{ elasticsearch_username }}:{{ elasticsearch_password }}@{{ elasticsearch_hosts[0] }}:{{ elasticsearch_api_port }}
 ETCDCTL_PEERS={{ etcd_api_url }}
 
 NODE_ENV=production
