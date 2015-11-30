@@ -1,0 +1,28 @@
+#!/usr/bin/env python
+
+import os
+import requests
+
+from include import utils
+utils.log_warnings()
+
+from include import credentials
+
+content_store_url = credentials.content_store_url()
+
+headers = credentials.admin_auth_header()
+verify = os.environ.get('CONTENT_STORE_TLS_VERIFY') != "false"
+
+try:
+    r = requests.post("{}/reindex".format(content_store_url),
+                      headers=headers, verify=verify)
+except requests.exceptions.SSLError:
+    print "SSL certificate verification failure."
+    print "If you're targeting an instance with a self-signed certificate, retry with:"
+    print
+    print " export CONTENT_STORE_TLS_VERIFY=\"false\""
+    print
+    raise
+r.raise_for_status()
+
+print "Re-indexing triggered. Watch Kibana for reindexing progress."
