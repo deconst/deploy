@@ -38,6 +38,8 @@ def content_store_url(quiet=False):
 
         if not quiet:
             print("Using content store URL: {}".format(content_store_url))
+
+        return content_store_url
     else:
         rackspace_username = get("rackspace_username")
         rackspace_apikey = get("rackspace_api_key")
