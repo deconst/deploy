@@ -93,3 +93,4 @@ This repository contains a number of utilities to assist in basic ops work. Each
  * `script/ssh <hostpattern>` logs in to a uniquely identified host in the cluster.
  * `script/ips` lists the IP addresses of each host in the cluster.
  * `script/lb` audits and corrects load-balancer node membership on the cluster. Consult `--help` for details.
+ * `script/reindex` asynchronously triggers a full content reindex in Elasticsearch.

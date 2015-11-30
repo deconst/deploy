@@ -1,5 +1,7 @@
 import logging
 
+# Log certificate warnings to 'warnings.log'.
+
 class MyFilter(object):
     def __init__(self, level):
         self.__level = level
