@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import re
 import os
 import sys
 import requests
@@ -8,19 +7,17 @@ import requests
 from include import utils
 utils.log_warnings()
 
-import pyrax
+from include import credentials
 
 if len(sys.argv) != 2:
     print "Usage: {} <keyname>".format(sys.argv[0])
     sys.exit(1)
-
 keyname = sys.argv[1]
 
-admin_apikey = re.sub(r'\s+', "", utils.credential("content_admin_apikey"))
-content_store_url = utils.content_store_url()
+content_store_url = credentials.content_store_url()
 
 params = {'named': keyname}
-headers = {'Authorization': 'deconst apikey="{}"'.format(admin_apikey)}
+headers = credentials.admin_auth_header()
 
 r = requests.post("{}/keys".format(content_store_url),
                   headers=headers, params=params)
