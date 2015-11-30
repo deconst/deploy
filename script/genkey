@@ -3,14 +3,12 @@
 import re
 import os
 import sys
-import subprocess
-import json
+import requests
 
 from include import utils
 utils.log_warnings()
 
 import pyrax
-import yaml
 
 if len(sys.argv) != 2:
     print "Usage: {} <keyname>".format(sys.argv[0])
@@ -18,66 +16,17 @@ if len(sys.argv) != 2:
 
 keyname = sys.argv[1]
 
-# Get our bearings on the filesystem.
-root = os.path.realpath(os.path.join(os.path.dirname(__file__), ".."))
+admin_apikey = re.sub(r'\s+', "", utils.credential("content_admin_apikey"))
+content_store_url = utils.content_store_url()
 
-# Collect credentials.
-with open(os.path.join(root, "credentials.yml")) as credfile:
-    creds = yaml.load(credfile)
+params = {'named': keyname}
+headers = {'Authorization': 'deconst apikey="{}"'.format(admin_apikey)}
 
-admin_apikey = re.sub(r'\s+', "", creds["content_admin_apikey"])
+r = requests.post("{}/keys".format(content_store_url),
+                  headers=headers, params=params)
+r.raise_for_status()
 
-content_store_url = os.environ.get("CONTENT_STORE_URL")
-if content_store_url:
-    if content_store_url.endswith("/"):
-        content_store_url = content_store_url[:-1]
-
-    print("Using content store URL: {}".format(content_store_url))
-else:
-    rackspace_username = creds["rackspace_username"]
-    rackspace_apikey = creds["rackspace_api_key"]
-    rackspace_region = creds["rackspace_region"]
-
-    instance_name = creds["instance"]
-
-    pyrax.set_setting("identity_type", "rackspace")
-    pyrax.set_setting("region", rackspace_region)
-    pyrax.set_credentials(rackspace_username, rackspace_apikey)
-    clb = pyrax.cloud_loadbalancers
-
-    the_lb = None
-    content_lb_name = "deconst-{}-content".format(instance_name)
-    for lb in clb.list():
-        if lb.name == content_lb_name:
-            the_lb = lb
-
-    if not the_lb:
-        raise Exception("Content service load balancer not found")
-
-    addr = the_lb.virtual_ips[0].address
-    port = the_lb.port
-    proto = "http"
-
-    ssl_termination = the_lb.get_ssl_termination()
-    if ssl_termination:
-        proto = "https"
-        port = ssl_termination["securePort"]
-
-    content_store_url = "{}://{}:{}".format(proto, addr, port)
-
-    print("Derived content store URL: {}".format(content_store_url))
-    print("If this is incorrect, set CONTENT_STORE_URL to the correct value.")
-
-cmd = [
-    "curl",
-    "-s",
-    "-X", "POST",
-    "-H", 'Authorization: deconst apikey="{}"'.format(admin_apikey),
-    "{}/keys?named={}".format(content_store_url, keyname)
-]
-
-stdout = subprocess.check_output(cmd)
-key_doc = json.loads(stdout)
+key_doc = r.json()
 key = key_doc["apikey"]
 
 print "# Generated API key:"
