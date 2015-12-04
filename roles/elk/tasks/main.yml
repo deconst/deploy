@@ -1,8 +1,8 @@
 ---
-# Launch containers for ELK minus the E, configured to talk to our hosted Elasticsearch
+# Launch containers for Logstash, configured to talk to our hosted Elasticsearch
 
 - name: ensure containers are up to date
-  command: /opt/bin/multipull kibana:4.1.2 logstash:1.5.2 quay.io/deconst/curator
+  command: /opt/bin/multipull logstash:1.5.2 quay.io/deconst/curator
   register: elastic_pulls
   failed_when: elastic_pulls.rc == 1
   changed_when: elastic_pulls.rc == 2
@@ -20,7 +20,6 @@
     mode: 0755
   with_items:
   - /etc/logstash
-  - /etc/kibana
   - /etc/curator
   sudo: yes
 
@@ -32,16 +31,6 @@
     group: root
     mode: 0644
   register: logstash_config
-  sudo: yes
-
-- name: kibana configuration
-  template:
-    src: kibana.yml.j2
-    dest: /etc/kibana/kibana.yml
-    owner: root
-    group: root
-    mode: 0644
-  register: kibana_config
   sudo: yes
 
 - name: curator configuration
@@ -61,7 +50,6 @@
     group: root
     mode: 0644
   with_items:
-  - deconst-kibana.service
   - deconst-logstash.service
   - deconst-curator.service
   - deconst-curator.timer
@@ -76,7 +64,6 @@
 - name: container services
   service: name={{ item }} state=started enabled=true
   with_items:
-  - deconst-kibana.service
   - deconst-logstash.service
   - deconst-curator.timer
   register: elastic_service_results
@@ -86,5 +73,3 @@
   set_fact:
     logstash_restart: >
       {{ (elastic_pulls|changed or logstash_config|changed or units|changed) and not (elastic_service_results|changed) }}
-    kibana_restart: >
-      {{ (elastic_pulls|changed or kibana_config|changed or units|changed) and not (elastic_service_results|changed) }}

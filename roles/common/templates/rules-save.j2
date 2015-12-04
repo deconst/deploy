@@ -38,10 +38,6 @@
 {% endif %}
 
 {% if inventory_hostname in groups['deconst-elastic'] %}
-# Kibana access from the public internets
--A DOCKER -i eth0 -p tcp --dport 5601 -j ACCEPT
--A DOCKER -i eth0 -j DROP
-
 # Accept logstash logs over ServiceNet
 {% for host in groups['deconst-worker']|sort %}
 -A DOCKER -i eth1 -p tcp --source {{ hostvars[host].ansible_eth1.ipv4.address }} --dport 5000 -j ACCEPT

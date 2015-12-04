@@ -74,7 +74,6 @@ script/deploy --tags restart -e 'presenter_restart=true'
 # -e 'service_pod_restart=true'         Service pods (content services and presenter)
 # -e 'logstash_forwarder_restart=true'  Logstash-forwarder
 # -e 'logstash_restart=true'            Logstash
-# -e 'kibana_restart=true'              Kibana
 ```
 
 To force the generation of new TLS certificates:
