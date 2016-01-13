@@ -1,0 +1,19 @@
+#!/bin/sh
+
+set -ueo pipefail
+
+ROOT=$(cd $(dirname $0)/.. && pwd)
+
+ADDR=${1:-}
+
+[ -n "${ADDR}" ] || {
+  echo "Usage: ${0} <ip addr>" >&2
+  exit 1
+}
+
+${ROOT}/script/ansible -s \
+  -m shell \
+  -a "iptables -A INPUT -i eth0 -p tcp -m tcp --source ${ADDR} --dport 22 -j ACCEPT"
+
+echo
+echo "Remember to also add ${ADDR} to ${ROOT}/roles/common/templates/rules-save.j2"
