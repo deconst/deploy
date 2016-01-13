@@ -30,14 +30,14 @@ EOF
 
 # Bootstrap roles from Ansible Galaxy if necessary.
 setup_galaxy() {
-  ([ -f ${ROOT}/.galaxy ] && diff ${ROOT}/.galaxy ${ROOT}/requirements.txt >/dev/null 2>&1) || {
+  ([ -f ${ROOT}/.galaxy ] && diff ${ROOT}/.galaxy ${ROOT}/galaxy-requirements.txt >/dev/null 2>&1) || {
     ([ -d /etc/ansible/roles ] && [ -w /etc/ansible/roles ] && [ -x /etc/ansible/roles ]) || {
       cat <<EOM 1>&2
 >> /etc/ansible/roles does not exist as a writable directory! You have two options:
 >> 1. Run ansible-galaxy manually with sudo.
 
-   sudo ansible-galaxy --force --role-file ${ROOT}/requirements.txt
-   cp ${ROOT}/requirements.txt ${ROOT}/.galaxy
+   sudo ansible-galaxy --force --role-file ${ROOT}/galaxy-requirements.txt
+   cp ${ROOT}/galaxy-requirements.txt ${ROOT}/.galaxy
 
 >> 2. Create and chown /etc/ansible/roles.
 
@@ -47,9 +47,9 @@ EOM
       exit 1
     }
 
-    ansible-galaxy install --force --role-file ${ROOT}/requirements.txt
+    ansible-galaxy install --force --role-file ${ROOT}/galaxy-requirements.txt
 
-    cp requirements.txt ${ROOT}/.galaxy
+    cp ${ROOT}/galaxy-requirements.txt ${ROOT}/.galaxy
     echo ">> Ansible Galaxy roles initialized."
     echo ">> \"rm ${ROOT}/.galaxy\" to force re-initialization."
   }

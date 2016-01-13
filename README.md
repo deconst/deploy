@@ -19,7 +19,7 @@ source /usr/local/bin/virtualenvwrapper.sh
 mkvirtualenv deconst-ansible
 
 # Install Ansible and pyrax.
-pip install ansible pyrax
+pip install -r requirements.txt
 ```
 
 ## Running
