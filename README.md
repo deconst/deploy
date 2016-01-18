@@ -1,32 +1,18 @@
-# Deconst Ansible Playbook
+# Deploy Deconst
 
-This is an Ansible playbook that deploys Deconst onto a cluster.
+These instructions deploy Deconst onto a Docker Swarm cluster.
 
 Clone this repository once for each deconst instance you wish to administer. The contents of `credentials.yml` customize and identify each deployment.
 
 ## Prerequisites
 
-You'll need a recent Python 2.7, at least Ansible 1.9.0.1, and pyrax. You can use a virtualenv if you wish.
-
-```bash
-# Check your Python version
-python -V
-
-# Install virtualenv and virtualenvwrapper, if desired.
-sudo pip install virtualenv virtualenvwrapper
-source /usr/local/bin/virtualenvwrapper.sh
-
-mkvirtualenv deconst-ansible
-
-# Install Ansible and pyrax.
-pip install -r requirements.txt
-```
+TODO
 
 ## Running
 
 To deploy or update a cluster:
 
- 1. Copy the example credentials file and fill in your credentials and customizations. Alternately, use a credentials file corresponding to an existing deployment you'd like to maintain.
+1. Copy the example credentials file and fill in your credentials and customizations. Alternately, use a credentials file corresponding to an existing deployment you'd like to maintain.
 
     ```bash
     cp credentials.example.yml credentials.yml
@@ -36,7 +22,7 @@ To deploy or update a cluster:
     script/decrypt ~/cred-repo/credentials-staging.yml.enc
     ```
 
- 2. Run the playbook with the `deploy` script.
+1. Run the `deploy` script.
 
     ```bash
     script/deploy
@@ -86,10 +72,9 @@ script/deploy --extra-vars="gencerts=yes"
 
 This repository contains a number of utilities to assist in basic ops work. Each script keys off of the credentials in `credentials.yml`, so it will use the correct Rackspace account and hosts.
 
- * `script/status` performs a `docker status` on each host. It's useful for quickly seeing if all expected services are up and running.
- * `script/logs <component>` tails the Docker container logs of each matching service across the cluster. The number of lines given can be controlled by setting `LOG_LINES`. For example: `LOG_LINES=50 script/logs presenter`.
- * `script/genkey <name>` reads the admin API key from your credentials file and issues a new API key with the provided name.
- * `script/ssh <hostpattern>` logs in to a uniquely identified host in the cluster.
- * `script/ips` lists the IP addresses of each host in the cluster.
- * `script/lb` audits and corrects load-balancer node membership on the cluster. Consult `--help` for details.
- * `script/reindex` asynchronously triggers a full content reindex in Elasticsearch.
+* `script/status` performs a `docker status` on each host. It's useful for quickly seeing if all expected services are up and running.
+* `script/logs <component>` tails the Docker container logs of each matching service across the cluster. The number of lines given can be controlled by setting `LOG_LINES`. For example: `LOG_LINES=50 script/logs presenter`.
+* `script/genkey <name>` reads the admin API key from your credentials file and issues a new API key with the provided name.
+* `script/ips` lists the IP addresses of each host in the cluster.
+* `script/lb` audits and corrects load-balancer node membership on the cluster. Consult `--help` for details.
+* `script/reindex` asynchronously triggers a full content reindex in Elasticsearch.
