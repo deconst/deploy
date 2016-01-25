@@ -1,9 +1,0 @@
----
-
-- include: prereqs.yml
-
-- include: ssh.yml
-
-- include: firewall.yml
-
-- include: scripts.yml

@@ -1,1 +1,0 @@
-defunctzombie.coreos-bootstrap
