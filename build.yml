@@ -6,5 +6,4 @@
   - vars.yml
   - credentials.yml
   roles:
-  - etcd
   - build
