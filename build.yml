@@ -6,4 +6,5 @@
   - vars.yml
   - credentials.yml
   roles:
+  - logstashclient
   - build
