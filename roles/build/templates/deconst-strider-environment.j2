@@ -41,4 +41,4 @@ ADMIN_APIKEY={{ content_admin_apikey | replace(' ', '') | trim }}
 
 # Service Logging
 
-strider_logging__console__level={{ strider_log_level }}
+strider_logging__console__level={{ strider_log_level | lower }}
