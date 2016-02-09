@@ -1,0 +1,9 @@
+---
+# Configure or update the worker servers.
+
+- hosts: deconst-build
+  vars_files:
+  - vars.yml
+  - credentials.yml
+  roles:
+  - etcd
