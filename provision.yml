@@ -83,6 +83,43 @@
       fresh_elastic_cluster: "{{ (rax_build_elastic.action == 'create' and rax_build_elastic.success | length == elastic_count) | bool }}"
     tags: always
 
+  - name: build hosts
+    rax:
+      state: present
+      name: deconst-{{ instance }}-build-{{ deployment }}-%03d
+      group: deconst-{{ instance }}-build-{{ deployment }}
+      count: "{{ build_count }}"
+      exact_count: yes
+      image: "{{ image_coreos_beta }}"
+      flavor: "{{ build_flavor }}"
+      key_name: "{{ rackspace_keyname }}"
+      wait: yes
+    register: rax_build_elastic
+    tags: always
+
+  - name: add newly provisioned build hosts to the correct groups
+    add_host:
+      name: "{{ item.name }}"
+      ansible_ssh_host: "{{ item.rax_accessipv4 }}"
+      fresh_host: yes
+      groups: deconst-{{ instance }}-build-{{ deployment }}
+    when: rax_build_build.action == "create"
+    with_items: rax_build_build.success
+    tags: always
+
+  - name: add all build hosts to the correct groups
+    add_host:
+      name: "{{ item.name }}"
+      ansible_ssh_host: "{{ item.rax_accessipv4 }}"
+      groups: deconst-build,deconst-{{ instance }}-build-{{ deployment }}
+    with_items: rax_build_build.instances
+    tags: always
+
+  - name: identify full build cluster rebuilds
+    set_fact:
+      fresh_build_cluster: "{{ (rax_build_build.action == 'create' and rax_build_build.success | length == build_count) | bool }}"
+    tags: always
+
   - name: presenter load balancer
     rax_clb:
       name: deconst-{{ instance }}-presenter
@@ -105,6 +142,15 @@
       timeout: 120
       state: present
     register: clb_content_service
+
+  - name: build load balancer
+    rax_clb:
+      name: deconst-{{ instance }}-build
+      port: "{{ build_lb_port }}"
+      protocol: HTTP
+      wait: yes
+      state: present
+    register: clb_build
 
   - name: force the generation of a new token for a fresh worker cluster
     file: path=.etcd_cluster_token state=absent
@@ -130,4 +176,4 @@
       state: present
       line: "{{ lookup('pipe', 'ssh-keyscan -t rsa ' + item.rax_accessipv4 )}}"
       regexp: "^{{ item.rax_accessipv4 }}"
-    with_items: "{{ rax_build_workers.success|union(rax_build_elastic.success) }}"
+    with_items: "{{ rax_build_workers.success | union(rax_build_elastic.success) | union(rax_build_build.success) }}"
