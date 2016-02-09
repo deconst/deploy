@@ -152,9 +152,13 @@
       state: present
     register: clb_build
 
-  - name: force the generation of a new token for a fresh worker cluster
+  - name: identify full cluster rebuilds
+    set_fact:
+      fresh_cluster: "{{ fresh_worker_cluster and fresh_elastic_cluster and fresh_build_cluster }}"
+
+  - name: force the generation of a new token for a fresh cluster
     file: path=.etcd_cluster_token state=absent
-    when: fresh_worker_cluster
+    when: fresh_cluster
 
   - name: etcd cluster token
     set_fact:
