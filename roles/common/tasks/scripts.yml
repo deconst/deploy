@@ -8,6 +8,9 @@
     group: root
     mode: 0755
   with_items:
-  - multipull
   - datavolumecontainer
+  - multipull
+  - peekaboo-down
+  - peekaboo-up
+  - record-port
   sudo: yes

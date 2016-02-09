@@ -48,23 +48,6 @@
   sudo: yes
   register: lf_config
 
-- name: utility scripts
-  copy:
-    src: scripts/{{ item }}
-    dest: /opt/bin/{{ item }}
-    owner: root
-    group: root
-    mode: 0755
-  with_items:
-  - record-port
-  - peekaboo-up
-  - peekaboo-down
-  sudo: yes
-
-- name: peekaboo binary
-  get_url: dest=/opt/bin/peekaboo url=https://github.com/rgbkrk/peekaboo/releases/download/v0.0.1-alpha/peekaboo
-  sudo: yes
-
 - name: logstash-forwarder binary
   get_url: dest=/opt/bin/logstash-forwarder url=https://download.elastic.co/logstash-forwarder/binaries/logstash-forwarder_linux_amd64
   register: lf_binary
@@ -73,7 +56,6 @@
 - name: binaries are executable
   file: path=/opt/bin/{{ item }} mode=0755
   with_items:
-  - peekaboo
   - logstash-forwarder
   sudo: yes
 
