@@ -2,9 +2,12 @@
 
 - name: utility scripts
   copy:
-    src: scripts/multipull
-    dest: /opt/bin/multipull
+    src: scripts/{{ item }}
+    dest: /opt/bin/{{ item }}
     owner: root
     group: root
     mode: 0755
+  with_items:
+  - multipull
+  - datavolumecontainer
   sudo: yes

@@ -1,7 +1,7 @@
 [Unit]
 Description=Deconst Strider Service
-Requires=docker.service
-After=docker.service
+Requires=docker.service deconst-strider-workspace.service
+After=docker.service deconst-strider-workspace.service
 
 [Service]
 EnvironmentFile=/etc/deconst/deconst-strider-environment.sh
@@ -24,11 +24,12 @@ ExecStart=/opt/bin/systemd-docker run \
   --env=PLUGIN_GITHUB_ADMIN_TEAM=${PLUGIN_GITHUB_ADMIN_TEAM} \
   --env=SERVER_NAME=${SERVER_NAME} \
   --env=STRIDER_SYSTEM_EMAIL=${STRIDER_SYSTEM_EMAIL} \
-  --env=STRIDER_WORKSPACE_CONTAINER=${STRIDER_WORKSPACE_CONTAINER} \
+  --env=STRIDER_WORKSPACE_CONTAINER=deconst-strider-workspace \
   --env=CONTENT_SERVICE_URL=${CONTENT_SERVICE_URL} \
   --env=ADMIN_APIKEY=${ADMIN_APIKEY} \
   --env=strider_logging__console__level=${strider_logging__console_level} \
   --volume=/var/run/docker.sock:/var/run/docker.sock \
+  --volumes-from=deconst-strider-workspace \
   --publish=0.0.0.0:80:3000 \
   quay.io/deconst/strider
 
