@@ -1,17 +1,35 @@
 ---
 # Distribute SSL certificates to each host.
 
+- hosts: deconst-all
+  gather_facts: no
+  tags: certificates
+  tasks:
+
+  - name: gather existing certificates, if they are already present
+    fetch: src={{ item.src }} dest=certificates/{{ item.dest }} flat=yes
+    with_items:
+    - src: /etc/ssl/certs/deconst-ca.pem
+      dest: ca.pem
+    - src: /etc/ssl/private/host-cert.pem
+      dest: certificates/{{ inventory_hostname }}-cert.pem
+    - src: /etc/ssl/private/host-key.pem
+      dest: certificates/{{ inventory_hostname }}-key.pem
+    - src: /etc/deconst/ssl/dhparams.pem
+      dest: certificates/{{ inventory_hostname }}-dhparams.pem
+    sudo: yes
+
 - hosts: local
   connection: local
   gather_facts: no
   tags: certificates
-  vars:
-    gencerts: "{{ fresh_worker_cluster and fresh_elastic_cluster }}"
   tasks:
+
+  - name: ensure certificates directory exists
+    file: path=certificates/ state=directory
 
   - name: password file
     shell: >
-      mkdir -p certificates &&
       touch certificates/password &&
       chmod 600 certificates/password &&
       head -c 128 /dev/random | base64 > certificates/tmppassword &&
@@ -19,7 +37,6 @@
       cat certificates/tmppassword >> certificates/password &&
       rm certificates/tmppassword
       creates=certificates/password
-    when: gencerts
 
   - name: generate a private CA
     shell: >
@@ -35,13 +52,9 @@
         -key certificates/ca-key.pem \
         -out certificates/ca.pem
       creates=certificates/ca.pem
-    when: gencerts
 
 - hosts: deconst-all
   tags: certificates
-  vars:
-    gencerts: "{{ fresh_host|default(False) }}"
-  serial: 1
   tasks:
 
   - name: generate a host certificate
@@ -74,13 +87,11 @@
         -in certificates/{{ inventory_hostname }}-key.pem \
         -out certificates/{{ inventory_hostname }}-key.pem
       creates=certificates/{{ inventory_hostname }}-cert.pem
-    when: gencerts
 
   - name: generate strong DH parameters
     local_action: |
       shell openssl dhparam -out certificates/{{ inventory_hostname }}-dhparams.pem 2048
       creates=certificates/{{ inventory_hostname }}-dhparams.pem
-    when: gencerts
 
   - name: install the CA certificate
     copy:
@@ -88,7 +99,6 @@
       dest: /etc/ssl/certs/deconst-ca.pem
       mode: 0644
     sudo: yes
-    when: gencerts
 
   - name: install the host certificate
     copy:
@@ -98,7 +108,6 @@
       owner: root
       group: root
     sudo: yes
-    when: gencerts
 
   - name: install the host private key
     copy:
@@ -108,7 +117,6 @@
       owner: root
       group: root
     sudo: yes
-    when: gencerts
 
   - name: install the DH parameters
     copy:
@@ -118,4 +126,3 @@
       owner: root
       group: root
     sudo: yes
-    when: gencerts

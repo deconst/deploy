@@ -15,6 +15,8 @@
 
 - name: verify
   hosts: deconst-all
+  vars_files:
+  - vars.yml
   tasks:
 
   - name: read an already-present credentials.sha256 file
