@@ -24,6 +24,10 @@ worker_containers:
 - presenter
 - nginx
 
+# Overridden by -e parameters
+new_deployment: no
+credentials_update: "{{ new_deployment }}"
+
 # Current public key for github.com.
 # Update with: ssh-keyscan -t rsa github.com
 github_ssh_pubkey: >-

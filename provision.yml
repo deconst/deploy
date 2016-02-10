@@ -187,16 +187,14 @@
       prompt: >
         Permit connections to your Elasticsearch and MongoDB clusters from the following IPs:
 
-        {% for instance in rax_build_workers.instances|union(rax_build_elastic.instances)|union(rax_build_build.instances)|sort %}
-        {{ instance.name }}: public {{ instance.rax_accessipv4 }} servicenet {{ instance.rax_addresses.private[0].addr }}
-
+        {% for instance in rax_build_workers.success|union(rax_build_elastic.success)|union(rax_build_build.success)|sort %}
+         {{ instance.name }}: public {{ instance.rax_accessipv4 }} servicenet {{ instance.rax_addresses.private[0].addr }}
         {% endfor %}
 
         Set the following DNS records:
 
-        {{ domain }} => {{ clb_presenter.balancer.virtual_ips[0].address }}
+         {{ domain }} => {{ clb_presenter.balancer.virtual_ips[0].address }}
+         {{ build_domain }} => {{ clb_build.balancer.virtual_ips[0].address }}
 
-        {{ build_domain }} => {{ clb_build.balancer.virtual_ips[0].address }}
-
-        Continue when both are in place.
-    when: fresh_cluster or new_deployment|default(false)
+        Continue when both are in place
+    when: (rax_build_workers.success|length + rax_build_elastic.success|length + rax_build_build.success|length) > 0

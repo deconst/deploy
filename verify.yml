@@ -37,7 +37,7 @@
         again.
     when: >
       hostvars.localhost.credentials_sha256.stdout != existing_credentials_sha256.stdout
-      and not (credentials_update|default(false) or new_deployment|default(false))
+      and not credentials_update
     tags: verify
 
   - name: record the new credentials SHA
