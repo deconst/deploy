@@ -164,7 +164,7 @@
     set_fact:
       etcd_cluster_token: "{{ lookup('password', '.etcd_cluster_token length=20') }}"
 
-- name: collect SSH public keys of newly launched hosts
+- name: ensure we're ready to continue
   hosts: local
   connection: local
   gather_facts: no
@@ -181,3 +181,22 @@
       line: "{{ lookup('pipe', 'ssh-keyscan -t rsa ' + item.rax_accessipv4 )}}"
       regexp: "^{{ item.rax_accessipv4 }}"
     with_items: "{{ rax_build_workers.success | union(rax_build_elastic.success) | union(rax_build_build.success) }}"
+
+  - name: print what we're waiting for
+    pause:
+      prompt: >
+        Permit connections to your Elasticsearch and MongoDB clusters from the following IPs:
+
+        {% for instance in rax_build_workers.instances|union(rax_build_elastic.instances)|union(rax_build_build.instances)|sort %}
+        {{ instance.name }}: public {{ instance.rax_accessipv4 }} servicenet {{ instance.rax_addresses.private[0].addr }}
+
+        {% endfor %}
+
+        Set the following DNS records:
+
+        {{ domain }} => {{ clb_presenter.balancer.virtual_ips[0].address }}
+
+        {{ build_domain }} => {{ clb_build.balancer.virtual_ips[0].address }}
+
+        Continue when both are in place.
+    when: fresh_cluster or new_deployment|default(false)
