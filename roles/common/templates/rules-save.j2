@@ -29,10 +29,16 @@
 # Allow packets from established connections through.
 -A DOCKER -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 
-{% if inventory_hostname in groups['deconst-worker']|union(groups['deconst-build']) %}
+{% if inventory_hostname in groups['deconst-worker'] %}
 # Allow access to service ports in each pod from only the load balancer, via ServiceNet
 -A DOCKER -i eth0 -j DROP
 -A DOCKER -i eth1 ! --source {{ hostvars.localhost.clb_content_service.balancer.sourceAddresses.ipv4Servicenet }} -j DROP
+{% endif %}
+
+{% if inventory_hostname in groups['deconst-build'] %}
+# Allow access to service ports in each pod from only the load balancer, via ServiceNet
+-A DOCKER -i eth0 -j DROP
+-A DOCKER -i eth1 ! --source {{ hostvars.localhost.clb_build.balancer.sourceAddresses.ipv4Servicenet }} -j DROP
 {% endif %}
 
 {% if inventory_hostname in groups['deconst-elastic'] %}

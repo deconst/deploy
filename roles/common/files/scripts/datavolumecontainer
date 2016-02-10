@@ -6,7 +6,8 @@ set -euo pipefail
 
 CONTAINER_NAME=${1}
 VOLUME_DIR=${2}
-VOLUME_CMD=${3:-}
+shift
+shift
 
 EXISTING=$(docker ps --all --quiet --filter "name=${CONTAINER_NAME}" | wc -l)
 
@@ -15,7 +16,7 @@ if [ "${EXISTING}" = "0" ]; then
   docker run \
     --name ${CONTAINER_NAME} \
     --volume ${VOLUME_DIR} \
-    busybox ${VOLUME_CMD}
+    busybox "$@"
 else
   echo "Data volume ${CONTAINER_NAME} exists. Move along."
 fi

@@ -12,7 +12,7 @@
 - name: environment file
   template:
     src: deconst-strider-environment.j2
-    dest: /etc/deconst/deconst-strider-environment.j2
+    dest: /etc/deconst/deconst-strider-environment.sh
     owner: root
     group: root
     mode: 0644
@@ -27,6 +27,7 @@
     group: root
     mode: 0644
   with_items:
+  - deconst-strider-workspace.service
   - deconst-strider.service
   register: units
   sudo: yes
