@@ -40,4 +40,5 @@ for server in all_servers:
 matching_servers.sort(key=lambda s: s.name)
 
 for server in matching_servers:
-    print "{} {}".format(server.name, server.accessIPv4)
+    snet = server.networks['private'][0]
+    print "{} public: {} snet: {}".format(server.name, server.accessIPv4, snet)
