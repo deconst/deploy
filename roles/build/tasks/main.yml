@@ -17,6 +17,7 @@
     group: root
     mode: 0644
   register: strider_env
+  sudo: yes
 
 - name: unit files
   copy:
