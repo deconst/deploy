@@ -94,7 +94,7 @@
       flavor: "{{ build_flavor }}"
       key_name: "{{ rackspace_keyname }}"
       wait: yes
-    register: rax_build_elastic
+    register: rax_build_build
     tags: always
 
   - name: add newly provisioned build hosts to the correct groups

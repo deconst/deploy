@@ -7,6 +7,7 @@
 
 - name: logstash-forwarder binary is executable
   file: path=/opt/bin/logstash-forwarder mode=0755
+  sudo: yes
 
 - name: logstash-forwarder configuration
   template:
