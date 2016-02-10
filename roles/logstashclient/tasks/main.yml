@@ -16,8 +16,8 @@
     owner: root
     group: root
     mode: 0644
-  sudo: yes
   register: lf_config
+  sudo: yes
 
 - name: logstash forwarder unit file
   copy:
@@ -31,8 +31,8 @@
 
 - name: reload unit files
   command: systemctl daemon-reload
-  when: lf_unit | changed
   sudo: yes
+  when: lf_unit | changed
 
 - name: logstash-forwarder service
   service: name=logstash-forwarder.service state=started enabled=true
