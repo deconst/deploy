@@ -1,16 +1,29 @@
 ---
 # Distribute SSL certificates to each host.
 
+- hosts: local
+  connection: local
+  gather_facts: no
+  tags: certificates
+  tasks:
+
+  - name: remove obsolete certificates on cluster rebuilds
+    file: path=certificates state=absent
+    when: fresh_cluster
+
+  - name: ensure certificates directory exists
+    file: path=certificates/ state=directory
+
 - hosts: deconst-all
   gather_facts: no
   tags: certificates
   tasks:
 
   - name: gather existing certificates, if they are already present
-    fetch: src={{ item.src }} dest=certificates/{{ item.dest }} flat=yes
+    fetch: src={{ item.src }} dest={{ item.dest }} flat=yes
     with_items:
     - src: /etc/ssl/certs/deconst-ca.pem
-      dest: ca.pem
+      dest: certificates/ca.pem
     - src: /etc/ssl/private/host-cert.pem
       dest: certificates/{{ inventory_hostname }}-cert.pem
     - src: /etc/ssl/private/host-key.pem
@@ -24,9 +37,6 @@
   gather_facts: no
   tags: certificates
   tasks:
-
-  - name: ensure certificates directory exists
-    file: path=certificates/ state=directory
 
   - name: password file
     shell: >

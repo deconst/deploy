@@ -155,6 +155,7 @@
   - name: identify full cluster rebuilds
     set_fact:
       fresh_cluster: "{{ fresh_worker_cluster and fresh_elastic_cluster and fresh_build_cluster }}"
+    tags: always
 
   - name: force the generation of a new token for a fresh cluster
     file: path=.etcd_cluster_token state=absent
