@@ -27,8 +27,10 @@
     group: root
     mode: 0644
   with_items:
-  - deconst-strider-workspace.service
+  - deconst-data-strider.service
+  - deconst-data-letsencrypt.service
   - deconst-strider.service
+  - deconst-nginx-build.service
   register: units
   sudo: yes
 
@@ -41,6 +43,7 @@
   service: name={{ item }} state=started enabled=true
   with_items:
   - deconst-strider.service
+  - deconst-nginx-build.service
   register: build_service_results
   sudo: yes
 

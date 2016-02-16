@@ -1,0 +1,15 @@
+[Unit]
+Description=Deconst Let's Encrypt Certificate Data
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+
+ExecStart=/opt/bin/datavolumecontainer \
+  --name deconst-data-letsencrypt \
+  --volume /etc/letsencrypt \
+  --volume /var/lib/letsencrypt \
+  --volume /cache \
+  echo

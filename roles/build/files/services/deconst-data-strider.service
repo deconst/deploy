@@ -8,6 +8,6 @@ Type=oneshot
 RemainAfterExit=yes
 
 ExecStart=/opt/bin/datavolumecontainer \
-  deconst-strider-workspace \
-  /workspace \
-  sh -c 'chmod 6755 /workspace && chown -R 1000:1000 /workspace'
+  --name deconst-data-strider \
+  --volume /workspace \
+  -- sh -c 'chmod 6755 /workspace && chown -R 1000:1000 /workspace'

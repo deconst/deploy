@@ -1,7 +1,7 @@
 [Unit]
 Description=Deconst Strider Service
-Requires=docker.service deconst-strider-workspace.service
-After=docker.service deconst-strider-workspace.service
+Requires=docker.service deconst-data-strider.service
+After=docker.service deconst-data-strider.service
 
 [Service]
 EnvironmentFile=/etc/deconst/deconst-strider-environment.sh
@@ -24,19 +24,13 @@ ExecStart=/opt/bin/systemd-docker run \
   --env=PLUGIN_GITHUB_ADMIN_TEAM=${PLUGIN_GITHUB_ADMIN_TEAM} \
   --env=SERVER_NAME=${SERVER_NAME} \
   --env=STRIDER_SYSTEM_EMAIL=${STRIDER_SYSTEM_EMAIL} \
-  --env=STRIDER_WORKSPACE_CONTAINER=deconst-strider-workspace \
+  --env=STRIDER_WORKSPACE_CONTAINER=deconst-data-strider \
   --env=CONTENT_SERVICE_URL=${CONTENT_SERVICE_URL} \
   --env=ADMIN_API_KEY=${ADMIN_API_KEY} \
   --env=strider_logging__console__level=${strider_logging__console_level} \
   --volume=/var/run/docker.sock:/var/run/docker.sock \
-  --volumes-from=deconst-strider-workspace \
-  --publish=0.0.0.0::3000 \
+  --volumes-from=deconst-data-strider \
   quay.io/deconst/strider
-
-ExecStartPost=/opt/bin/record-port %n 3000
-ExecStartPost=/opt/bin/peekaboo-up %n 3000 ${BUILD_LB_ID}
-
-ExecStop=/opt/bin/peekaboo-down %n 3000 ${BUILD_LB_ID}
 
 ExecStop=/usr/bin/docker stop --time=2 %n
 ExecStop=/usr/bin/docker rm -f %n
