@@ -1,7 +1,7 @@
 [Unit]
 Description=Deconst Nginx for Build Services
-Requires=docker.service deconst-strider.service deconst-data-letsencrypt.service
-After=docker.service deconst-strider.service deconst-data-letsencrypt.service
+Requires=docker.service deconst-strider.service
+After=docker.service deconst-strider.service
 
 [Service]
 EnvironmentFile=/etc/deconst/deconst-strider-environment.sh
@@ -12,14 +12,9 @@ NotifyAccess=all
 ExecStart=/opt/bin/systemd-docker run \
   --rm \
   --name %n \
+  --volume /etc/deconst/ssl:/var/ssl:ro \
   --link deconst-strider.service:strider \
-  --env EMAIL=${LETSENCRYPT_EMAIL} \
-  --env DOMAIN=${LETSENCRYPT_DOMAIN} \
-  --env UPSTREAM=strider:3000 \
-  --env STAGING=1 \
-  --volumes-from=deconst-data-letsencrypt \
-  --publish=0.0.0.0::443 \
-  smashwilson/lets-nginx
+  quay.io/deconst/nginx-build
 
 ExecStartPost=/opt/bin/record-port %n 443
 ExecStartPost=/opt/bin/peekaboo-up %n 443 ${BUILD_LB_ID}
