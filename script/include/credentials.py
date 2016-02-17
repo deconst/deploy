@@ -32,9 +32,17 @@ def content_store_url(quiet=False):
     """
 
     content_store_url = os.environ.get("CONTENT_STORE_URL")
+    domain = get("domain")
     if content_store_url:
         if content_store_url.endswith("/"):
             content_store_url = content_store_url[:-1]
+
+        if not quiet:
+            print("Using content store URL: {}".format(content_store_url))
+
+        return content_store_url
+    elif domain:
+        content_store_url = "https://{}:9000".format(domain)
 
         if not quiet:
             print("Using content store URL: {}".format(content_store_url))
