@@ -147,7 +147,7 @@
     rax_clb:
       name: deconst-{{ instance }}-build
       port: "{{ build_lb_port }}"
-      protocol: HTTP
+      protocol: HTTPS
       wait: yes
       state: present
     register: clb_build
