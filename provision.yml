@@ -43,7 +43,7 @@
 
   - name: identify full worker cluster rebuilds
     set_fact:
-      fresh_worker_cluster: "{{ (rax_build_workers.action == 'create' and rax_build_workers.success | length == worker_count) | bool }}"
+      fresh_worker_cluster: "{{ rax_build_workers.action == 'create' and rax_build_workers.success | length == worker_count }}"
     tags: always
 
   - name: elasticsearch hosts
@@ -80,7 +80,7 @@
 
   - name: identify full elastic cluster rebuilds
     set_fact:
-      fresh_elastic_cluster: "{{ (rax_build_elastic.action == 'create' and rax_build_elastic.success | length == elastic_count) | bool }}"
+      fresh_elastic_cluster: "{{ rax_build_elastic.action == 'create' and rax_build_elastic.success | length == elastic_count }}"
     tags: always
 
   - name: build hosts
@@ -117,7 +117,7 @@
 
   - name: identify full build cluster rebuilds
     set_fact:
-      fresh_build_cluster: "{{ (rax_build_build.action == 'create' and rax_build_build.success | length == build_count) | bool }}"
+      fresh_build_cluster: "{{ rax_build_build.action == 'create' and rax_build_build.success | length == build_count }}"
     tags: always
 
   - name: presenter load balancer
@@ -154,7 +154,7 @@
 
   - name: identify full cluster rebuilds
     set_fact:
-      fresh_cluster: "{{ (fresh_worker_cluster and fresh_elastic_cluster and fresh_build_cluster) | bool }}"
+      fresh_cluster: "{{ fresh_worker_cluster|bool and fresh_elastic_cluster|bool and fresh_build_cluster|bool }}"
     tags: always
 
   - name: force the generation of a new token for a fresh cluster
