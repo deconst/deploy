@@ -51,12 +51,15 @@ clb = pyrax.connect_to_cloud_loadbalancers(region=rackspace_region)
 
 content_lb_name = "deconst-{}-content".format(instance_name)
 presenter_lb_name = "deconst-{}-presenter".format(instance_name)
-content_lb, presenter_lb = None, None
+build_lb_name = "deconst-{}-build".format(instance_name)
+content_lb, presenter_lb, build_lb = None, None, None
 for lb in clb.list():
     if lb.name == content_lb_name:
         content_lb = lb
     elif lb.name == presenter_lb_name:
         presenter_lb = lb
+    elif lb.name == build_lb_name:
+        build_lb = lb
 
 if not content_lb:
     print "Unable to locate the content load balancer!"
@@ -66,40 +69,57 @@ if not presenter_lb:
     print "Unable to locate the presenter load balancer!"
     sys.exit(1)
 
+if not build_lb:
+    print "Unable to locate the build load balancer!"
+    sys.exit(1)
+
 # Identify which ports should be mapped to which hosts from each load balancer.
 
 presenter_ports = []
 content_ports = []
+build_ports = []
 
 for server in cs.servers.list():
     group = server.metadata.get('group')
-    if not group or not group.startswith("deconst-{}-worker".format(instance_name)):
+    if not group:
         continue
 
     addr = server.accessIPv4
     ssh_addr = "core@{}".format(addr)
     snet = server.addresses['private'][0]['addr']
 
-    containers = subprocess.check_output(["ssh", ssh_addr, "docker", "ps", "-a"])
-    for line in containers.split("\n"):
-        if not re.search("\\bnginx\S+\s*$", line):
-            continue
+    def published_ports():
+        containers = subprocess.check_output(["ssh", ssh_addr, "docker", "ps", "-a"])
+        for line in containers.split("\n"):
+            if not re.search("\\bnginx\S+\s*$", line):
+                continue
 
-        ms = re.findall("0\.0\.0\.0:(\d+)->(\d+)/tcp", line)
+            ms = re.findall("0\.0\.0\.0:(\d+)->(\d+)/tcp", line)
 
-        if not ms:
-            print "Unable to parse port mapping [{}]!".format(line)
-            print "Container [{}] on host [{}].".format(container_name, server.name)
-            continue
+            if not ms:
+                print "Unable to parse port mapping [{}]!".format(line)
+                print "Container [{}] on host [{}].".format(container_name, server.name)
+                continue
 
-        for match in ms:
-            port = int(match[0])
-            if match[1] == "443":
-                presenter_ports.append((snet, port))
-            elif match[1] == "9000":
-                content_ports.append((snet, port))
+            for match in ms:
+                yield((int(match[0]), int(match[1])))
+
+    if group.startswith("deconst-{}-worker".format(instance_name)):
+        for (external_port, internal_port) in published_ports():
+            if internal_port == 443:
+                presenter_ports.append((snet, external_port))
+            elif internal_port == 9000:
+                content_ports.append((snet, external_port))
             else:
-                print "Ignoring mapping to unrecognized internal port: {}".format(match[1])
+                print "Ignoring mapping to unrecognized internal port: {}".format(internal_port)
+
+    if group.startswith("deconst-{}-build".format(instance_name)):
+        for (external_port, internal_port) in published_ports():
+            if internal_port == 443:
+                build_ports.append((snet, external_port))
+            else:
+                print "Ignoring mapping to unrecognized internal port: {}".format(internal_port)
+
 
 if not presenter_ports:
     print "No presenter ports found!"
@@ -107,6 +127,10 @@ if not presenter_ports:
 
 if not content_ports:
     print "No content service ports found!"
+    sys.exit(1)
+
+if not build_ports:
+    print "No build ports found!"
     sys.exit(1)
 
 # Audit the service ports against the load balancer nodes.
@@ -198,3 +222,7 @@ audit_lb_nodes(content_lb, content_ports)
 print
 print "PRESENTER LOAD BALANCER"
 audit_lb_nodes(presenter_lb, presenter_ports)
+
+print
+print "BUILD LOAD BALANCER"
+audit_lb_nodes(build_lb, build_ports)
