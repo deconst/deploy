@@ -102,7 +102,7 @@
       name: "{{ item.name }}"
       ansible_ssh_host: "{{ item.rax_accessipv4 }}"
       fresh_host: yes
-      groups: deconst-build,deconst-{{ instance }}-build-{{ deployment }}
+      groups: deconst-{{ instance }}-build-{{ deployment }}
     when: rax_build_build.action == "create"
     with_items: rax_build_build.success
     tags: always
