@@ -43,7 +43,7 @@
 
 {% if inventory_hostname in groups['deconst-elastic'] %}
 # Accept logstash logs over ServiceNet
-{% for host in groups['deconst-worker']|sort %}
+{% for host in groups['deconst-all']|sort %}
 -A DOCKER -i eth1 -p tcp --source {{ hostvars[host].ansible_eth1.ipv4.address }} --dport 5000 -j ACCEPT
 {% endfor %}
 {% endif %}
