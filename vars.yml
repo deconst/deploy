@@ -10,6 +10,9 @@ etcd_peer_port: 2380
 
 presenter_lb_port: 443
 content_service_lb_port: 9000
+build_lb_port: 443
+
+content_service_url: https://{{ domain }}:{{ content_service_lb_port }}
 
 worker_services:
 - deconst-content
@@ -20,6 +23,10 @@ worker_containers:
 - content-service
 - presenter
 - nginx
+
+# Overridden by -e parameters
+new_deployment: no
+credentials_update: "{{ new_deployment }}"
 
 # Current public key for github.com.
 # Update with: ssh-keyscan -t rsa github.com

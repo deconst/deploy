@@ -11,4 +11,6 @@
 
 - include: worker.yml tags=worker
 
+- include: build.yml tags=build
+
 - include: restart.yml tags=restart

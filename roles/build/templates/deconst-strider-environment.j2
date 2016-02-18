@@ -1,0 +1,51 @@
+# Environment variables used by deconst services.
+# {{ ansible_managed }}
+
+# Load balancer IDs
+
+BUILD_LB_ID={{ hostvars.localhost.clb_build.balancer.id }}
+
+RACKSPACE_USERNAME={{ rackspace_username }}
+RACKSPACE_APIKEY={{ rackspace_api_key }}
+RACKSPACE_REGION={{ rackspace_region }}
+RACKSPACE_SERVICENET="true"
+
+VERIFY_PATH=/
+
+# System Services
+
+DB_URI={{ mongodb_uri }}
+ETCDCTL_PEERS={{ etcd_api_url }}
+
+NODE_ENV=production
+
+# Control Repository
+
+CONTROL_REPO_URL={{ control_repository_url }}
+CONTROL_REPO_BRANCH={{ control_repository_branch }}
+
+# GitHub credentials
+
+GITHUB_SYSTEM_TOKEN={{ github_oauth_token }}
+PLUGIN_GITHUB_APP_ID={{ github_app_id }}
+PLUGIN_GITHUB_APP_SECRET={{ github_app_secret }}
+PLUGIN_GITHUB_ACCESS_ORG={{ strider_access_org }}
+{% if strider_access_team and strider_admin_team %}
+PLUGIN_GITHUB_ACCESS_TEAM={{ strider_access_team }}
+PLUGIN_GITHUB_ADMIN_TEAM={{ strider_admin_team }}
+{% endif %}
+
+# Strider settings
+
+SERVER_NAME=http://{{ build_domain }}
+STRIDER_SYSTEM_EMAIL={{ strider_system_email }}
+STRIDER_WORKSPACE_CONTAINER=deconst-strider-workspace
+
+# Content service API
+
+CONTENT_SERVICE_URL={{ content_service_url }}
+ADMIN_API_KEY={{ content_admin_apikey | replace(' ', '') | trim }}
+
+# Service Logging
+
+strider_logging__console__level={{ strider_log_level | lower }}

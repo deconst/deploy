@@ -1,0 +1,39 @@
+#!/bin/sh
+#
+# Ensure that a data volume container exists.
+
+set -euo pipefail
+
+VOLUMES=""
+
+while true; do
+  case "$1" in
+    --volume)
+      VOLUMES="${VOLUMES} --volume ${2}"
+      shift 2
+      ;;
+    --name)
+      CONTAINER_NAME=${2}
+      shift 2
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
+EXISTING=$(docker ps --all --quiet --filter "name=${CONTAINER_NAME}" | wc -l)
+
+if [ "${EXISTING}" = "0" ]; then
+  echo "Creating data volume container ${CONTAINER_NAME}."
+  docker run \
+    --name ${CONTAINER_NAME} \
+    ${VOLUMES} \
+    busybox "$@"
+else
+  echo "Data volume ${CONTAINER_NAME} exists. Move along."
+fi

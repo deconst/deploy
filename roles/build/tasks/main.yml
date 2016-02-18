@@ -1,0 +1,66 @@
+---
+
+- name: ensure containers are up to date
+  command: /opt/bin/multipull busybox quay.io/deconst/strider quay.io/deconst/nginx-build
+  register: build_pulls
+  failed_when: build_pulls.rc == 1
+  changed_when: build_pulls.rc == 2
+
+- name: show the pull result
+  debug: var=build_pulls.stdout_lines
+
+- name: TLS credentials
+  template:
+    src: "{{ item }}.j2"
+    dest: /etc/deconst/ssl/{{ item }}
+    owner: root
+    group: root
+    mode: 0600
+  sudo: yes
+  register: certificate
+  with_items:
+  - build-certificate.pem
+  - build-key.pem
+
+- name: environment file
+  template:
+    src: deconst-strider-environment.j2
+    dest: /etc/deconst/deconst-strider-environment.sh
+    owner: root
+    group: root
+    mode: 0644
+  register: strider_env
+  sudo: yes
+
+- name: unit files
+  copy:
+    src: services/{{ item }}
+    dest: /etc/systemd/system/{{ item }}
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+  - deconst-data-strider.service
+  - deconst-strider.service
+  - deconst-nginx-build.service
+  register: units
+  sudo: yes
+
+- name: reload unit files
+  command: systemctl daemon-reload
+  when: units | changed
+  sudo: yes
+
+- name: container services
+  service: name={{ item }} state=started enabled=true
+  with_items:
+  - deconst-strider.service
+  - deconst-nginx-build.service
+  register: build_service_results
+  sudo: yes
+
+- name: compute restart control vars
+  set_fact:
+    strider_restart: >
+      {{ (build_pulls|changed or certificate|changed or strider_env|changed or units|changed)
+         and not (build_service_results|changed) }}

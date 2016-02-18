@@ -6,8 +6,6 @@ RACKSPACE_APIKEY={{ rackspace_api_key }}
 RACKSPACE_REGION={{ rackspace_region }}
 RACKSPACE_SERVICENET="true"
 
-RESTART_POLICY={{ restart }}
-
 # Load balancer IDs
 
 CONTENT_LB_ID={{ hostvars.localhost.clb_content_service.balancer.id }}
@@ -25,7 +23,6 @@ NODE_ENV=production
 
 CONTROL_REPO_URL={{ control_repository_url }}
 CONTROL_REPO_BRANCH={{ control_repository_branch }}
-CONTROL_REPO_TOKEN={{ control_repository_token }}
 
 # Content Service
 
@@ -44,7 +41,4 @@ PRESENTER_DIAGNOSTICS="true"
 # Service Logging
 
 CONTENT_LOG_LEVEL={{ content_log_level }}
-LAYOUT_LOG_LEVEL={{ layout_log_level }}
-MAP_LOG_LEVEL={{ map_log_level }}
 PRESENTER_LOG_LEVEL={{ presenter_log_level }}
-WEBHOOK_LOG_LEVEL={{ webhook_log_level }}

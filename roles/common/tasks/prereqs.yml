@@ -21,6 +21,13 @@
   get_url: dest=/opt/bin/systemd-docker force=yes url=https://9616cfffc9f266c74f07-b0b61db18139e69b9a725d06797c5b61.ssl.cf5.rackcdn.com/systemd-docker-f894d629146c3fd97ba5de77053a08671951d626ca9f0238f1463d90e9465703
   sudo: yes
 
-- name: systemd-docker is executable
-  file: path=/opt/bin/systemd-docker mode=0755
+- name: peekaboo binary
+  get_url: dest=/opt/bin/peekaboo url=https://github.com/rgbkrk/peekaboo/releases/download/v0.0.1-alpha/peekaboo
+  sudo: yes
+
+- name: binaries are executable
+  file: path=/opt/bin/{{ item }} mode=0755
+  with_items:
+  - systemd-docker
+  - peekaboo
   sudo: yes

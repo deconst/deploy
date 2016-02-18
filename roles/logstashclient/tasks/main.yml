@@ -1,0 +1,45 @@
+---
+
+- name: logstash-forwarder binary
+  get_url: dest=/opt/bin/logstash-forwarder url=https://download.elastic.co/logstash-forwarder/binaries/logstash-forwarder_linux_amd64
+  register: lf_binary
+  sudo: yes
+
+- name: logstash-forwarder binary is executable
+  file: path=/opt/bin/logstash-forwarder mode=0755
+  sudo: yes
+
+- name: logstash-forwarder configuration
+  template:
+    src: logstash-forwarder-config.json.j2
+    dest: /etc/deconst/logstash-forwarder-config.json
+    owner: root
+    group: root
+    mode: 0644
+  register: lf_config
+  sudo: yes
+
+- name: logstash forwarder unit file
+  copy:
+    src: services/logstash-forwarder.service
+    dest: /etc/systemd/system/logstash-forwarder.service
+    owner: root
+    group: root
+    mode: 0644
+  register: lf_unit
+  sudo: yes
+
+- name: reload unit files
+  command: systemctl daemon-reload
+  sudo: yes
+  when: lf_unit | changed
+
+- name: logstash-forwarder service
+  service: name=logstash-forwarder.service state=started enabled=true
+  register: lf_service_result
+  sudo: yes
+
+- name: compute restart control var
+  set_fact:
+    logstash_forwarder_restart: >
+      {{ (lf_binary|changed or lf_config|changed or lf_unit|changed) and not lf_service_result|changed }}

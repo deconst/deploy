@@ -53,3 +53,13 @@
     when: logstash_restart|default(false)|bool
     sudo: yes
     tags: restart
+
+- hosts: deconst-build
+  serial: 1
+  tasks:
+
+  - name: restart strider
+    service: name=deconst-strider.service state=restarted
+    when: strider_restart|default(false)|bool
+    sudo: yes
+    tags: restart

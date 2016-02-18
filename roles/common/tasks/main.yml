@@ -7,3 +7,5 @@
 - include: firewall.yml
 
 - include: scripts.yml
+
+- include: etcd.yml

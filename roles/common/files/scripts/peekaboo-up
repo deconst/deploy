@@ -17,6 +17,8 @@ USAGE
 CONTAINER_NAME=${1:-}
 CONTAINER_PORT=${2:-}
 LOAD_BALANCER_ID=${3:-}
+VERIFY_PATH=${VERIFY_PATH:-/version}
+VERIFY_PROTO=${VERIFY_PROTO:-https}
 
 # Locate the published port to add to the load balancer.
 
@@ -37,7 +39,7 @@ APP_PORT=$(cat ${PORT_PATH})
 # Wait up to 10m for the application to respond on its public port.
 # This takes advantage of our convention to listen at `/version` with a simple JSON response.
 ATTEMPT=0
-while ! /usr/bin/curl --insecure --silent --fail https://localhost:${APP_PORT}/version >/dev/null 2>&1 ; do
+while ! /usr/bin/curl --insecure --silent --fail ${VERIFY_PROTO}://localhost:${APP_PORT}${VERIFY_PATH} >/dev/null 2>&1 ; do
   [ ${ATTEMPT} -lt 1200 ] || {
     echo "No response from ${CONTAINER_NAME} on ${APP_PORT}." >&2
     exit 1

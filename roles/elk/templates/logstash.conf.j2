@@ -30,7 +30,7 @@ filter {
 
   if ( [SYSTEMD_UNIT] =~ /^deconst-nginx/ ) {
     grok {
-      match => [ "RAW_MESSAGE", "%{IP:clientIP} %{USER:ident} %{USER:auth} \[%{HTTPDATE:nginxTimestamp}\] \"%{WORD:method} /%{NOTSPACE:requestPath} HTTP/%{NUMBER:httpVersion}\" %{NUMBER:status} " ]
+      match => [ "RAW_MESSAGE", "%{IPORHOST:clientIP} %{USER:ident} %{USER:auth} \[%{HTTPDATE:nginxTimestamp}\] \"(?:%{WORD:method} %{NOTSPACE:requestURL}(?: HTTP/%{NUMBER:httpVersion})?|%{DATA:rawrequest})\" %{NUMBER:statusCode:int} (?:%{NUMBER:responseBytes:int}|-) %{QS:requestReferer} %{QS:requestUserAgent}" ]
     }
   }
 

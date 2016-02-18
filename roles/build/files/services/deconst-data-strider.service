@@ -1,0 +1,13 @@
+[Unit]
+Description=Deconst Strider Workspace
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+
+ExecStart=/opt/bin/datavolumecontainer \
+  --name deconst-data-strider \
+  --volume /workspace \
+  -- sh -c 'chmod 6755 /workspace && chown -R 1000:1000 /workspace'

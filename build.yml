@@ -1,10 +1,10 @@
 ---
 # Configure or update the worker servers.
 
-- hosts: deconst-worker
+- hosts: deconst-build
   vars_files:
   - vars.yml
   - credentials.yml
   roles:
   - logstashclient
-  - worker
+  - build

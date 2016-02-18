@@ -2,9 +2,15 @@
 
 - name: utility scripts
   copy:
-    src: scripts/multipull
-    dest: /opt/bin/multipull
+    src: scripts/{{ item }}
+    dest: /opt/bin/{{ item }}
     owner: root
     group: root
     mode: 0755
+  with_items:
+  - datavolumecontainer
+  - multipull
+  - peekaboo-down
+  - peekaboo-up
+  - record-port
   sudo: yes
