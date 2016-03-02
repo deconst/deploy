@@ -1,5 +1,20 @@
 ---
 
+- name: dns servers
+  copy:
+    dest: /etc/systemd/resolved.conf
+    src: resolved.conf
+    owner: root
+    group: root
+    mode: 0644
+  register: dns_configuration
+  sudo: yes
+
+- name: kick systemd-resolved
+  service: name=systemd-resolved state=restarted
+  when: dns_configuration | changed
+  sudo: yes
+
 - name: necessary directories
   file:
     path: "{{ item }}"
