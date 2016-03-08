@@ -1,0 +1,38 @@
+[Unit]
+Description=Deconst Staging Nginx %I
+Requires=docker.service deconst-staging-presenter@%i.service deconst-staging-content@%i.service
+After=   docker.service deconst-staging-presenter@%i.service deconst-staging-content@%i.service
+
+[Service]
+EnvironmentFile=/etc/deconst/staging-nginx-environment.sh
+TimeoutSec=5min
+Type=notify
+NotifyAccess=all
+
+ExecStart=/opt/bin/systemd-docker run \
+  --rm \
+  --name=staging-nginx-%i \
+  --link=staging-content-service-%i:content \
+  --link=staging-presenter-%i:presenter \
+  --volume=/etc/deconst/ssl:/var/ssl:ro \
+  --publish=0.0.0.0::443 \
+  --publish=0.0.0.0::9000 \
+  quay.io/deconst/nginx-pod
+
+ExecStartPost=/opt/bin/record-port staging-nginx-%i 443
+ExecStartPost=/opt/bin/record-port staging-nginx-%i 9000
+
+ExecStartPost=/opt/bin/peekaboo-up staging-nginx-%i 443 ${STAGING_PRESENTER_LB_ID}
+ExecStartPost=/opt/bin/peekaboo-up staging-nginx-%i 9000 ${STAGING_CONTENT_LB_ID}
+
+ExecStop=/opt/bin/peekaboo-down staging-nginx-%i 443 ${STAGING_PRESENTER_LB_ID}
+ExecStop=/opt/bin/peekaboo-down staging-nginx-%i 9000 ${STAGING_CONTENT_LB_ID}
+
+ExecStop=/usr/bin/docker stop --time=2 staging-nginx-%i
+ExecStop=/usr/bin/docker rm -f staging-nginx-%i
+
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

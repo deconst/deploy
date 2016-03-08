@@ -1,0 +1,36 @@
+[Unit]
+Description=Deconst Staging Presenter %I
+Requires=docker.service deconst-staging-content@%i.service
+After=   docker.service deconst-staging-content@%i.service
+
+[Service]
+EnvironmentFile=/etc/deconst/staging-presenter-environment.sh
+TimeoutSec=5min
+Type=notify
+NotifyAccess=all
+
+ExecStart=/opt/bin/systemd-docker run \
+  --rm \
+  --name=presenter-%i \
+  --link=staging-content-service-%i:staging-content-service \
+  --env=STAGING_MODE=true \
+  --env=CONTENT_SERVICE_URL=http://staging-content-service:8080/ \
+  --env=CONTROL_REPO_PATH=/tmp/control-repo \
+  --env=CONTROL_REPO_URL=${CONTROL_REPO_URL} \
+  --env=CONTROL_REPO_BRANCH=${CONTROL_REPO_BRANCH} \
+  --env=PRESENTED_URL_PROTO=${PRESENTED_URL_PROTO} \
+  --env=PRESENTED_URL_DOMAIN=${PRESENTED_URL_DOMAIN} \
+  --env=PRESENTER_DIAGNOSTICS=${PRESENTER_DIAGNOSTICS} \
+  --env=PRESENTER_LOG_LEVEL=${PRESENTER_LOG_LEVEL} \
+  --env=PRESENTER_LOG_COLOR=false \
+  --env=NODE_ENV=${NODE_ENV} \
+  quay.io/deconst/presenter
+
+ExecStop=/usr/bin/docker stop --time=2 presenter-%i
+ExecStop=/usr/bin/docker rm -f presenter-%i
+
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

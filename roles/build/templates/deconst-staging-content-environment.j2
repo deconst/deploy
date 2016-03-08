@@ -1,0 +1,27 @@
+# Environment variables used by the Deconst staging content service.
+# {{ ansible_managed }}
+
+# Rackspace credentials
+
+RACKSPACE_USERNAME={{ rackspace_username }}
+RACKSPACE_APIKEY={{ rackspace_api_key }}
+RACKSPACE_REGION={{ rackspace_region }}
+RACKSPACE_SERVICENET="true"
+
+# Storage
+
+MONGODB_PREFIX=staging_
+MONGODB_URL={{ mongodb_uri }}
+
+NODE_ENV=production
+
+# Content Service
+
+ADMIN_APIKEY={{ staging_content_admin_apikey | replace(' ', '') | trim }}
+CONTENT_CONTAINER={{ staging_content_container }}
+ASSET_CONTAINER={{ staging_asset_container }}
+PROXY_UPSTREAM={{ content_service_url }}
+
+# Logging
+
+CONTENT_LOG_LEVEL={{ content_log_level }}

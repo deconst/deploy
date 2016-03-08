@@ -1,0 +1,21 @@
+# Environment variables used by the deconst staging presenter service.
+# {{ ansible_managed }}
+
+# Control Repository
+
+CONTROL_REPO_URL={{ control_repository_url }}
+CONTROL_REPO_BRANCH={{ control_repository_branch }}
+
+# Presenter
+
+NODE_ENV=production
+
+PRESENTED_URL_PROTO={{ presented_url_proto or 'https' }}
+PRESENTED_URL_DOMAIN={{ domain }}
+{% if enable_diagnostics is defined and enable_diagnostics %}
+PRESENTER_DIAGNOSTICS="true"
+{% endif %}
+
+# Logging
+
+PRESENTER_LOG_LEVEL={{ presenter_log_level }}
