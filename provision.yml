@@ -214,6 +214,8 @@
 
          {{ domain }} => {{ clb_presenter.balancer.virtual_ips[0].address }}
          {{ build_domain }} => {{ clb_build.balancer.virtual_ips[0].address }}
+         {{ staging_presenter_domain }} => {{ clb_staging_presenter.balancer.virtual_ips[0].address }}
+         {{ staging_content_domain }} => {{ clb_staging_content.balancer.virtual_ips[0].address }}
 
         Continue when both are in place
     when: (rax_build_workers.success|length + rax_build_elastic.success|length + rax_build_build.success|length) > 0
