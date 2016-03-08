@@ -154,7 +154,7 @@
 
   - name: staging presenter load balancer
     rax_clb:
-      name: deconst-{{ instance }}-staging
+      name: deconst-{{ instance }}-staging-presenter
       port: "{{ staging_presenter_lb_port }}"
       protocol: HTTPS
       wait: yes
@@ -163,7 +163,7 @@
 
   - name: staging content load balancer
     rax_clb:
-      name: deconst-{{ instance }}-staging
+      name: deconst-{{ instance }}-staging-content
       port: "{{ staging_content_lb_port }}"
       protocol: HTTPS
       wait: yes
