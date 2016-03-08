@@ -22,7 +22,7 @@
   - build-certificate.pem
   - build-key.pem
   - certificate.pem
-  - key.pem
+  - certificate_key.pem
 
 - name: environment files
   template:
