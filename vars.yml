@@ -11,6 +11,7 @@ etcd_peer_port: 2380
 presenter_lb_port: 443
 content_service_lb_port: 9000
 build_lb_port: 443
+staging_lb_port: 443
 
 content_service_url: https://{{ domain }}:{{ content_service_lb_port }}
 
