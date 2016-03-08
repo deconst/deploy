@@ -4,7 +4,7 @@ Requires=docker.service deconst-data-strider.service
 After=docker.service deconst-data-strider.service
 
 [Service]
-EnvironmentFile=/etc/deconst/deconst-strider-environment.sh
+EnvironmentFile=/etc/deconst/strider-environment.sh
 TimeoutSec=5min
 Type=notify
 NotifyAccess=all
