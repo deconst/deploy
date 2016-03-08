@@ -19,8 +19,8 @@
   sudo: yes
   register: certificate
   with_items:
-  - build_certificate.pem
-  - build_key.pem
+  - build-certificate.pem
+  - build-key.pem
   - certificate.pem
   - key.pem
 
