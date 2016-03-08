@@ -152,14 +152,23 @@
       state: present
     register: clb_build
 
-  - name: staging load balancer
+  - name: staging presenter load balancer
     rax_clb:
       name: deconst-{{ instance }}-staging
-      port: "{{ staging_lb_port }}"
+      port: "{{ staging_presenter_lb_port }}"
       protocol: HTTPS
       wait: yes
       state: present
-    register: clb_staging
+    register: clb_staging_presenter
+
+  - name: staging content load balancer
+    rax_clb:
+      name: deconst-{{ instance }}-staging
+      port: "{{ staging_content_lb_port }}"
+      protocol: HTTPS
+      wait: yes
+      state: present
+    register: clb_staging_content
 
   - name: identify full cluster rebuilds
     set_fact:
