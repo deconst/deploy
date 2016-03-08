@@ -19,17 +19,24 @@
   sudo: yes
   register: certificate
   with_items:
-  - build-certificate.pem
-  - build-key.pem
+  - build_certificate.pem
+  - build_key.pem
+  - certificate.pem
+  - key.pem
 
-- name: environment file
+- name: environment files
   template:
-    src: deconst-strider-environment.j2
-    dest: /etc/deconst/deconst-strider-environment.sh
+    src: deconst-{{ item }}-environment.j2
+    dest: /etc/deconst/{{ item }}-environment.sh
     owner: root
     group: root
     mode: 0644
-  register: strider_env
+  register: build_env
+  with_items:
+  - strider
+  - staging-content
+  - staging-presenter
+  - staging-nginx
   sudo: yes
 
 - name: unit files
@@ -43,6 +50,9 @@
   - deconst-data-strider.service
   - deconst-strider.service
   - deconst-nginx-build.service
+  - deconst-staging-content@.service
+  - deconst-staging-presenter@.service
+  - deconst-staging-nginx@.service
   register: units
   sudo: yes
 
@@ -56,11 +66,14 @@
   with_items:
   - deconst-strider.service
   - deconst-nginx-build.service
+  - deconst-staging-content@1.service
+  - deconst-staging-presenter@1.service
+  - deconst-staging-nginx@1.service
   register: build_service_results
   sudo: yes
 
 - name: compute restart control vars
   set_fact:
     strider_restart: >
-      {{ (build_pulls|changed or certificate|changed or strider_env|changed or units|changed)
+      {{ (build_pulls|changed or certificate|changed or build_env|changed or units|changed)
          and not (build_service_results|changed) }}
