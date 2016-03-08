@@ -1,7 +1,9 @@
 ---
 
 - name: ensure containers are up to date
-  command: /opt/bin/multipull busybox quay.io/deconst/strider quay.io/deconst/nginx-build
+  command: |
+    /opt/bin/multipull busybox quay.io/deconst/strider quay.io/deconst/nginx-build
+      quay.io/deconst/content-service quay.io/deconst/presenter quay.io/deconst/nginx-pod
   register: build_pulls
   failed_when: build_pulls.rc == 1
   changed_when: build_pulls.rc == 2
