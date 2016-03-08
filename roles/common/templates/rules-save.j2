@@ -38,9 +38,10 @@
 {% if inventory_hostname in groups['deconst-build'] %}
 # Allow access to service ports in each pod from only the load balancer, via ServiceNet
 -A DOCKER -i eth0 -j DROP
--A DOCKER -i eth1 ! --source {{ hostvars.localhost.clb_build.balancer.sourceAddresses.ipv4Servicenet }} -j DROP
--A DOCKER -i eth1 ! --source {{ hostvars.localhost.clb_staging_presenter.balancer.sourceAddresses.ipv4Servicenet }} -j DROP
--A DOCKER -i eth1 ! --source {{ hostvars.localhost.clb_staging_content.balancer.sourceAddresses.ipv4Servicenet }} -j DROP
+-A DOCKER -i eth1 --source {{ hostvars.localhost.clb_build.balancer.sourceAddresses.ipv4Servicenet }} -j ACCEPT
+-A DOCKER -i eth1 --source {{ hostvars.localhost.clb_staging_presenter.balancer.sourceAddresses.ipv4Servicenet }} -j ACCEPT
+-A DOCKER -i eth1 --source {{ hostvars.localhost.clb_staging_content.balancer.sourceAddresses.ipv4Servicenet }} -j ACCEPT
+-A DOCKER -i eth1 -j DROP
 {% endif %}
 
 {% if inventory_hostname in groups['deconst-elastic'] %}
