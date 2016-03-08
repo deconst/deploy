@@ -11,7 +11,7 @@ NotifyAccess=all
 
 ExecStart=/opt/bin/systemd-docker run \
   --rm \
-  --name=presenter-%i \
+  --name=staging-presenter-%i \
   --link=staging-content-service-%i:staging-content-service \
   --env=STAGING_MODE=true \
   --env=CONTENT_SERVICE_URL=http://staging-content-service:8080/ \
@@ -26,8 +26,8 @@ ExecStart=/opt/bin/systemd-docker run \
   --env=NODE_ENV=${NODE_ENV} \
   quay.io/deconst/presenter
 
-ExecStop=/usr/bin/docker stop --time=2 presenter-%i
-ExecStop=/usr/bin/docker rm -f presenter-%i
+ExecStop=/usr/bin/docker stop --time=2 staging-presenter-%i
+ExecStop=/usr/bin/docker rm -f staging-presenter-%i
 
 Restart=always
 RestartSec=30
