@@ -152,6 +152,24 @@
       state: present
     register: clb_build
 
+  - name: staging presenter load balancer
+    rax_clb:
+      name: deconst-{{ instance }}-staging-presenter
+      port: "{{ staging_presenter_lb_port }}"
+      protocol: HTTPS
+      wait: yes
+      state: present
+    register: clb_staging_presenter
+
+  - name: staging content load balancer
+    rax_clb:
+      name: deconst-{{ instance }}-staging-content
+      port: "{{ staging_content_lb_port }}"
+      protocol: HTTPS
+      wait: yes
+      state: present
+    register: clb_staging_content
+
   - name: identify full cluster rebuilds
     set_fact:
       fresh_cluster: "{{ fresh_worker_cluster|bool and fresh_elastic_cluster|bool and fresh_build_cluster|bool }}"
@@ -196,6 +214,8 @@
 
          {{ domain }} => {{ clb_presenter.balancer.virtual_ips[0].address }}
          {{ build_domain }} => {{ clb_build.balancer.virtual_ips[0].address }}
+         {{ staging_presenter_domain }} => {{ clb_staging_presenter.balancer.virtual_ips[0].address }}
+         {{ staging_content_domain }} => {{ clb_staging_content.balancer.virtual_ips[0].address }}
 
         Continue when both are in place
     when: (rax_build_workers.success|length + rax_build_elastic.success|length + rax_build_build.success|length) > 0

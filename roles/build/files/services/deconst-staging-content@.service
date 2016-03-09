@@ -1,0 +1,38 @@
+[Unit]
+Description=Deconst Staging Content Service %I
+Requires=docker.service
+After=docker.service
+
+[Service]
+EnvironmentFile=/etc/deconst/staging-content-environment.sh
+TimeoutSec=5min
+Type=notify
+NotifyAccess=all
+
+ExecStart=/opt/bin/systemd-docker run \
+  --rm \
+  --name=staging-content-service-%i \
+  --env=STAGING_MODE=true \
+  --env=PROXY_UPSTREAM=${PROXY_UPSTREAM} \
+  --env=RACKSPACE_USERNAME=${RACKSPACE_USERNAME} \
+  --env=RACKSPACE_APIKEY=${RACKSPACE_APIKEY} \
+  --env=RACKSPACE_REGION=${RACKSPACE_REGION} \
+  --env=RACKSPACE_SERVICENET=${RACKSPACE_SERVICENET} \
+  --env=MONGODB_PREFIX=${MONGODB_PREFIX} \
+  --env=MONGODB_URL=${MONGODB_URL} \
+  --env=ADMIN_APIKEY=${ADMIN_APIKEY} \
+  --env=CONTENT_CONTAINER=${CONTENT_CONTAINER} \
+  --env=ASSET_CONTAINER=${ASSET_CONTAINER} \
+  --env=CONTENT_LOG_LEVEL=${CONTENT_LOG_LEVEL} \
+  --env=CONTENT_LOG_COLOR=false \
+  --env=NODE_ENV=${NODE_ENV} \
+  quay.io/deconst/content-service
+
+ExecStop=/usr/bin/docker stop --time=2 staging-content-service-%i
+ExecStop=/usr/bin/docker rm -f staging-content-service-%i
+
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

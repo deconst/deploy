@@ -59,7 +59,19 @@
   tasks:
 
   - name: restart strider
-    service: name=deconst-strider.service state=restarted
+    service: name={{ item }} state=restarted
     when: strider_restart|default(false)|bool
+    with_items:
+    - deconst-strider.service
+    - deconst-nginx-build.service
+    sudo: yes
+    tags: restart
+
+  - name: restart staging
+    command: |
+      systemctl restart
+        deconst-staging-content@1.service deconst-staging-presenter@1.service
+        deconst-staging-nginx@1.service
+    when: staging_restart|default(false)|bool
     sudo: yes
     tags: restart

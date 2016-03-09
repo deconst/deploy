@@ -52,7 +52,10 @@ clb = pyrax.connect_to_cloud_loadbalancers(region=rackspace_region)
 content_lb_name = "deconst-{}-content".format(instance_name)
 presenter_lb_name = "deconst-{}-presenter".format(instance_name)
 build_lb_name = "deconst-{}-build".format(instance_name)
+staging_content_lb_name = "deconst-{}-staging-content".format(instance_name)
+staging_presenter_lb_name = "deconst-{}-staging-presenter".format(instance_name)
 content_lb, presenter_lb, build_lb = None, None, None
+staging_content_lb, staging_presenter_lb = None, None
 for lb in clb.list():
     if lb.name == content_lb_name:
         content_lb = lb
@@ -60,6 +63,10 @@ for lb in clb.list():
         presenter_lb = lb
     elif lb.name == build_lb_name:
         build_lb = lb
+    elif lb.name == staging_content_lb_name:
+        staging_content_lb = lb
+    elif lb.name == staging_presenter_lb_name:
+        staging_presenter_lb = lb
 
 if not content_lb:
     print "Unable to locate the content load balancer!"
@@ -73,11 +80,21 @@ if not build_lb:
     print "Unable to locate the build load balancer!"
     sys.exit(1)
 
+if not staging_content_lb:
+    print "Unable to locate the staging content load balancer!"
+    sys.exit(1)
+
+if not staging_presenter_lb:
+    print "Unable to locate the staging presenter load balancer!"
+    sys.exit(1)
+
 # Identify which ports should be mapped to which hosts from each load balancer.
 
 presenter_ports = []
 content_ports = []
 build_ports = []
+staging_presenter_ports = []
+staging_content_ports = []
 
 for server in cs.servers.list():
     group = server.metadata.get('group')
@@ -94,6 +111,11 @@ for server in cs.servers.list():
             if not re.search("\\bnginx\S+\s*$", line):
                 continue
 
+            words = re.findall("\S+", line)
+            if not words:
+                continue
+            container_name = words[-1]
+
             ms = re.findall("0\.0\.0\.0:(\d+)->(\d+)/tcp", line)
 
             if not ms:
@@ -102,10 +124,10 @@ for server in cs.servers.list():
                 continue
 
             for match in ms:
-                yield((int(match[0]), int(match[1])))
+                yield((int(match[0]), int(match[1]), container_name))
 
     if group.startswith("deconst-{}-worker".format(instance_name)):
-        for (external_port, internal_port) in published_ports():
+        for (external_port, internal_port, container_name) in published_ports():
             if internal_port == 443:
                 presenter_ports.append((snet, external_port))
             elif internal_port == 9000:
@@ -114,11 +136,15 @@ for server in cs.servers.list():
                 print "Ignoring mapping to unrecognized internal port: {}".format(internal_port)
 
     if group.startswith("deconst-{}-build".format(instance_name)):
-        for (external_port, internal_port) in published_ports():
-            if internal_port == 443:
+        for (external_port, internal_port, container_name) in published_ports():
+            if internal_port == 443 and container_name.startswith("deconst-nginx-build"):
                 build_ports.append((snet, external_port))
+            elif internal_port == 443 and container_name.startswith("staging-nginx"):
+                staging_presenter_ports.append((snet, external_port))
+            elif internal_port == 9000 and container_name.startswith("staging-nginx"):
+                staging_content_ports.append((snet, external_port))
             else:
-                print "Ignoring mapping to unrecognized internal port: {}".format(internal_port)
+                print "Ignoring mapping to unrecognized internal port: {} => {}".format(container_name, internal_port)
 
 
 if not presenter_ports:
@@ -131,6 +157,14 @@ if not content_ports:
 
 if not build_ports:
     print "No build ports found!"
+    sys.exit(1)
+
+if not staging_presenter_ports:
+    print "No staging presenter ports found!"
+    sys.exit(1)
+
+if not staging_content_ports:
+    print "No staging content service ports found!"
     sys.exit(1)
 
 # Audit the service ports against the load balancer nodes.
@@ -226,3 +260,11 @@ audit_lb_nodes(presenter_lb, presenter_ports)
 print
 print "BUILD LOAD BALANCER"
 audit_lb_nodes(build_lb, build_ports)
+
+print
+print "STAGING CONTENT LOAD BALANCER"
+audit_lb_nodes(staging_content_lb, staging_content_ports)
+
+print
+print "STAGING PRESENTER LOAD BALANCER"
+audit_lb_nodes(staging_presenter_lb, staging_presenter_ports)
