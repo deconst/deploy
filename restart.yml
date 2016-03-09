@@ -71,7 +71,7 @@
     command: |
       systemctl restart
         deconst-staging-content@1.service deconst-staging-presenter@1.service
-        deconst-staging-nginx.service
+        deconst-staging-nginx@1.service
     when: staging_restart|default(false)|bool
     sudo: yes
     tags: restart
