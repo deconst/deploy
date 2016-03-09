@@ -40,7 +40,7 @@
     owner: root
     group: root
     mode: 0644
-  register: strider_envs
+  register: strider_env
   sudo: yes
 
 - name: staging environment files
