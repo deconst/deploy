@@ -59,11 +59,10 @@
   tasks:
 
   - name: restart strider
-    service: name={{ item }} state=restarted
+    command: |
+      systemctl restart
+        deconst-strider.service deconst-nginx-build.service
     when: strider_restart|default(false)|bool
-    with_items:
-    - deconst-strider.service
-    - deconst-nginx-build.service
     sudo: yes
     tags: restart
 
