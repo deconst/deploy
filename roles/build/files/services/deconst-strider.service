@@ -27,6 +27,9 @@ ExecStart=/opt/bin/systemd-docker run \
   --env=STRIDER_WORKSPACE_CONTAINER=deconst-data-strider \
   --env=CONTENT_SERVICE_URL=${CONTENT_SERVICE_URL} \
   --env=ADMIN_API_KEY=${ADMIN_API_KEY} \
+  --env=STAGING_PRESENTER_URL=${STAGING_PRESENTER_URL} \
+  --env=STAGING_CONTENT_SERVICE_URL=${STAGING_CONTENT_SERVICE_URL} \
+  --env=STAGING_ADMIN_API_KEY=${STAGING_ADMIN_API_KEY} \
   --env=strider_logging__console__level=${strider_logging__console_level} \
   --volume=/var/run/docker.sock:/var/run/docker.sock \
   --volumes-from=deconst-data-strider \
