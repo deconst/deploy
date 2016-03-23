@@ -1,5 +1,10 @@
 ---
 
+- name: pod name ranges
+  set_fact:
+    staging_pod_names: "[{% for i in range(1, staging_pod_count + 1) %}{{ i }}{% if not loop.last %},{% endif %}{% endfor %}]"
+  tags: always
+
 - name: ensure containers are up to date
   command: /opt/bin/multipull quay.io/deconst/content-service quay.io/deconst/presenter quay.io/deconst/nginx-pod
   register: pulls
@@ -43,11 +48,10 @@
   sudo: yes
 
 - name: services
-  service: name={{ item }} state=started enabled=true
-  with_items:
-  - deconst-staging-content@1.service
-  - deconst-staging-presenter@1.service
-  - deconst-staging-nginx@1.service
+  service: name={{ item[1] }}@{{ item[0] }}.service state=started enabled=true
+  with_nested:
+  - staging_pod_names
+  - ["deconst-staging-content", "deconst-staging-presenter", "deconst-staging-nginx"]
   register: services
   sudo: yes
 
