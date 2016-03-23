@@ -1,12 +1,12 @@
 ---
 
-- name: ensure staging containers are up to date
+- name: ensure containers are up to date
   command: /opt/bin/multipull quay.io/deconst/content-service quay.io/deconst/presenter quay.io/deconst/nginx-pod
   register: pulls
   failed_when: pulls.rc == 1
   changed_when: pulls.rc == 2
 
-- name: show the staging pull result
+- name: show the pull result
   debug: var=pulls.stdout_lines
 
 - name: environment files
@@ -23,7 +23,7 @@
   - staging-nginx
   sudo: yes
 
-- name: staging unit files
+- name: unit files
   copy:
     src: services/{{ item }}
     dest: /etc/systemd/system/{{ item }}
@@ -42,7 +42,7 @@
   when: units|changed
   sudo: yes
 
-- name: staging services
+- name: services
   service: name={{ item }} state=started enabled=true
   with_items:
   - deconst-staging-content@1.service

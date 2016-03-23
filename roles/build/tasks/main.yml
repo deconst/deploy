@@ -1,6 +1,6 @@
 ---
 
-- name: ensure strider containers are up to date
+- name: ensure containers are up to date
   command: /opt/bin/multipull quay.io/deconst/strider quay.io/deconst/nginx-build
   register: pulls
   failed_when: pulls.rc == 1
@@ -46,7 +46,7 @@
   register: services
   sudo: yes
 
-- name: compute restart control vars
+- name: compute restart control var
   set_fact:
     strider_restart: >
       {{ (pulls|changed or certificate|changed or envs|changed or units|changed)
