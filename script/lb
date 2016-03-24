@@ -139,13 +139,17 @@ for server in cs.servers.list():
         for (external_port, internal_port, container_name) in published_ports():
             if internal_port == 443 and container_name.startswith("deconst-nginx-build"):
                 build_ports.append((snet, external_port))
+            else:
+                print "Ignoring mapping to unrecognized internal port: {} => {}".format(container_name, internal_port)
+
+    if group.startswith("deconst-{}-staging".format(instance_name)):
+        for (external_port, internal_port, container_name) in published_ports():
             elif internal_port == 443 and container_name.startswith("staging-nginx"):
                 staging_presenter_ports.append((snet, external_port))
             elif internal_port == 9000 and container_name.startswith("staging-nginx"):
                 staging_content_ports.append((snet, external_port))
             else:
                 print "Ignoring mapping to unrecognized internal port: {} => {}".format(container_name, internal_port)
-
 
 if not presenter_ports:
     print "No presenter ports found!"
