@@ -20,10 +20,13 @@ localhost ansible_python_interpreter=${PYTHON}
 
 [deconst-${INSTANCE}-build-${DEPLOYMENT}:vars]
 
+[deconst-${INSTANCE}-staging-${DEPLOYMENT}:vars]
+
 [deconst-all:children]
 deconst-${INSTANCE}-worker-${DEPLOYMENT}
 deconst-${INSTANCE}-elastic-${DEPLOYMENT}
 deconst-${INSTANCE}-build-${DEPLOYMENT}
+deconst-${INSTANCE}-staging-${DEPLOYMENT}
 
 [deconst-all:vars]
 ansible_ssh_user=core
