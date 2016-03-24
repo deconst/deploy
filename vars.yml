@@ -28,6 +28,11 @@ worker_containers:
 - presenter
 - nginx
 
+staging_services:
+- deconst-staging-content
+- deconst-staging-presenter
+- deconst-staging-nginx
+
 # Overridden by -e parameters
 new_deployment: no
 credentials_update: "{{ new_deployment }}"

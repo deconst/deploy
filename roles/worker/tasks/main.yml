@@ -25,19 +25,6 @@
   sudo: yes
   register: nginx_environment
 
-- name: TLS credentials
-  template:
-    src: "{{ item }}.j2"
-    dest: /etc/deconst/ssl/{{ item }}
-    owner: root
-    group: root
-    mode: 0600
-  sudo: yes
-  register: certificate
-  with_items:
-  - certificate.pem
-  - certificate_key.pem
-
 - name: ensure containers are up to date
   command: /opt/bin/multipull {% for image in worker_containers %}quay.io/deconst/{{ image }} {% endfor %}
   register: worker_pulls

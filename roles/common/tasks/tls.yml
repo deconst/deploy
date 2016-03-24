@@ -1,0 +1,14 @@
+---
+
+- name: TLS credentials
+  template:
+    src: "{{ item }}.j2"
+    dest: /etc/deconst/ssl/{{ item }}
+    owner: root
+    group: root
+    mode: 0600
+  sudo: yes
+  register: certificate
+  with_items:
+  - certificate.pem
+  - key.pem

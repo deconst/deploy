@@ -1,63 +1,25 @@
 ---
 
-- name: ensure strider containers are up to date
+- name: ensure containers are up to date
   command: /opt/bin/multipull quay.io/deconst/strider quay.io/deconst/nginx-build
-  register: strider_pulls
-  failed_when: strider_pulls.rc == 1
-  changed_when: strider_pulls.rc == 2
+  register: pulls
+  failed_when: pulls.rc == 1
+  changed_when: pulls.rc == 2
 
 - name: show the strider pull result
-  debug: var=strider_pulls.stdout_lines
+  debug: var=pulls.stdout_lines
 
-- name: ensure staging containers are up to date
-  command: /opt/bin/multipull quay.io/deconst/content-service quay.io/deconst/presenter quay.io/deconst/nginx-pod
-  register: staging_pulls
-  failed_when: staging_pulls.rc == 1
-  changed_when: staging_pulls.rc == 2
-
-- name: show the staging pull result
-  debug: var=staging_pulls.stdout_lines
-
-- name: TLS credentials
-  template:
-    src: "{{ item }}.j2"
-    dest: /etc/deconst/ssl/{{ item }}
-    owner: root
-    group: root
-    mode: 0600
-  sudo: yes
-  register: certificate
-  with_items:
-  - build-certificate.pem
-  - build-key.pem
-  - certificate.pem
-  - certificate_key.pem
-
-- name: strider environment files
+- name: environment file
   template:
     src: deconst-strider-environment.j2
     dest: /etc/deconst/strider-environment.sh
     owner: root
     group: root
     mode: 0644
-  register: strider_env
+  register: envs
   sudo: yes
 
-- name: staging environment files
-  template:
-    src: deconst-{{ item }}-environment.j2
-    dest: /etc/deconst/{{ item }}-environment.sh
-    owner: root
-    group: root
-    mode: 0644
-  register: staging_env
-  with_items:
-  - staging-content
-  - staging-presenter
-  - staging-nginx
-  sudo: yes
-
-- name: strider unit files
+- name: unit files
   copy:
     src: services/{{ item }}
     dest: /etc/systemd/system/{{ item }}
@@ -68,50 +30,24 @@
   - deconst-data-strider.service
   - deconst-strider.service
   - deconst-nginx-build.service
-  register: strider_units
-  sudo: yes
-
-- name: staging unit files
-  copy:
-    src: services/{{ item }}
-    dest: /etc/systemd/system/{{ item }}
-    owner: root
-    group: root
-    mode: 0644
-  with_items:
-  - deconst-staging-content@.service
-  - deconst-staging-presenter@.service
-  - deconst-staging-nginx@.service
-  register: staging_units
+  register: units
   sudo: yes
 
 - name: reload unit files
   command: systemctl daemon-reload
-  when: strider_units|changed or staging_units|changed
+  when: units|changed
   sudo: yes
 
-- name: strider services
+- name: services
   service: name={{ item }} state=started enabled=true
   with_items:
   - deconst-strider.service
   - deconst-nginx-build.service
-  register: strider_services
+  register: services
   sudo: yes
 
-- name: staging services
-  service: name={{ item }} state=started enabled=true
-  with_items:
-  - deconst-staging-content@1.service
-  - deconst-staging-presenter@1.service
-  - deconst-staging-nginx@1.service
-  register: staging_services
-  sudo: yes
-
-- name: compute restart control vars
+- name: compute restart control var
   set_fact:
     strider_restart: >
-      {{ (strider_pulls|changed or certificate|changed or strider_env|changed or strider_units|changed)
-         and not (strider_services|changed) }}
-    staging_restart: >
-      {{ (staging_pulls|changed or certificate|changed or staging_env|changed or staging_units|changed)
-         and not (staging_services|changed) }}
+      {{ (pulls|changed or certificate|changed or envs|changed or units|changed)
+         and not (services|changed) }}

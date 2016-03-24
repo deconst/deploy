@@ -1,0 +1,62 @@
+---
+
+- name: pod name ranges
+  set_fact:
+    staging_pod_names: "[{% for i in range(1, staging_pod_count + 1) %}{{ i }}{% if not loop.last %},{% endif %}{% endfor %}]"
+  tags: always
+
+- name: ensure containers are up to date
+  command: /opt/bin/multipull quay.io/deconst/content-service quay.io/deconst/presenter quay.io/deconst/nginx-pod
+  register: pulls
+  failed_when: pulls.rc == 1
+  changed_when: pulls.rc == 2
+
+- name: show the pull result
+  debug: var=pulls.stdout_lines
+
+- name: environment files
+  template:
+    src: deconst-{{ item }}-environment.j2
+    dest: /etc/deconst/{{ item }}-environment.sh
+    owner: root
+    group: root
+    mode: 0644
+  register: envs
+  with_items:
+  - staging-content
+  - staging-presenter
+  - staging-nginx
+  sudo: yes
+
+- name: unit files
+  copy:
+    src: services/{{ item }}
+    dest: /etc/systemd/system/{{ item }}
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+  - deconst-staging-content@.service
+  - deconst-staging-presenter@.service
+  - deconst-staging-nginx@.service
+  register: units
+  sudo: yes
+
+- name: reload unit files
+  command: systemctl daemon-reload
+  when: units|changed
+  sudo: yes
+
+- name: services
+  service: name={{ item[1] }}@{{ item[0] }}.service state=started enabled=true
+  with_nested:
+  - staging_pod_names
+  - staging_services
+  register: services
+  sudo: yes
+
+- name: compute restart control var
+  set_fact:
+    staging_restart: >
+      {{ (pulls|changed or certificate|changed or envs|changed or units|changed)
+         and not (services|changed) }}

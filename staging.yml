@@ -1,0 +1,10 @@
+---
+# Configure or update the staging servers.
+
+- hosts: deconst-staging
+  vars_files:
+  - vars.yml
+  - credentials.yml
+  roles:
+  - logstashclient
+  - staging

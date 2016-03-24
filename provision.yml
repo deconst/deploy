@@ -120,6 +120,43 @@
       fresh_build_cluster: "{{ rax_build_build.action == 'create' and rax_build_build.success | length == build_count }}"
     tags: always
 
+  - name: staging hosts
+    rax:
+      state: present
+      name: deconst-{{ instance }}-staging-{{ deployment }}-%03d
+      group: deconst-{{ instance }}-staging-{{ deployment }}
+      count: "{{ staging_count }}"
+      exact_count: yes
+      image: "{{ image_coreos_beta }}"
+      flavor: "{{ staging_flavor }}"
+      key_name: "{{ rackspace_keyname }}"
+      wait: yes
+    register: rax_build_staging
+    tags: always
+
+  - name: add newly provisioned staging hosts to the correct groups
+    add_host:
+      name: "{{ item.name }}"
+      ansible_ssh_host: "{{ item.rax_accessipv4 }}"
+      fresh_host: yes
+      groups: deconst-{{ instance }}-staging-{{ deployment }}
+    when: rax_build_staging.action == "create"
+    with_items: rax_build_staging.success
+    tags: always
+
+  - name: add all staging hosts to the correct groups
+    add_host:
+      name: "{{ item.name }}"
+      ansible_ssh_host: "{{ item.rax_accessipv4 }}"
+      groups: deconst-staging,deconst-{{ instance }}-staging-{{ deployment }}
+    with_items: rax_build_staging.instances
+    tags: always
+
+  - name: identify full staging cluster rebuilds
+    set_fact:
+      fresh_staging_cluster: "{{ rax_build_staging.action == 'create' and rax_build_staging.success | length == staging_count }}"
+    tags: always
+
   - name: presenter load balancer
     rax_clb:
       name: deconst-{{ instance }}-presenter
@@ -172,7 +209,7 @@
 
   - name: identify full cluster rebuilds
     set_fact:
-      fresh_cluster: "{{ fresh_worker_cluster|bool and fresh_elastic_cluster|bool and fresh_build_cluster|bool }}"
+      fresh_cluster: "{{ fresh_worker_cluster|bool and fresh_elastic_cluster|bool and fresh_build_cluster|bool and fresh_staging_cluster|bool }}"
     tags: always
 
   - name: force the generation of a new token for a fresh cluster
@@ -206,7 +243,7 @@
       prompt: >
         Permit connections to your Elasticsearch and MongoDB clusters from the following IPs:
 
-        {% for instance in rax_build_workers.success|union(rax_build_elastic.success)|union(rax_build_build.success)|sort %}
+        {% for instance in rax_build_workers.success|union(rax_build_elastic.success)|union(rax_build_build.success)|union(rax_build_staging.success)|sort %}
          {{ instance.name }}: public {{ instance.rax_accessipv4 }} servicenet {{ instance.rax_addresses.private[0].addr }}
         {% endfor %}
 
@@ -218,4 +255,4 @@
          {{ staging_content_domain }} => {{ clb_staging_content.balancer.virtual_ips[0].address }}
 
         Continue when both are in place
-    when: (rax_build_workers.success|length + rax_build_elastic.success|length + rax_build_build.success|length) > 0
+    when: (rax_build_workers.success|length + rax_build_elastic.success|length + rax_build_build.success|length + rax_build_staging.success|length) > 0
