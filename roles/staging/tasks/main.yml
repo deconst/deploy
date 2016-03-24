@@ -51,7 +51,7 @@
   service: name={{ item[1] }}@{{ item[0] }}.service state=started enabled=true
   with_nested:
   - staging_pod_names
-  - ["deconst-staging-content", "deconst-staging-presenter", "deconst-staging-nginx"]
+  - staging_services
   register: services
   sudo: yes
 
