@@ -40,6 +40,7 @@ PLUGIN_GITHUB_ADMIN_TEAM={{ strider_admin_team }}
 SERVER_NAME=https://{{ build_domain }}
 STRIDER_SYSTEM_EMAIL={{ strider_system_email }}
 STRIDER_WORKSPACE_CONTAINER=deconst-strider-workspace
+DECONST_BUILD_WHITELIST={{ strider_build_whitelist|default('quay.io/deconst/preparer-sphinx,quay.io/deconst/preparer-jekyll') }}
 CONCURRENT_JOBS={{ build_parallel_jobs }}
 
 # Content service APIs
