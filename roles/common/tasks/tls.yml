@@ -11,4 +11,4 @@
   register: certificate
   with_items:
   - certificate.pem
-  - certificate_key.pem
+  - key.pem
