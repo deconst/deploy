@@ -26,6 +26,10 @@ case "${1:-}" in
     shift
     PATTERN=deconst-${INSTANCE}-build-${DEPLOYMENT}
     ;;
+  staging)
+    shift
+    PATTERN=deconst-${INSTANCE}-staging-${DEPLOYMENT}
+    ;;
 esac
 
 exec ansible ${PATTERN} -i ${ROOT}/inventory "$@"
