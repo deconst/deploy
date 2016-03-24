@@ -17,7 +17,7 @@
       group: deconst-{{ instance }}-worker-{{ deployment }}
       count: "{{ worker_count }}"
       exact_count: yes
-      image: "{{ image_coreos_beta }}"
+      image: "{{ worker_image }}"
       flavor: "{{ worker_flavor }}"
       key_name: "{{ rackspace_keyname }}"
       wait: yes
@@ -53,7 +53,7 @@
       group: deconst-{{ instance }}-elastic-{{ deployment }}
       count: "{{ elastic_count }}"
       exact_count: yes
-      image: "{{ image_coreos_beta }}"
+      image: "{{ elastic_image }}"
       flavor: "{{ elastic_flavor }}"
       key_name: "{{ rackspace_keyname }}"
       wait: yes
@@ -90,7 +90,7 @@
       group: deconst-{{ instance }}-build-{{ deployment }}
       count: "{{ build_count }}"
       exact_count: yes
-      image: "{{ image_coreos_beta }}"
+      image: "{{ build_image }}"
       flavor: "{{ build_flavor }}"
       key_name: "{{ rackspace_keyname }}"
       wait: yes
@@ -127,7 +127,7 @@
       group: deconst-{{ instance }}-staging-{{ deployment }}
       count: "{{ staging_count }}"
       exact_count: yes
-      image: "{{ image_coreos_beta }}"
+      image: "{{ staging_image }}"
       flavor: "{{ staging_flavor }}"
       key_name: "{{ rackspace_keyname }}"
       wait: yes
