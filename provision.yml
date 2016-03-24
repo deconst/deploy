@@ -120,6 +120,43 @@
       fresh_build_cluster: "{{ rax_build_build.action == 'create' and rax_build_build.success | length == build_count }}"
     tags: always
 
+  - name: staging hosts
+    rax:
+      state: present
+      name: deconst-{{ instance }}-staging-{{ deployment }}-%03d
+      group: deconst-{{ instance }}-staging-{{ deployment }}
+      count: "{{ staging_count }}"
+      exact_count: yes
+      image: "{{ image_coreos_beta }}"
+      flavor: "{{ staging_flavor }}"
+      key_name: "{{ rackspace_keyname }}"
+      wait: yes
+    register: rax_build_staging
+    tags: always
+
+  - name: add newly provisioned staging hosts to the correct groups
+    add_host:
+      name: "{{ item.name }}"
+      ansible_ssh_host: "{{ item.rax_accessipv4 }}"
+      fresh_host: yes
+      groups: deconst-{{ instance }}-staging-{{ deployment }}
+    when: rax_build_staging.action == "create"
+    with_items: rax_build_staging.success
+    tags: always
+
+  - name: add all staging hosts to the correct groups
+    add_host:
+      name: "{{ item.name }}"
+      ansible_ssh_host: "{{ item.rax_accessipv4 }}"
+      groups: deconst-staging,deconst-{{ instance }}-staging-{{ deployment }}
+    with_items: rax_build_staging.instances
+    tags: always
+
+  - name: identify full staging cluster rebuilds
+    set_fact:
+      fresh_staging_cluster: "{{ rax_build_staging.action == 'create' and rax_build_staging.success | length == staging_count }}"
+    tags: always
+
   - name: presenter load balancer
     rax_clb:
       name: deconst-{{ instance }}-presenter
