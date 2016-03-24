@@ -243,7 +243,7 @@
       prompt: >
         Permit connections to your Elasticsearch and MongoDB clusters from the following IPs:
 
-        {% for instance in rax_build_workers.success|union(rax_build_elastic.success)|union(rax_build_build.success)|sort %}
+        {% for instance in rax_build_workers.success|union(rax_build_elastic.success)|union(rax_build_build.success)|union(rax_build_staging.success)|sort %}
          {{ instance.name }}: public {{ instance.rax_accessipv4 }} servicenet {{ instance.rax_addresses.private[0].addr }}
         {% endfor %}
 
@@ -255,4 +255,4 @@
          {{ staging_content_domain }} => {{ clb_staging_content.balancer.virtual_ips[0].address }}
 
         Continue when both are in place
-    when: (rax_build_workers.success|length + rax_build_elastic.success|length + rax_build_build.success|length) > 0
+    when: (rax_build_workers.success|length + rax_build_elastic.success|length + rax_build_build.success|length + rax_build_staging.success|length) > 0
