@@ -209,7 +209,7 @@
 
   - name: identify full cluster rebuilds
     set_fact:
-      fresh_cluster: "{{ fresh_worker_cluster|bool and fresh_elastic_cluster|bool and fresh_build_cluster|bool }}"
+      fresh_cluster: "{{ fresh_worker_cluster|bool and fresh_elastic_cluster|bool and fresh_build_cluster|bool and fresh_staging_cluster|bool }}"
     tags: always
 
   - name: force the generation of a new token for a fresh cluster
