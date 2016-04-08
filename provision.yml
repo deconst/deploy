@@ -204,6 +204,7 @@
       port: "{{ staging_content_lb_port }}"
       protocol: HTTPS
       wait: yes
+      timeout: 120
       state: present
     register: clb_staging_content
 
