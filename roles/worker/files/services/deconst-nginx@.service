@@ -17,7 +17,7 @@ ExecStart=/opt/bin/systemd-docker run \
   --volume=/etc/deconst/ssl:/var/ssl:ro \
   --publish=0.0.0.0::443 \
   --publish=0.0.0.0::9000 \
-  quay.io/deconst/nginx
+  quay.io/deconst/nginx-pod
 
 ExecStartPost=/opt/bin/record-port nginx-%i 443
 ExecStartPost=/opt/bin/record-port nginx-%i 9000
