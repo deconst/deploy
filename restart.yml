@@ -44,6 +44,17 @@
     sudo: yes
     tags: restart
 
+- hosts: deconst-staging
+  serial: 1
+  tasks:
+
+  - name: restart staging service pods
+    command: systemctl restart deconst-staging-content@{{ item }}.service deconst-staging-presenter@{{ item }}.service deconst-staging-nginx@{{ item }}.service
+    with_items: staging_pod_names
+    when: staging_restart|default(false)|bool
+    sudo: yes
+    tags: restart
+
 - hosts: deconst-elastic
   serial: 1
   tasks:
