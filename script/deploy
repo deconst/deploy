@@ -1,31 +1,39 @@
 #!/bin/bash
 
+# Interlock is run a bash script because volumes_from swarm-data:ro doesn't work with swarm/compose
+# https://github.com/docker/compose/issues/3077
+
 set -ueo pipefail
+
+PROJECT=$1
 
 ROOT=$(cd $(dirname $0)/.. && pwd)
 
-source ${ROOT}/script/include/credentials.sh
-source ${ROOT}/script/include/setup.sh
+source ${ROOT}/script/include/util.sh
 
-# Avoid provisioning new deployments unless explicitly requested to do so.
-if ! ${ROOT}/script/include/is-existing-cluster 2>/dev/null; then
-  if echo "$@" | grep -q 'new_deployment=true'; then
-    echo "This is a new deployment."
-  else
-    cat <<EOM >&2
-It looks like you're trying to provision a new deployment.
-If this is what you really mean to do, add this argument:
+declare -a SERVICES=(content presenter)
 
-  -e 'new_deployment=true'
+for SERVICE in "${SERVICES[@]}" ; do
+  echo "Build image interlock_${SERVICE}"
 
-Otherwise, it's likely that you need to update your credentials.yml file.
-EOM
-    exit 1
+  docker build \
+    --tag interlock_${SERVICE} \
+    interlock
+
+  if ! network_exists ${PROJECT}_${SERVICE} ; then
+    echo "Create network ${PROJECT}_${SERVICE}"
+    docker network create ${PROJECT}_${SERVICE}
   fi
-fi
 
-setup_inventory
-setup_galaxy
-
-cd ${ROOT}
-exec ansible-playbook -i ${ROOT}/inventory ${ROOT}/site.yml $*
+  if ! container_exists ${SERVICE}_interlock ; then
+    echo "Run container ${SERVICE}_interlock"
+    docker run --detach \
+      --name ${SERVICE}_interlock \
+      --net ${SERVICE} \
+      --label interlock.ext.service.name=${SERVICE} \
+      --restart unless-stopped \
+      --volumes-from swarm-data:ro \
+      interlock_${SERVICE} \
+      -D run --config /etc/interlock/config.toml
+  fi
+done

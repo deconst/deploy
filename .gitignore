@@ -1,3 +1,6 @@
+env
+config.toml
+
 *.pyc
 warnings.log
 credentials.yml
