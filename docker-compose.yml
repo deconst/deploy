@@ -3,12 +3,18 @@ version: '2'
 services:
   mongo:
     image: mongo:2.6
+    networks:
+      - content
+      - presenter
 
   elasticsearch:
     image: elasticsearch:1.7
+    networks:
+      - content
+      - presenter
 
   content-lb:
-    container_name: content_lb
+    container_name: deconst_content_lb
     image: nginx:1.9
     restart: unless-stopped
     networks:
@@ -28,7 +34,7 @@ services:
     expose:
       - 8080
     labels:
-      - "interlock.network=deploy_content"
+      - "interlock.network=deconst_content"
       - "interlock.ext.service.name=content"
       - "interlock.hostname=deconst"
       - "interlock.domain=horse"
@@ -49,7 +55,7 @@ services:
       - content-lb
 
   presenter-lb:
-    container_name: presenter_lb
+    container_name: deconst_presenter_lb
     image: nginx:1.9
     restart: unless-stopped
     networks:
@@ -60,13 +66,16 @@ services:
       - "interlock.ext.name=nginx"
       - "interlock.ext.service.name=presenter"
     environment:
-      - constraint:node==*n1
+      - constraint:node==*n2
   presenter:
     image: quay.io/deconst/presenter
+    networks:
+      - presenter
+      - content
     expose:
       - 8080
     labels:
-      - "interlock.network=deploy_presenter"
+      - "interlock.network=deconst_presenter"
       - "interlock.ext.service.name=presenter"
       - "interlock.hostname=deconst"
       - "interlock.domain=horse"
@@ -74,7 +83,7 @@ services:
       CONTROL_REPO_PATH: /tmp/control-repo
       CONTROL_REPO_URL:
       CONTROL_REPO_BRANCH:
-      CONTENT_SERVICE_URL: http://content_lb:8080/
+      CONTENT_SERVICE_URL: http://deconst_content_lb/
       PRESENTER_DIAGNOSTICS: "true"
       PRESENTED_URL_PROTO:
       PRESENTED_URL_DOMAIN:

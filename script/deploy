@@ -1,39 +1,69 @@
 #!/bin/bash
 
-# Interlock is run a bash script because volumes_from swarm-data:ro doesn't work with swarm/compose
+# Interlock is run in a bash script because volumes_from swarm-data:ro doesn't work with swarm/compose
 # https://github.com/docker/compose/issues/3077
 
 set -ueo pipefail
 
-PROJECT=$1
+PROJECT=${1:-deconst}
 
 ROOT=$(cd $(dirname $0)/.. && pwd)
 
+[ -f ${ROOT}/env ] || {
+  cat <<EOM 1>&2
+Environment variables not found. Please copy and customize the example file:
+  cp ${ROOT}/env.example ${ROOT}/env
+  \${EDITOR} ${ROOT}/env
+EOM
+  exit 1
+}
+
+source ${ROOT}/env
 source ${ROOT}/script/include/util.sh
 
 declare -a SERVICES=(content presenter)
 
 for SERVICE in "${SERVICES[@]}" ; do
-  echo "Build image interlock_${SERVICE}"
-
-  docker build \
-    --tag interlock_${SERVICE} \
-    interlock
+  if ! image_exists interlock_${PROJECT}_${SERVICE} ; then
+    echo "Build image interlock_${SERVICE}"
+    docker build \
+      --tag interlock_${PROJECT}_${SERVICE} \
+      interlock
+  fi
 
   if ! network_exists ${PROJECT}_${SERVICE} ; then
     echo "Create network ${PROJECT}_${SERVICE}"
     docker network create ${PROJECT}_${SERVICE}
   fi
 
-  if ! container_exists ${SERVICE}_interlock ; then
+  if ! container_exists ${PROJECT}_${SERVICE}_interlock ; then
+    export INTERLOCK_CONFIG="ListenAddr = ':8080'
+      DockerURL = '$DOCKER_HOST'
+      TLSCACert = '/etc/docker/ca.pem'
+      TLSCert = '/etc/docker/server-cert.pem'
+      TLSKey = '/etc/docker/server-key.pem'
+      AllowInsecure = false
+      EnableMetrics = true
+      [[Extensions]]
+      Name = 'nginx'
+      ServiceName = '$SERVICE'
+      ConfigPath = '/etc/nginx/nginx.conf'
+      PidPath = '/etc/nginx/nginx.pid'
+      TemplatePath = '/etc/interlock/nginx.conf.tmpl'
+      MaxConn = 1024
+      Port = 80"
+
     echo "Run container ${SERVICE}_interlock"
     docker run --detach \
-      --name ${SERVICE}_interlock \
-      --net ${SERVICE} \
+      --name ${PROJECT}_${SERVICE}_interlock \
+      --net ${PROJECT}_${SERVICE} \
       --label interlock.ext.service.name=${SERVICE} \
       --restart unless-stopped \
       --volumes-from swarm-data:ro \
-      interlock_${SERVICE} \
-      -D run --config /etc/interlock/config.toml
+      --env INTERLOCK_CONFIG="$INTERLOCK_CONFIG" \
+      interlock_${PROJECT}_${SERVICE}  \
+      -D run
   fi
 done
+
+docker-compose --project-name $PROJECT up
