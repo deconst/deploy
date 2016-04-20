@@ -5,8 +5,6 @@
 
 set -ueo pipefail
 
-PROJECT=${1:-deconst}
-
 ROOT=$(cd $(dirname $0)/.. && pwd)
 
 [ -f ${ROOT}/env ] || {
@@ -38,7 +36,7 @@ for SERVICE in "${SERVICES[@]}" ; do
 
   if ! container_exists ${PROJECT}_${SERVICE}_interlock ; then
     export INTERLOCK_CONFIG="ListenAddr = ':8080'
-      DockerURL = '$DOCKER_HOST'
+      DockerURL = '${DOCKER_HOST}'
       TLSCACert = '/etc/docker/ca.pem'
       TLSCert = '/etc/docker/server-cert.pem'
       TLSKey = '/etc/docker/server-key.pem'
@@ -46,7 +44,7 @@ for SERVICE in "${SERVICES[@]}" ; do
       EnableMetrics = true
       [[Extensions]]
       Name = 'nginx'
-      ServiceName = '$SERVICE'
+      ServiceName = '${SERVICE}'
       ConfigPath = '/etc/nginx/nginx.conf'
       PidPath = '/etc/nginx/nginx.pid'
       TemplatePath = '/etc/interlock/nginx.conf.tmpl'
@@ -60,10 +58,10 @@ for SERVICE in "${SERVICES[@]}" ; do
       --label interlock.ext.service.name=${SERVICE} \
       --restart unless-stopped \
       --volumes-from swarm-data:ro \
-      --env INTERLOCK_CONFIG="$INTERLOCK_CONFIG" \
+      --env INTERLOCK_CONFIG="${INTERLOCK_CONFIG}" \
       interlock_${PROJECT}_${SERVICE}  \
       -D run
   fi
 done
 
-docker-compose --project-name $PROJECT up
+docker-compose --project-name ${PROJECT} up -d

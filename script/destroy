@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Completely destory all networks, volumes, and containers associated with the app
+
+set -uo pipefail
+
+ROOT=$(cd $(dirname $0)/.. && pwd)
+
+PROJECT=${1:-deconst}
+
+source ${ROOT}/script/include/util.sh
+
+declare -a SERVICES=(content presenter)
+
+for SERVICE in "${SERVICES[@]}" ; do
+  if container_exists ${PROJECT}_${SERVICE}_interlock ; then
+    docker rm -fv ${PROJECT}_${SERVICE}_interlock
+  fi
+
+  if image_exists interlock_${PROJECT}_${SERVICE} ; then
+    docker rmi interlock_${PROJECT}_${SERVICE}
+  fi
+done
+
+docker-compose --project-name $PROJECT down

@@ -1,0 +1,24 @@
+#!/bin/bash
+
+set -ueo pipefail
+
+ROOT=$(cd $(dirname $0)/.. && pwd)
+
+SCALE=$1
+
+[ -f ${ROOT}/env ] || {
+  cat <<EOM 1>&2
+Environment variables not found. Please copy and customize the example file:
+  cp ${ROOT}/env.example ${ROOT}/env
+  \${EDITOR} ${ROOT}/env
+EOM
+  exit 1
+}
+
+source ${ROOT}/env
+
+declare -a SERVICES=(content presenter)
+
+for SERVICE in "${SERVICES[@]}" ; do
+  docker-compose --project-name ${PROJECT} scale ${SERVICE}=${SCALE}
+done
