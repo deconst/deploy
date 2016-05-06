@@ -13,14 +13,14 @@ services:
       - content
       - presenter
 
-  content-lb:
-    container_name: deconst_content_lb
+  content_lb:
+    container_name: content_lb
     image: nginx:1.9
     restart: unless-stopped
     networks:
       - content
     ports:
-      - "80:80"
+      - "9000:80"
     labels:
       - "interlock.ext.name=nginx"
       - "interlock.ext.service.name=content"
@@ -52,10 +52,13 @@ services:
       CONTENT_LOG_LEVEL: debug
       CONTENT_LOG_COLOR: "true"
     depends_on:
-      - content-lb
+      - content_lb
 
-  presenter-lb:
-    container_name: deconst_presenter_lb
+
+
+
+  presenter_lb:
+    container_name: presenter_lb
     image: nginx:1.9
     restart: unless-stopped
     networks:
@@ -66,7 +69,7 @@ services:
       - "interlock.ext.name=nginx"
       - "interlock.ext.service.name=presenter"
     environment:
-      - constraint:node==*n2
+      - constraint:node==*n1
   presenter:
     image: quay.io/deconst/presenter
     networks:
@@ -83,7 +86,7 @@ services:
       CONTROL_REPO_PATH: /tmp/control-repo
       CONTROL_REPO_URL:
       CONTROL_REPO_BRANCH:
-      CONTENT_SERVICE_URL: http://deconst_content_lb/
+      CONTENT_SERVICE_URL: http://content_lb/
       PRESENTER_DIAGNOSTICS: "true"
       PRESENTED_URL_PROTO:
       PRESENTED_URL_DOMAIN:
@@ -93,45 +96,92 @@ services:
       PRESENTER_LOG_JSON: "false"
       PRESENTER_LOG_COLOR: "true"
     depends_on:
-      - presenter-lb
+      - presenter_lb
 
-  # staging_content:
-  #   image: quay.io/deconst/content-service
-  #   ports:
-  #   - "9001:8080"
-  #   environment:
-  #     STORAGE:
-  #     RACKSPACE_USERNAME:
-  #     RACKSPACE_APIKEY:
-  #     RACKSPACE_REGION:
-  #     RACKSPACE_SERVICENET:
-  #     ADMIN_APIKEY:
-  #     CONTENT_CONTAINER: "staging-${CONTENT_CONTAINER}"
-  #     ASSET_CONTAINER: "staging-${ASSET_CONTAINER}"
-  #     MONGODB_URL: mongodb://mongo:27017/content
-  #     MONGODB_PREFIX: staging_
-  #     CONTENT_LOG_LEVEL: debug
-  #     CONTENT_LOG_COLOR: "true"
-  #     PROXY_UPSTREAM: http://content:8080/
-  #     STAGING_MODE: "true"
-  # staging_presenter:
-  #   image: quay.io/deconst/presenter
-  #   ports:
-  #   - "81:8080"
-  #   environment:
-  #     CONTROL_REPO_PATH: /tmp/control-repo
-  #     CONTROL_REPO_URL:
-  #     CONTROL_REPO_BRANCH:
-  #     CONTENT_SERVICE_URL: http://staging_content:8080/
-  #     PRESENTER_DIAGNOSTICS: "true"
-  #     PRESENTED_URL_PROTO:
-  #     PRESENTED_URL_DOMAIN:
-  #     PRESENTER_LOG_LEVEL: debug
-  #     PRESENTER_DEVMODE:
-  #     PRESENTER_LIVERELOAD:
-  #     PRESENTER_LOG_JSON: "false"
-  #     PRESENTER_LOG_COLOR: "true"
-  #     STAGING_MODE: "true"
+
+  staging_content_lb:
+    container_name: staging_content_lb
+    image: nginx:1.9
+    restart: unless-stopped
+    networks:
+      - content
+    ports:
+      - "9000:80"
+    labels:
+      - "interlock.ext.name=nginx"
+      - "interlock.ext.service.name=staging_content"
+    environment:
+      - constraint:node==*n2
+  staging_content:
+    image: quay.io/deconst/content-service
+    restart: unless-stopped
+    networks:
+      - content
+    expose:
+      - 8080
+    labels:
+      - "interlock.network=deconst_content"
+      - "interlock.ext.service.name=staging_content"
+      - "interlock.hostname=deconst"
+      - "interlock.domain=horse"
+    environment:
+      STORAGE:
+      RACKSPACE_USERNAME:
+      RACKSPACE_APIKEY:
+      RACKSPACE_REGION:
+      RACKSPACE_SERVICENET:
+      ADMIN_APIKEY:
+      CONTENT_CONTAINER: "staging-${CONTENT_CONTAINER}"
+      ASSET_CONTAINER: "staging-${ASSET_CONTAINER}"
+      MONGODB_URL: mongodb://mongo:27017/content
+      MONGODB_PREFIX: staging_
+      CONTENT_LOG_LEVEL: debug
+      CONTENT_LOG_COLOR: "true"
+      PROXY_UPSTREAM: http://content_lb/
+      STAGING_MODE: "true"
+    depends_on:
+      - staging_content_lb
+
+
+  staging_presenter_lb:
+    container_name: staging_presenter_lb
+    image: nginx:1.9
+    restart: unless-stopped
+    networks:
+      - presenter
+    ports:
+      - "80:80"
+    labels:
+      - "interlock.ext.name=nginx"
+      - "interlock.ext.service.name=staging_presenter"
+    environment:
+      - constraint:node==*n2
+  staging_presenter:
+    image: quay.io/deconst/presenter
+    networks:
+      - presenter
+      - content
+    expose:
+      - 8080
+    labels:
+      - "interlock.network=deconst_presenter"
+      - "interlock.ext.service.name=staging_presenter"
+      - "interlock.hostname=deconst"
+      - "interlock.domain=horse"
+    environment:
+      CONTROL_REPO_PATH: /tmp/control-repo
+      CONTROL_REPO_URL:
+      CONTROL_REPO_BRANCH:
+      CONTENT_SERVICE_URL: http://staging_content_lb/
+      PRESENTER_DIAGNOSTICS: "true"
+      PRESENTED_URL_PROTO:
+      PRESENTED_URL_DOMAIN:
+      PRESENTER_LOG_LEVEL: debug
+      PRESENTER_DEVMODE:
+      PRESENTER_LIVERELOAD:
+      PRESENTER_LOG_JSON: "false"
+      PRESENTER_LOG_COLOR: "true"
+      STAGING_MODE: "true"
 
 
 networks:

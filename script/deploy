@@ -19,11 +19,11 @@ EOM
 source ${ROOT}/env
 source ${ROOT}/script/include/util.sh
 
-declare -a SERVICES=(content presenter)
+declare -a SERVICES=(content presenter staging_content staging_presenter)
 
 for SERVICE in "${SERVICES[@]}" ; do
   if ! image_exists interlock_${PROJECT}_${SERVICE} ; then
-    echo "Build image interlock_${SERVICE}"
+    echo "Build image interlock_${PROJECT}_${SERVICE}"
     docker build \
       --tag interlock_${PROJECT}_${SERVICE} \
       interlock
@@ -51,7 +51,7 @@ for SERVICE in "${SERVICES[@]}" ; do
       MaxConn = 1024
       Port = 80"
 
-    echo "Run container ${SERVICE}_interlock"
+    echo "Run container ${PROJECT}_${SERVICE}_interlock"
     docker run --detach \
       --name ${PROJECT}_${SERVICE}_interlock \
       --net ${PROJECT}_${SERVICE} \

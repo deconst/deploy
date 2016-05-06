@@ -1,0 +1,65 @@
+#!/bin/bash
+
+set -ueo pipefail
+
+ROOT=$(cd $(dirname $0)/.. && pwd)
+
+[ -f ${ROOT}/env ] || {
+  cat <<EOM 1>&2
+Environment variables not found. Please copy and customize the example file:
+  cp ${ROOT}/env.example ${ROOT}/env
+  \${EDITOR} ${ROOT}/env
+EOM
+  exit 1
+}
+
+source ${ROOT}/env
+
+export CONTENT_STORE_URL=http://$(docker port content_lb 80)/
+export CONTENT_STORE_APIKEY=$ADMIN_APIKEY
+export CONTENT_STORE_TLS_VERIFY="false"
+export TRAVIS_PULL_REQUEST="false"
+export NODE_TLS_REJECT_UNAUTHORIZED="0"
+export CONTENT_STORE_APIKEY=$(curl -s \
+  -X POST \
+  -H "Authorization: deconst ${CONTENT_STORE_APIKEY}" \
+  ${CONTENT_STORE_URL}keys?named=sphinx |
+  python -c 'import sys, json; print json.load(sys.stdin)["apikey"]')
+
+docker run --detach \
+  --name deconst-content \
+  --volume /usr/content-repo \
+  cirros \
+  /bin/true
+
+docker run -it --rm \
+  --entrypoint "/bin/sh" \
+  --user root \
+  --volumes-from deconst-content \
+  quay.io/deconst/preparer-sphinx \
+  -c "apk add --update git; git clone https://github.com/deconst/deconst-docs.git /usr/content-repo; python -m deconstrst"
+
+docker run -it --rm \
+  -e ENVELOPE_DIR=/usr/content-repo/_build/deconst-envelopes \
+  -e ASSET_DIR=/usr/content-repo/_build/deconst-assets \
+  -e CONTENT_SERVICE_URL=${CONTENT_STORE_URL} \
+  -e CONTENT_SERVICE_APIKEY=${CONTENT_STORE_APIKEY} \
+  -e NODE_TLS_REJECT_UNAUTHORIZED=${NODE_TLS_REJECT_UNAUTHORIZED} \
+  -e TRAVIS_PULL_REQUEST=${TRAVIS_PULL_REQUEST} \
+  -e CONTENT_ID_BASE=https://github.com/deconst/deconst-docs \
+  -e VERBOSE=true \
+  -e CONTENT_ROOT=/usr/content-repo \
+  --volumes-from deconst-content \
+  quay.io/deconst/submitter
+
+docker run -it --rm \
+  --env CONTENT_STORE_URL=${CONTENT_STORE_URL} \
+  --env CONTENT_STORE_APIKEY=${CONTENT_STORE_APIKEY} \
+  --env NODE_TLS_REJECT_UNAUTHORIZED=${NODE_TLS_REJECT_UNAUTHORIZED} \
+  --env TRAVIS_PULL_REQUEST=${TRAVIS_PULL_REQUEST} \
+  --entrypoint "/bin/sh" \
+  --user root \
+  quay.io/deconst/preparer-asset \
+  -c "apk add --update git; git clone https://github.com/deconst/deconst-docs-control.git /var/control-repo; /usr/src/app/script/entrypoint"
+
+docker rm -fv deconst-content

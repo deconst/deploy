@@ -10,7 +10,7 @@ PROJECT=${1:-deconst}
 
 source ${ROOT}/script/include/util.sh
 
-declare -a SERVICES=(content presenter)
+declare -a SERVICES=(content presenter staging_content staging_presenter)
 
 for SERVICE in "${SERVICES[@]}" ; do
   if container_exists ${PROJECT}_${SERVICE}_interlock ; then
