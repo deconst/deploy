@@ -84,7 +84,7 @@ for pemfile in ('privkey.pem', 'fullchain.pem', 'chain.pem', 'cert.pem'):
 
 # Run script/lb to put the right nodes back in place.
 print "Correcting load balancer nodes."
-# subprocess.check_call(['script/lb', '--fix', '--verbose'])
+subprocess.check_call(['script/lb', '--fix', '--verbose'])
 
 # Clean up certbot container
 print "Cleaning up certbot container."
