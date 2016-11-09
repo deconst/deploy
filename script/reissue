@@ -1,0 +1,92 @@
+#!/usr/bin/env python
+
+from include import utils
+utils.log_warnings()
+
+import subprocess
+import pyrax
+import yaml
+import os
+
+# Get our bearings on the filesystem.
+root = os.path.realpath(os.path.join(os.path.dirname(__file__), ".."))
+
+cert_path = os.path.join(os.getcwd(), 'le_certificates')
+subprocess.check_call(['rm', '-rf', cert_path])
+os.makedirs(cert_path)
+
+# Collect credentials and authenticate.
+
+with open(os.path.join(root, "credentials.yml")) as credfile:
+    creds = yaml.load(credfile)
+rackspace_username = creds["rackspace_username"]
+rackspace_apikey = creds["rackspace_api_key"]
+rackspace_region = creds["rackspace_region"]
+instance_name = creds["instance"]
+
+pyrax.set_setting("identity_type", "rackspace")
+pyrax.set_credentials(rackspace_username, rackspace_apikey)
+cs = pyrax.connect_to_cloudservers(region=rackspace_region)
+clb = pyrax.connect_to_cloud_loadbalancers(region=rackspace_region)
+
+# Find the load balancer.
+
+print "Finding load balancer."
+presenter_lb_name = "deconst-{}-presenter".format(instance_name)
+presenter_lb = None
+for lb in clb.list():
+    if lb.name == presenter_lb_name:
+        presenter_lb = lb
+
+if not presenter_lb:
+    print "Unable to locate the presenter load balancer!"
+    sys.exit(1)
+
+# Remove all nodes from the CLB.
+print "Removing nodes from CLB."
+if hasattr(presenter_lb, 'nodes'):
+    for node in presenter_lb.nodes:
+        node.delete()
+        pyrax.utils.wait_until(presenter_lb, "status", "ACTIVE", interval=1, attempts=30)
+
+# Launch a certbot container on Carina with port 443 published.
+print "Creating certbot container."
+container_id = subprocess.check_output(
+    ['docker', 'run', '-d',
+        '-p', '443:443', '-p', '80:80',
+        '--entrypoint', 'sleep',
+        'quay.io/letsencrypt/letsencrypt', '1d']).strip()
+
+# Add a single node to the CLB pointing to the certbot container.
+print "Adding certbot node to CLB."
+container_ip = subprocess.check_output(
+    ['docker', 'port', container_id, '443/tcp']).split(':')[0]
+presenter_lb.add_nodes([clb.Node(address=container_ip, port=443, condition="ENABLED")])
+pyrax.utils.wait_until(presenter_lb, "status", "ACTIVE", interval=1, attempts=30)
+
+# Exec the certbot command to issue a new certificate.
+print "Issuing new certificate."
+subprocess.check_call(
+    ['docker', 'exec', container_id,
+    'certbot', 'certonly',
+    '--standalone',
+    '--email', 'ash.wilson@rackspace.com', '--agree-tos',
+    '--noninteractive',
+    '-d', 'deconst.horse'])
+
+# Copy the issued certificates from the container.
+print "Copying issued certificates."
+for pemfile in ('privkey.pem', 'fullchain.pem', 'chain.pem', 'cert.pem'):
+    subprocess.check_call(
+        ['docker', 'cp', '--follow-link',
+        '{}:/etc/letsencrypt/live/deconst.horse/{}'.format(container_id, pemfile),
+        cert_path])
+
+# Run script/lb to put the right nodes back in place.
+print "Correcting load balancer nodes."
+# subprocess.check_call(['script/lb', '--fix', '--verbose'])
+
+# Clean up certbot container
+print "Cleaning up certbot container."
+subprocess.check_call(['docker', 'stop', container_id])
+subprocess.check_call(['docker', 'rm', container_id])
