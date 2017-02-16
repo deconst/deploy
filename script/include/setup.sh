@@ -30,6 +30,7 @@ deconst-${INSTANCE}-staging-${DEPLOYMENT}
 
 [deconst-all:vars]
 ansible_ssh_user=core
+ansible_ssh_user_private_key_file=${ROOT}/keys/$(credential instance).private.key
 ansible_python_interpreter="PATH=/home/core/bin:$PATH python"
 EOF
 }

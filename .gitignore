@@ -6,3 +6,4 @@ inventory/static
 .etcd_cluster_token
 certificates/
 le_certificates/
+keys/
