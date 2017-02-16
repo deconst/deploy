@@ -7,7 +7,12 @@ setup_inventory() {
   local INSTANCE=$(credential instance)
   local DEPLOYMENT=$(credential deployment)
   local PYTHON=$(which python)
-  local DOMAIN=$(credential domain)
+
+  if [[ ! -f ${ROOT}/keys/${INSTANCE}.private.key ]] ; then
+      echo "Private SSH Key not setup for ${INSTANCE}."
+      echo "Looking for: ${ROOT}/keys/${INSTANCE}.private.key"
+      exit
+  fi
 
   cat <<EOF >${ROOT}/inventory/static
 [local]
