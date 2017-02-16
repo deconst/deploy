@@ -7,6 +7,7 @@ setup_inventory() {
   local INSTANCE=$(credential instance)
   local DEPLOYMENT=$(credential deployment)
   local PYTHON=$(which python)
+  local DOMAIN=$(credential domain)
 
   cat <<EOF >${ROOT}/inventory/static
 [local]
@@ -30,7 +31,7 @@ deconst-${INSTANCE}-staging-${DEPLOYMENT}
 
 [deconst-all:vars]
 ansible_ssh_user=core
-ansible_ssh_user_private_key_file=${ROOT}/keys/$(credential instance).private.key
+ansible_ssh_private_key_file="${ROOT}/keys/${INSTANCE}.private.key"
 ansible_python_interpreter="PATH=/home/core/bin:$PATH python"
 EOF
 }
