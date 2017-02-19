@@ -1,5 +1,6 @@
 *.pyc
 warnings.log
+ansible.log
 credentials.yml
 inventory/static
 .galaxy

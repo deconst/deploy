@@ -74,4 +74,4 @@ the_server = matching_servers[0]
 
 address = the_server.accessIPv4
 
-os.execlp("ssh", "script/ssh", "core@{}".format(address))
+os.execlp("ssh", "script/ssh", "-i", "{}/keys/{}.private.key".format(root, instance), "core@{}".format(address))

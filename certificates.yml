@@ -42,7 +42,7 @@
     shell: >
       touch certificates/password &&
       chmod 600 certificates/password &&
-      head -c 128 /dev/random | base64 > certificates/tmppassword &&
+      head -c 128 /dev/urandom | base64 > certificates/tmppassword &&
       cat certificates/tmppassword > certificates/password &&
       cat certificates/tmppassword >> certificates/password &&
       rm certificates/tmppassword

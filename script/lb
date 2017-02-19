@@ -106,7 +106,7 @@ for server in cs.servers.list():
     snet = server.addresses['private'][0]['addr']
 
     def published_ports():
-        containers = subprocess.check_output(["ssh", ssh_addr, "docker", "ps", "-a"])
+        containers = subprocess.check_output(["ssh", "-i", "{}/keys/{}.private.key".format(root, instance_name), ssh_addr, "docker", "ps", "-a"])
         for line in containers.split("\n"):
             if not re.search("\\bnginx\S+\s*$", line):
                 continue
