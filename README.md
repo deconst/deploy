@@ -36,7 +36,13 @@ To deploy or update a cluster:
     script/decrypt ~/cred-repo/credentials-staging.yml.enc
     ```
 
- 2. Run the playbook with the `deploy` script.
+ 2. Copy the SSH Private Key used for the deconst instante into `/keys`.
+    - `cp instance-private-key keys/{instance-name}.private.key`
+    - `chmod 600 keys/{instance-name}.private.key`
+
+    The instance name is found in credentials.yml and is used to locate the SSH key used for communication automatically. We recommend storing the SSH private key in an encrypted document store.
+
+ 3. Run the playbook with the `deploy` script.
 
     ```bash
     script/deploy
