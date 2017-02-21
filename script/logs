@@ -43,7 +43,7 @@ for server in cs.servers.list():
     addr = server.accessIPv4
     ssh_addr = "core@{}".format(addr)
 
-    containers = subprocess.check_output(["ssh", ssh_addr, "docker", "ps", "-a"])
+    containers = subprocess.check_output(["ssh", "-i", "{}/keys/{}.private.key".format(root, instance), ssh_addr, "docker", "ps", "-a"])
     for line in containers.split("\n"):
         parts = line.split()
         if not parts or parts[0] == "CONTAINER":
@@ -56,6 +56,6 @@ for server in cs.servers.list():
 
         print "-{:->78}-".format(" " + container_name + " ")
         logs = subprocess.check_output([
-            "ssh", ssh_addr, "docker", "logs",
+            "ssh", "-i", "{}/keys/{}.private.key".format(root, instance), ssh_addr, "docker", "logs",
             "--tail={}".format(lines), container_id])
         print logs
