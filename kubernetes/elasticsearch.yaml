@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: deconst
+  name: elasticsearch
+  labels:
+    name: elasticsearch
+spec:
+  ports:
+    - port: 9200
+      targetPort: elasticsearch
+  selector:
+    name: elasticsearch
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: deconst
+  name: elasticsearch
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: elasticsearch
+    spec:
+      containers:
+        - name: elasticsearch
+          image: elasticsearch:1.7
+          ports:
+            - name: elasticsearch
+              containerPort: 9200

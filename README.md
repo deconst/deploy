@@ -99,3 +99,38 @@ This repository contains a number of utilities to assist in basic ops work. Each
  * `script/ips` lists the IP addresses of each host in the cluster.
  * `script/lb` audits and corrects load-balancer node membership on the cluster. Consult `--help` for details.
  * `script/reindex` asynchronously triggers a full content reindex in Elasticsearch.
+
+# Deconst Dev Env in Kubernetes with Minikube
+
+These instructions will create the underlying resources necessary to run a deconst dev env in Kubernetes with Minikube.
+
+1. Install [Minikube](https://kubernetes.io/docs/getting-started-guides/minikube/)
+
+1. Create resources
+
+    ```bash
+    kubectl apply -f kubernetes/namespace.yaml
+    kubectl apply -f kubernetes/mongo.yaml
+    kubectl apply -f kubernetes/elasticsearch.yaml
+    ```
+
+1. Watch and wait for resources
+
+    ```bash
+    watch kubectl get pods --namespace deconst
+    ```
+
+1. Take a look inside mongo
+
+    ```bash
+    kubectl run --namespace deconst --rm -it mongo-cli --image=mongo:2.6 --restart=Never -- mongo mongo.deconst.svc.cluster.local
+    show dbs
+    ```
+
+1. Delete resources
+
+    ```bash
+    kubectl delete deployments --namespace deconst mongo elasticsearch
+    kubectl delete services --namespace deconst mongo elasticsearch
+    kubectl delete namespace deconst
+    ```
