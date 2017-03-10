@@ -114,6 +114,14 @@ These instructions will create the underlying resources necessary to run a decon
     kubectl apply -f kubernetes/elasticsearch.yaml
     ```
 
+1. (Optional) Set the context namespace
+
+    If you set the context namespace, you can omit the `--namespace deconst` from all of the other commands.
+
+    ```bash
+    kubectl config set-context minikube --namespace=deconst
+    ```
+
 1. Watch and wait for resources
 
     ```bash
@@ -126,6 +134,8 @@ These instructions will create the underlying resources necessary to run a decon
     kubectl run --namespace deconst --rm -it mongo-cli --image=mongo:2.6 --restart=Never -- mongo mongo.deconst.svc.cluster.local
     show dbs
     ```
+
+1. Deploy the [content service](https://github.com/deconst/content-service#deconst-dev-env-in-kubernetes-with-minikube)
 
 1. Delete resources
 
