@@ -114,6 +114,26 @@ These instructions will create the underlying resources necessary to run a decon
     kubectl apply -f kubernetes/elasticsearch.yaml
     ```
 
+1. Deploy a secure private Docker image registry
+
+    For more information on this tool see [Registry Tooling](https://github.com/ContainerSolutions/registry-tooling).
+
+    ```bash
+    cd ..
+    git clone git@github.com:ContainerSolutions/registry-tooling.git
+    cd registry-tooling
+    ./reg-tool.sh install-k8s-reg
+    ```
+
+1. Connect to the image registry
+
+    For more information on using this tool see [Usage](https://github.com/ContainerSolutions/registry-tooling#usage)
+
+    ```bash
+    eval $(minikube docker-env)
+    docker images
+    ```
+
 1. (Optional) Set the context namespace
 
     If you set the context namespace, you can omit the `--namespace deconst` from all of the other commands.
