@@ -1,0 +1,65 @@
+# From https://github.com/kubernetes/kubernetes/blob/85378ad34fc5cd33aceb2ee0a4d7c1772ad2a816/cluster/addons/fluentd-elasticsearch/kibana-service.yaml
+# Added `type: NodePort` for dev env
+# Removed metadata.labels.*kubernetes.io* to prevent the addon-manager from deleting this
+apiVersion: v1
+kind: Service
+metadata:
+  name: kibana-logging
+  namespace: kube-system
+  labels:
+    k8s-app: kibana-logging
+spec:
+  type: NodePort
+  ports:
+  - port: 5601
+    protocol: TCP
+    targetPort: ui
+  selector:
+    k8s-app: kibana-logging
+---
+# From https://github.com/kubernetes/kubernetes/blob/85378ad34fc5cd33aceb2ee0a4d7c1772ad2a816/cluster/addons/fluentd-elasticsearch/kibana-controller.yaml
+# Added readinessProbe
+# Removed metadata.labels.*kubernetes.io* to prevent the addon-manager from deleting this
+# Changed KIBANA_BASE_URL="" to keep the URL simple
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: kibana-logging
+  namespace: kube-system
+  labels:
+    k8s-app: kibana-logging
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: kibana-logging
+  template:
+    metadata:
+      labels:
+        k8s-app: kibana-logging
+    spec:
+      containers:
+      - name: kibana-logging
+        image: gcr.io/google_containers/kibana:v4.6.1-1
+        resources:
+          # keep request = limit to keep this container in guaranteed class
+          limits:
+            cpu: 100m
+          requests:
+            cpu: 100m
+        env:
+          - name: "ELASTICSEARCH_URL"
+            value: "http://elasticsearch-logging:9200"
+          - name: "KIBANA_BASE_URL"
+            value: ""
+        readinessProbe:
+          initialDelaySeconds: 60
+          httpGet:
+            path: /api/status
+            port: 5601
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        ports:
+        - containerPort: 5601
+          name: ui
+          protocol: TCP
