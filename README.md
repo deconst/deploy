@@ -106,12 +106,16 @@ These instructions will create the underlying resources necessary to run a decon
 
 1. Install [Minikube](https://kubernetes.io/docs/getting-started-guides/minikube/)
 
+1. Open a new shell
+
 1. Create resources
 
     ```bash
     kubectl apply -f kubernetes/namespace.yaml
     kubectl apply -f kubernetes/mongo.yaml
     kubectl apply -f kubernetes/elasticsearch.yaml
+    kubectl apply -f kubernetes/kibana.yaml
+    kubectl apply -f kubernetes/fluentd.yaml
     ```
 
 1. Deploy a secure private Docker image registry
@@ -142,17 +146,22 @@ These instructions will create the underlying resources necessary to run a decon
     kubectl config set-context minikube --namespace=deconst
     ```
 
+    To unset the context namespace
+
+    ```bash
+    kubectl config unset contexts.minikube.namespace
+    ```
+
 1. Watch and wait for resources
 
     ```bash
-    watch kubectl get pods --namespace deconst
+    watch kubectl get all --all-namespaces
     ```
 
-1. Take a look inside mongo
+1. View the logs
 
     ```bash
-    kubectl run --namespace deconst --rm -it mongo-cli --image=mongo:2.6 --restart=Never -- mongo mongo.deconst.svc.cluster.local
-    show dbs
+    minikube service kibana-logging --namespace kube-system
     ```
 
 1. Deploy the [content service](https://github.com/deconst/content-service#deconst-dev-env-in-kubernetes-with-minikube)
@@ -160,7 +169,9 @@ These instructions will create the underlying resources necessary to run a decon
 1. Delete resources
 
     ```bash
-    kubectl delete deployments --namespace deconst mongo elasticsearch
-    kubectl delete services --namespace deconst mongo elasticsearch
+    kubectl delete deploy/mongo svc/mongo --namespace deconst
+    kubectl delete ds/fluentd-elasticsearch --namespace kube-system
+    kubectl delete deploy/kibana-logging svc/kibana-logging --namespace kube-system
+    kubectl delete rc/elasticsearch-logging-v1 svc/elasticsearch-logging --namespace kube-system
     kubectl delete namespace deconst
     ```
