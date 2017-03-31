@@ -131,7 +131,6 @@ These instructions will create the underlying resources necessary to run a decon
 
     If you do a `minikube stop` followed by a `minikube start`, you'll need to rerun `./reg-tool.sh` because `minikube start` overwrites `/etc/hosts` and sets up new certs.
 
-
 1. Connect to the image registry
 
     For more information on using this tool see [Usage](https://github.com/ContainerSolutions/registry-tooling#usage)

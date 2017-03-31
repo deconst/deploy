@@ -25,8 +25,15 @@ spec:
         name: mongo
     spec:
       containers:
-        - name: mongo
-          image: mongo:2.6
-          ports:
-            - name: mongo
-              containerPort: 27017
+      - name: mongo
+        image: mongo:2.6
+        ports:
+          - name: mongo
+            containerPort: 27017
+        volumeMounts:
+        - name: datadeconstmongo
+          mountPath: /data/db
+      volumes:
+      - name: datadeconstmongo
+        hostPath:
+          path: /data/deconst/mongo
