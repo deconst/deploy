@@ -32,7 +32,7 @@ ExecStart=/opt/bin/systemd-docker run \
   --env=STAGING_PRESENTER_URL=${STAGING_PRESENTER_URL} \
   --env=STAGING_CONTENT_SERVICE_URL=${STAGING_CONTENT_SERVICE_URL} \
   --env=STAGING_ADMIN_API_KEY=${STAGING_ADMIN_API_KEY} \
-  --env=strider_logging__console__level=${strider_logging__console_level} \
+  --env=strider_logging__console__level=${strider_logging__console__level} \
   --volume=/var/run/docker.sock:/var/run/docker.sock \
   --volumes-from=deconst-data-strider \
   quay.io/deconst/strider
