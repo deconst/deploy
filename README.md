@@ -108,14 +108,23 @@ These instructions will create the underlying resources necessary to run a decon
 
 1. Open a new shell
 
+1. Create a minikube
+
+    Deconst is known to work with Kubernetes 1.5.3
+
+    ```bash
+    minikube start --kubernetes-version 1.5.3
+    ```
+
+1. Install [kubectl](https://kubernetes.io/docs/tasks/kubectl/install/)
+
+    Be sure to install the version that matches your Kubernetes version from the step above.
+
 1. Create resources
 
     ```bash
     kubectl apply -f kubernetes/namespace.yaml
-    kubectl apply -f kubernetes/mongo.yaml
-    kubectl apply -f kubernetes/elasticsearch.yaml
-    kubectl apply -f kubernetes/kibana.yaml
-    kubectl apply -f kubernetes/fluentd.yaml
+    kubectl apply -f kubernetes
     ```
 
 1. Deploy a secure private Docker image registry
@@ -126,12 +135,12 @@ These instructions will create the underlying resources necessary to run a decon
     cd ..
     git clone git@github.com:ContainerSolutions/registry-tooling.git
     cd registry-tooling
-    ./reg-tool.sh install-k8s-reg
+    ./reg-tool.sh install-k8s-reg -y
     ```
 
     If you do a `minikube stop` followed by a `minikube start`, you'll need to rerun `./reg-tool.sh` because `minikube start` overwrites `/etc/hosts` and sets up new certs.
 
-1. Connect to the image registry
+1. (Optional) Connect to the image registry
 
     For more information on using this tool see [Usage](https://github.com/ContainerSolutions/registry-tooling#usage)
 
@@ -165,6 +174,8 @@ These instructions will create the underlying resources necessary to run a decon
     ```bash
     minikube service kibana-logging --namespace kube-system
     ```
+
+    Click the Create button to create a new index and then click the Discover menu item to view it.
 
 1. Deploy the [content service](https://github.com/deconst/content-service#deconst-dev-env-in-kubernetes-with-minikube)
 
