@@ -12,7 +12,8 @@ utils.log_warnings()
 import pyrax
 import yaml
 
-parser = argparse.ArgumentParser(description="Manage deconst load balancer health.")
+parser = argparse.ArgumentParser(
+    description="Manage deconst load balancer health.")
 
 arggroup = parser.add_mutually_exclusive_group()
 arggroup.add_argument("-r", "--report", action="store_true",
@@ -53,7 +54,8 @@ content_lb_name = "deconst-{}-content".format(instance_name)
 presenter_lb_name = "deconst-{}-presenter".format(instance_name)
 build_lb_name = "deconst-{}-build".format(instance_name)
 staging_content_lb_name = "deconst-{}-staging-content".format(instance_name)
-staging_presenter_lb_name = "deconst-{}-staging-presenter".format(instance_name)
+staging_presenter_lb_name = "deconst-{}-staging-presenter".format(
+    instance_name)
 content_lb, presenter_lb, build_lb = None, None, None
 staging_content_lb, staging_presenter_lb = None, None
 for lb in clb.list():
@@ -106,7 +108,8 @@ for server in cs.servers.list():
     snet = server.addresses['private'][0]['addr']
 
     def published_ports():
-        containers = subprocess.check_output(["ssh", "-i", "{}/keys/{}.private.key".format(root, instance_name), ssh_addr, "docker", "ps", "-a"])
+        containers = subprocess.check_output(
+            ["ssh", "-i", "{}/keys/{}.private.key".format(root, instance_name), ssh_addr, "docker", "ps", "-a"])
         for line in containers.split("\n"):
             if not re.search("\\bnginx\S+\s*$", line):
                 continue
@@ -174,6 +177,7 @@ if not staging_content_ports:
 # Audit the service ports against the load balancer nodes.
 # Accumulate a list of actions to take against each.
 
+
 def audit_lb_nodes(lb, expected_ports):
     missing_nodes = set(expected_ports)
     extra_nodes = []
@@ -181,14 +185,17 @@ def audit_lb_nodes(lb, expected_ports):
     if args.verbose:
         print "EXISTING NODES:"
 
-    for node in lb.nodes:
-        t = (node.address, node.port)
-        if t in missing_nodes:
-            if args.verbose:
-                print " {:<15} => {}".format(node.address, node.port)
-            missing_nodes.remove(t)
-        else:
-            extra_nodes.append(node)
+    try:
+        for node in lb.nodes:
+            t = (node.address, node.port)
+            if t in missing_nodes:
+                if args.verbose:
+                    print " {:<15} => {}".format(node.address, node.port)
+                missing_nodes.remove(t)
+            else:
+                extra_nodes.append(node)
+    except:
+        print '*** no nodes ***'
 
     if args.report:
         if extra_nodes:
@@ -219,7 +226,8 @@ def audit_lb_nodes(lb, expected_ports):
                         print " draining {}:{} ..".format(node.address, node.port),
                     node.condition = "DRAINING"
                     node.update()
-                    pyrax.utils.wait_until(lb, "status", "ACTIVE", interval=1, attempts=30)
+                    pyrax.utils.wait_until(
+                        lb, "status", "ACTIVE", interval=1, attempts=30)
                     if args.verbose:
                         print "ok"
 
@@ -229,7 +237,8 @@ def audit_lb_nodes(lb, expected_ports):
                 if args.verbose:
                     print " deleting {}:{} ..".format(node.address, node.port),
                 node.delete()
-                pyrax.utils.wait_until(lb, "status", "ACTIVE", interval=1, attempts=30)
+                pyrax.utils.wait_until(
+                    lb, "status", "ACTIVE", interval=1, attempts=30)
                 if args.verbose:
                     print "ok"
 
@@ -244,14 +253,17 @@ def audit_lb_nodes(lb, expected_ports):
             for (addr, port) in missing_nodes:
                 if args.verbose:
                     print " constructing node for {}:{}".format(addr, port)
-                to_add.append(clb.Node(address=addr, port=port, condition="ENABLED"))
+                to_add.append(
+                    clb.Node(address=addr, port=port, condition="ENABLED"))
 
             print " applying changes ..",
             lb.add_nodes(to_add)
-            pyrax.utils.wait_until(lb, "status", "ACTIVE", interval=1, attempts=30)
+            pyrax.utils.wait_until(
+                lb, "status", "ACTIVE", interval=1, attempts=30)
             print "ok"
         elif args.verbose:
             print "No missing nodes to add."
+
 
 print
 print "CONTENT SERVICE LOAD BALANCER"
