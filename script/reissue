@@ -79,7 +79,7 @@ print "Creating certbot container."
 #         '-p', '443:443', '-p', '80:80',
 #         '--entrypoint', 'sleep',
 #         'quay.io/letsencrypt/letsencrypt', '1d']).strip()
-container_id = "69eb08312118593ad726f99cbef17479219c70781c24de3eb5ffa4ed39861078"
+container_id = "373f61d0a47fd85d3464030c5aaa015ff8fad1fa18f2550fafedc52592ff981d"
 # print "container id is " + container_id
 # docker_host = subprocess.check_output('echo', '$DOCKER_HOST').strip()
 # print "docker host is " + docker_host
