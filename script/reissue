@@ -1,5 +1,18 @@
 #!/usr/bin/env python
 
+
+### How To ###
+# Start the certbot container on the worker server:
+#  $ docker start 29b5fa284256
+# run this script
+# To run a dry run
+#  $ docker exec 194794766a35 certbot certonly --manual --preferred-challenges dns --cert-name deconst.horse -d secure.deconst.horse -d build.deconst.horse -d staging.deconst.horse -d content.staging.deconst.horse --staging --dry-run -m laura.santamaria@rackspace.com --agree-tos --non-interactive --text
+# To run it for real, remote the --staging and --dry-run
+#get the info:
+#  $docker exec (number) tail -f /var/log/letsencrypt/letsencrypt.log
+#  $df -h
+
+
 from include import utils
 utils.log_warnings()
 
@@ -79,14 +92,14 @@ print "Creating certbot container."
 #         '-p', '443:443', '-p', '80:80',
 #         '--entrypoint', 'sleep',
 #         'quay.io/letsencrypt/letsencrypt', '1d']).strip()
-container_id = "373f61d0a47fd85d3464030c5aaa015ff8fad1fa18f2550fafedc52592ff981d"
+container_id = "5f9a17ab74a82e8a3354dc77ecebfbf262cf794375e3441ee0920a5713c11e23"
 # print "container id is " + container_id
 # docker_host = subprocess.check_output('echo', '$DOCKER_HOST').strip()
 # print "docker host is " + docker_host
 
 # Add a single node to the CLB pointing to the certbot container.
 print "Adding certbot node to CLB."
-container_ip = '10.176.199.19'
+container_ip = '10.176.194.79'
 presenter_lb.add_nodes(
     [clb.Node(address=container_ip, port=443, condition="ENABLED")])
 pyrax.utils.wait_until(presenter_lb, "status", "ACTIVE",
