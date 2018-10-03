@@ -58,6 +58,7 @@
       openssl req \
         -new -x509 -batch \
         -days 365 \
+        -subj "/" \
         -passin file:certificates/password \
         -key certificates/ca-key.pem \
         -out certificates/ca.pem
@@ -76,7 +77,7 @@
         -passout file:certificates/password \
         -out certificates/{{ inventory_hostname }}-key.pem 2048 &&
       openssl req \
-        -subj "/CN={{ ansible_eth1.ipv4.address }}" \
+        -subj "/CN={{ ansible_eth1.ipv4.address }}/subjectAltName=IP:{{ ansible_eth1.ipv4.address }}" \
         -new \
         -batch \
         -passin file:certificates/password \
