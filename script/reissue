@@ -1,5 +1,19 @@
 #!/usr/bin/env python
 
+
+### How To ###
+# Start the certbot container on the worker server:
+#  $ docker start <container-short-id>
+# Open a new terminal window and run this script.
+# On the server:
+# - To run a dry run
+#  $ docker exec 194794766a35 certbot certonly --manual --preferred-challenges dns --cert-name deconst.horse -d secure.deconst.horse -d build.deconst.horse -d staging.deconst.horse -d content.staging.deconst.horse --staging --dry-run -m laura.santamaria@rackspace.com --agree-tos --non-interactive --text
+# - To run it for real, remove the --staging and --dry-run
+# - Get the info on the certs from the boxes:
+#  $docker exec (number) tail -f /var/log/letsencrypt/letsencrypt.log
+#  $df -h
+# Then follow the prompt from this script.
+
 from include import utils
 utils.log_warnings()
 
@@ -7,6 +21,27 @@ import subprocess
 import pyrax
 import yaml
 import os
+
+# Uncomment lines 25 - 43 to implement request debugging.
+# import requests
+# import logging
+#
+# # Enabling debugging at http.client level (requests->urllib3->http.client)
+# # you will see the REQUEST, including HEADERS and DATA, and RESPONSE with HEADERS but without DATA.
+# # the only thing missing will be the response.body which is not logged.
+# try:  # for Python 3
+#     from http.client import HTTPConnection
+# except ImportError:
+#     from httplib import HTTPConnection
+# HTTPConnection.debuglevel = 1
+#
+# # you need to initialize logging, otherwise you will not see anything from
+# # requests
+# logging.basicConfig()
+# logging.getLogger().setLevel(logging.DEBUG)
+# requests_log = logging.getLogger("requests.packages.urllib3")
+# requests_log.setLevel(logging.DEBUG)
+# requests_log.propagate = True
 
 # Get our bearings on the filesystem.
 root = os.path.realpath(os.path.join(os.path.dirname(__file__), ".."))
@@ -47,46 +82,29 @@ print "Removing nodes from CLB."
 if hasattr(presenter_lb, 'nodes'):
     for node in presenter_lb.nodes:
         node.delete()
-        pyrax.utils.wait_until(presenter_lb, "status", "ACTIVE", interval=1, attempts=30)
+        pyrax.utils.wait_until(presenter_lb, "status",
+                               "ACTIVE", interval=1, attempts=30)
 
-# Launch a certbot container on Carina with port 443 published.
-print "Creating certbot container."
-container_id = subprocess.check_output(
-    ['docker', 'run', '-d',
-        '-p', '443:443', '-p', '80:80',
-        '--entrypoint', 'sleep',
-        'quay.io/letsencrypt/letsencrypt', '1d']).strip()
+# Launch a certbot container on one of the servers with port 443 published.
+print "Checking for the running certbot container."
+container_id = "29b5fa284256bd289aa943e29dc581472a27538227e3230a4df7af06fda56250"
 
 # Add a single node to the CLB pointing to the certbot container.
 print "Adding certbot node to CLB."
-container_ip = subprocess.check_output(
-    ['docker', 'port', container_id, '443/tcp']).split(':')[0]
-presenter_lb.add_nodes([clb.Node(address=container_ip, port=443, condition="ENABLED")])
-pyrax.utils.wait_until(presenter_lb, "status", "ACTIVE", interval=1, attempts=30)
+container_ip = '10.176.194.79'
+presenter_lb.add_nodes(
+    [clb.Node(address=container_ip, port=443, condition="ENABLED")])
+pyrax.utils.wait_until(presenter_lb, "status", "ACTIVE",
+                       interval=1, attempts=30)
 
-# Exec the certbot command to issue a new certificate.
-print "Issuing new certificate."
-subprocess.check_call(
-    ['docker', 'exec', container_id,
-    'certbot', 'certonly',
-    '--standalone',
-    '--email', 'ash.wilson@rackspace.com', '--agree-tos',
-    '--noninteractive',
-    '-d', 'deconst.horse'])
+# Wait for the user to run Certbot on the actual server and then continue.
+print "waiting for you to run stuff"
+raw_input("Press Enter to continue...")
 
-# Copy the issued certificates from the container.
-print "Copying issued certificates."
-for pemfile in ('privkey.pem', 'fullchain.pem', 'chain.pem', 'cert.pem'):
-    subprocess.check_call(
-        ['docker', 'cp', '--follow-link',
-        '{}:/etc/letsencrypt/live/deconst.horse/{}'.format(container_id, pemfile),
-        cert_path])
 
 # Run script/lb to put the right nodes back in place.
 print "Correcting load balancer nodes."
 subprocess.check_call(['script/lb', '--fix', '--verbose'])
 
 # Clean up certbot container
-print "Cleaning up certbot container."
-subprocess.check_call(['docker', 'stop', container_id])
-subprocess.check_call(['docker', 'rm', container_id])
+print "You need to clean up certbot container."
