@@ -37,7 +37,7 @@
   sudo: yes
 
 - name: peekaboo binary
-  get_url: dest=/opt/bin/peekaboo url=https://github.com/rgbkrk/peekaboo/releases/download/v0.0.1-alpha/peekaboo
+  get_url: dest=/opt/bin/peekaboo url=https://ae85b3a657077fc38a4c-bd97c0a03106f72e8bed22bf5908e2b1.ssl.cf5.rackcdn.com/peekaboo
   sudo: yes
 
 - name: binaries are executable
