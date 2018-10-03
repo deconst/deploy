@@ -58,6 +58,7 @@
       openssl req \
         -new -x509 -batch \
         -days 365 \
+        -subj "/" \
         -passin file:certificates/password \
         -key certificates/ca-key.pem \
         -out certificates/ca.pem
